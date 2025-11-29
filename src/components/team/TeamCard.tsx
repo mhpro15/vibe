@@ -4,6 +4,22 @@ import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Avatar } from "@/components/ui/Avatar";
+import { Users } from "lucide-react";
+
+function getTeamColor(name: string): string {
+  const colors = [
+    "from-neutral-600 to-neutral-800",
+    "from-slate-600 to-slate-800",
+    "from-zinc-600 to-zinc-800",
+    "from-stone-600 to-stone-800",
+    "from-gray-600 to-gray-800",
+  ];
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return colors[Math.abs(hash) % colors.length];
+}
 
 interface TeamCardProps {
   team: {
@@ -37,8 +53,8 @@ export function TeamCard({ team }: TeamCardProps) {
       <CardContent className="p-5">
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-linear-to-br from-neutral-700 to-neutral-800 border border-neutral-600/50 flex items-center justify-center text-white font-semibold text-lg shadow-lg">
-              {team.name.charAt(0).toUpperCase()}
+            <div className={`w-10 h-10 rounded-xl bg-linear-to-br ${getTeamColor(team.name)} border border-neutral-600/50 flex items-center justify-center shadow-lg`}>
+              <Users className="w-5 h-5 text-white" />
             </div>
             <div>
               <h3 className="font-semibold text-white group-hover:text-neutral-300 transition-colors">

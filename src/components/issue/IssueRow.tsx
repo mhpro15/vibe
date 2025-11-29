@@ -68,37 +68,37 @@ const statusConfig = {
     icon: Circle,
     label: "Backlog",
     color: "text-neutral-400",
-    bg: "bg-neutral-700/30",
+    bg: "bg-neutral-700",
   },
   TODO: {
     icon: Circle,
     label: "To Do",
     color: "text-blue-400",
-    bg: "bg-blue-500/20",
+    bg: "bg-blue-500",
   },
   IN_PROGRESS: {
     icon: Clock,
     label: "In Progress",
     color: "text-violet-400",
-    bg: "bg-violet-500/20",
+    bg: "bg-violet-500",
   },
   IN_REVIEW: {
     icon: AlertCircle,
     label: "In Review",
     color: "text-amber-400",
-    bg: "bg-amber-500/20",
+    bg: "bg-amber-500",
   },
   DONE: {
     icon: CheckCircle2,
     label: "Done",
     color: "text-emerald-400",
-    bg: "bg-emerald-500/20",
+    bg: "bg-emerald-500",
   },
   CANCELLED: {
     icon: X,
     label: "Cancelled",
     color: "text-neutral-500",
-    bg: "bg-neutral-600/20",
+    bg: "bg-neutral-600",
   },
 };
 

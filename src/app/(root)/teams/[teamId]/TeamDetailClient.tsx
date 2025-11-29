@@ -28,6 +28,21 @@ import {
   TeamStatistics,
   ManageInvitations,
 } from "@/components/team";
+
+function getTeamColor(name: string): string {
+  const colors = [
+    "from-violet-600/20 to-violet-800/20 border-violet-500/30",
+    "from-blue-600/20 to-blue-800/20 border-blue-500/30",
+    "from-emerald-600/20 to-emerald-800/20 border-emerald-500/30",
+    "from-rose-600/20 to-rose-800/20 border-rose-500/30",
+    "from-amber-600/20 to-amber-800/20 border-amber-500/30",
+  ];
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return colors[Math.abs(hash) % colors.length];
+}
 import { CreateProjectModal } from "@/components/project";
 import {
   deleteTeamAction,
@@ -177,8 +192,8 @@ export function TeamDetailClient({
       {/* Team Header */}
       <div className="flex items-start justify-between mb-8">
         <div className="flex items-center gap-4">
-          <div className="w-16 h-16 rounded-xl bg-linear-to-br from-violet-600/20 to-violet-800/20 border border-violet-500/30 flex items-center justify-center text-violet-400 font-bold text-2xl">
-            {team.name.charAt(0).toUpperCase()}
+          <div className={`w-16 h-16 rounded-xl bg-linear-to-br ${getTeamColor(team.name)} border flex items-center justify-center`}>
+            <Users className="w-8 h-8 text-violet-400" />
           </div>
           <div>
             {isEditing ? (

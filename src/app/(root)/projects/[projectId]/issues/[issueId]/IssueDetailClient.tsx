@@ -128,14 +128,6 @@ const priorityOptions = [
     borderColor: "border-orange-500/30",
     dotColor: "bg-orange-500",
   },
-  {
-    value: "URGENT",
-    label: "Urgent",
-    color: "bg-red-500/20",
-    textColor: "text-red-400",
-    borderColor: "border-red-500/30",
-    dotColor: "bg-red-500",
-  },
 ];
 
 export function IssueDetailClient({

@@ -11,7 +11,7 @@ import {
 } from "@/components/project";
 import { IssueList } from "@/components/issue";
 import { toggleFavoriteProjectAction } from "@/lib/actions/project";
-import { changeStatusAction, assignIssueAction } from "@/lib/actions/issue";
+import { changeStatusAction, assignIssueAction, changePriorityAction } from "@/lib/actions/issue";
 import {
   Star,
   Plus,
@@ -20,7 +20,26 @@ import {
   Settings,
   Archive,
   BarChart3,
+  Layers,
 } from "lucide-react";
+
+function getProjectColor(name: string): string {
+  const colors = [
+    "from-violet-500 to-purple-600",
+    "from-blue-500 to-blue-700",
+    "from-emerald-500 to-emerald-700",
+    "from-rose-500 to-rose-700",
+    "from-amber-500 to-amber-700",
+    "from-cyan-500 to-cyan-700",
+    "from-pink-500 to-pink-700",
+    "from-indigo-500 to-indigo-700",
+  ];
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return colors[Math.abs(hash) % colors.length];
+}
 
 interface Label {
   id: string;
@@ -131,11 +150,7 @@ export function ProjectDetailClient({
     await changeStatusAction({ success: false }, formData);
   };
 
-  const handleAssigneeChange = async (
-    issueId: string,
-    assigneeId: string | null
-  ) => {
-    // Find the new assignee from team members
+  const handleAssigneeChange = async (issueId: string, assigneeId: string | null) => {
     const newAssignee = assigneeId
       ? teamMembers.find((m) => m.id === assigneeId) || null
       : null;
@@ -153,13 +168,27 @@ export function ProjectDetailClient({
     await assignIssueAction({ success: false }, formData);
   };
 
+  const handlePriorityChange = async (issueId: string, priority: string) => {
+    // Optimistic update
+    setLocalIssues((prev) =>
+      prev.map((issue) =>
+        issue.id === issueId ? { ...issue, priority } : issue
+      )
+    );
+
+    const formData = new FormData();
+    formData.set("issueId", issueId);
+    formData.set("priority", priority);
+    await changePriorityAction({ success: false }, formData);
+  };
+
   return (
     <div>
       {/* Header */}
       <div className="flex items-start justify-between mb-8">
         <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-xl bg-linear-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white font-bold text-2xl shadow-lg">
-            {project.name.charAt(0).toUpperCase()}
+          <div className={`w-14 h-14 rounded-xl bg-linear-to-br ${getProjectColor(project.name)} flex items-center justify-center shadow-lg`}>
+            <Layers className="w-7 h-7 text-white" />
           </div>
           <div>
             <div className="flex items-center gap-3">
@@ -274,19 +303,6 @@ export function ProjectDetailClient({
 
       {activeTab === "issues" && (
         <div className="space-y-4">
-          {/* Header with Create button */}
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-white">
-              Issues ({localIssues.length})
-            </h2>
-            <Link href={`/projects/${project.id}/issues/new`}>
-              <Button>
-                <Plus className="w-4 h-4 mr-2" />
-                New Issue
-              </Button>
-            </Link>
-          </div>
-
           {/* Issues List */}
           {localIssues.length === 0 ? (
             <div className="bg-neutral-900 rounded-xl border border-neutral-700/50 p-6">
@@ -320,6 +336,7 @@ export function ProjectDetailClient({
                     ]
               }
               onStatusChange={handleStatusChange}
+              onPriorityChange={handlePriorityChange}
               onAssigneeChange={handleAssigneeChange}
             />
           )}

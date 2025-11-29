@@ -3,7 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/actions/auth";
 import { revalidatePath } from "next/cache";
-import { IssueStatus } from "@/generated/prisma/client";
+import { IssueStatus, IssuePriority } from "@/generated/prisma/client";
 import { IssueActionResult, isTeamMember, logIssueChange } from "./helpers";
 import { notifyIssueAssigned } from "@/lib/actions/notification";
 import { sendIssueAssignedEmail } from "@/lib/email";
@@ -109,6 +109,66 @@ export async function assignIssueAction(
   } catch (error) {
     console.error("Assign issue error:", error);
     return { success: false, error: "Failed to assign issue" };
+  }
+}
+
+// FR-035: Change Priority
+export async function changePriorityAction(
+  _prevState: IssueActionResult,
+  formData: FormData
+): Promise<IssueActionResult> {
+  const session = await getSession();
+  if (!session?.user?.id) {
+    return { success: false, error: "Authentication required" };
+  }
+
+  const issueId = formData.get("issueId") as string;
+  const priority = formData.get("priority") as IssuePriority;
+
+  // Validate priority
+  const validPriorities: IssuePriority[] = ["HIGH", "MEDIUM", "LOW"];
+  if (!validPriorities.includes(priority)) {
+    return { success: false, error: "Invalid priority value" };
+  }
+
+  const issue = await prisma.issue.findUnique({
+    where: { id: issueId, deletedAt: null },
+    include: { project: { select: { teamId: true } } },
+  });
+
+  if (!issue) {
+    return { success: false, error: "Issue not found" };
+  }
+
+  if (!(await isTeamMember(session.user.id, issue.project.teamId))) {
+    return { success: false, error: "You don't have access to this issue" };
+  }
+
+  try {
+    const oldPriority = issue.priority;
+
+    await prisma.issue.update({
+      where: { id: issueId },
+      data: { priority },
+    });
+
+    if (oldPriority !== priority) {
+      await logIssueChange(
+        issueId,
+        session.user.id,
+        "priority",
+        oldPriority,
+        priority
+      );
+    }
+
+    revalidatePath(`/projects/${issue.projectId}`);
+    revalidatePath(`/projects/${issue.projectId}/issues/${issueId}`);
+
+    return { success: true };
+  } catch (error) {
+    console.error("Change priority error:", error);
+    return { success: false, error: "Failed to change priority" };
   }
 }
 

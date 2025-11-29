@@ -16,7 +16,42 @@ import {
   MessageSquare,
   CalendarClock,
   FolderKanban,
+  Layers,
 } from "lucide-react";
+
+// Helper functions for gradient colors
+function getProjectColor(name: string): string {
+  const colors = [
+    "from-violet-600 to-violet-800",
+    "from-blue-600 to-blue-800",
+    "from-emerald-600 to-emerald-800",
+    "from-rose-600 to-rose-800",
+    "from-amber-600 to-amber-800",
+    "from-cyan-600 to-cyan-800",
+    "from-pink-600 to-pink-800",
+    "from-indigo-600 to-indigo-800",
+  ];
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return colors[Math.abs(hash) % colors.length];
+}
+
+function getTeamColor(name: string): string {
+  const colors = [
+    "from-neutral-600 to-neutral-800",
+    "from-slate-600 to-slate-800",
+    "from-zinc-600 to-zinc-800",
+    "from-stone-600 to-stone-800",
+    "from-gray-600 to-gray-800",
+  ];
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return colors[Math.abs(hash) % colors.length];
+}
 
 export default async function DashboardPage() {
   const session = await getSession();
@@ -615,8 +650,8 @@ export default async function DashboardPage() {
                       href={`/teams/${membership.team.id}`}
                       className="flex items-center gap-2 mb-2 group"
                     >
-                      <div className="w-6 h-6 rounded bg-linear-to-br from-neutral-700 to-neutral-800 flex items-center justify-center text-xs text-white font-medium">
-                        {membership.team.name.charAt(0).toUpperCase()}
+                      <div className={`w-6 h-6 rounded bg-linear-to-br ${getTeamColor(membership.team.name)} flex items-center justify-center`}>
+                        <Users className="w-3 h-3 text-white" />
                       </div>
                       <span className="text-sm text-white group-hover:underline truncate">
                         {membership.team.name}
@@ -679,8 +714,8 @@ export default async function DashboardPage() {
                     className="block p-3 rounded-lg bg-neutral-800/50 hover:bg-neutral-800 border border-transparent hover:border-neutral-700/50 transition-all group"
                   >
                     <div className="flex items-center gap-2 mb-1">
-                      <div className="w-5 h-5 rounded bg-linear-to-br from-violet-600 to-violet-800 flex items-center justify-center text-[10px] text-white font-medium">
-                        {project.name.charAt(0).toUpperCase()}
+                      <div className={`w-5 h-5 rounded bg-linear-to-br ${getProjectColor(project.name)} flex items-center justify-center`}>
+                        <Layers className="w-2.5 h-2.5 text-white" />
                       </div>
                       <span className="text-sm text-white truncate group-hover:text-violet-300 transition-colors">
                         {project.name}

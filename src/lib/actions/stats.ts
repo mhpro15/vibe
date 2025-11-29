@@ -375,8 +375,6 @@ function formatPriority(priority: string): string {
       return "Medium";
     case "HIGH":
       return "High";
-    case "URGENT":
-      return "Urgent";
     default:
       return priority;
   }
