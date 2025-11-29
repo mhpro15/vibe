@@ -106,7 +106,7 @@ export function ResetPasswordForm() {
         {displayError && (
           <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
             <div className="flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+              <AlertCircle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
               <p className="text-sm text-red-400">
                 {displayError}
               </p>

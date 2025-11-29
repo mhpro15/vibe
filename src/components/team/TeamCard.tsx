@@ -37,7 +37,7 @@ export function TeamCard({ team }: TeamCardProps) {
       <CardContent className="p-5">
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-neutral-700 to-neutral-800 border border-neutral-600/50 flex items-center justify-center text-white font-semibold text-lg shadow-lg">
+            <div className="w-10 h-10 rounded-xl bg-linear-to-br from-neutral-700 to-neutral-800 border border-neutral-600/50 flex items-center justify-center text-white font-semibold text-lg shadow-lg">
               {team.name.charAt(0).toUpperCase()}
             </div>
             <div>

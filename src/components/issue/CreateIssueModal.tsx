@@ -78,10 +78,10 @@ export function CreateIssueModal({
         ))}
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          <label className="block text-sm font-medium text-neutral-400 mb-1">
             Project
           </label>
-          <div className="px-3 py-2 bg-gray-50 dark:bg-gray-700 rounded-lg text-gray-600 dark:text-gray-400">
+          <div className="px-3 py-2 bg-neutral-800 rounded-lg text-neutral-400 border border-neutral-700/50">
             {projectName}
           </div>
         </div>
@@ -89,7 +89,7 @@ export function CreateIssueModal({
         <div>
           <label
             htmlFor="title"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            className="block text-sm font-medium text-neutral-400 mb-1"
           >
             Title
           </label>
@@ -105,7 +105,7 @@ export function CreateIssueModal({
         <div>
           <label
             htmlFor="description"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            className="block text-sm font-medium text-neutral-400 mb-1"
           >
             Description (optional)
           </label>
@@ -123,7 +123,7 @@ export function CreateIssueModal({
           <div>
             <label
               htmlFor="priority"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              className="block text-sm font-medium text-neutral-400 mb-1"
             >
               Priority
             </label>
@@ -142,7 +142,7 @@ export function CreateIssueModal({
           <div>
             <label
               htmlFor="assigneeId"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              className="block text-sm font-medium text-neutral-400 mb-1"
             >
               Assignee
             </label>
@@ -165,7 +165,7 @@ export function CreateIssueModal({
         <div>
           <label
             htmlFor="dueDate"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            className="block text-sm font-medium text-neutral-400 mb-1"
           >
             Due Date (optional)
           </label>
@@ -174,7 +174,7 @@ export function CreateIssueModal({
 
         {labels.length > 0 && (
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-neutral-400 mb-2">
               Labels
             </label>
             <div className="flex flex-wrap gap-2">
@@ -201,8 +201,8 @@ export function CreateIssueModal({
         )}
 
         {state.error && (
-          <div className="p-3 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg">
-            <p className="text-sm text-red-600 dark:text-red-400">
+          <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
+            <p className="text-sm text-red-400">
               {state.error}
             </p>
           </div>

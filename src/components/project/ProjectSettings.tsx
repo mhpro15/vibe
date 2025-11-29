@@ -4,6 +4,7 @@ import { useActionState, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
+import { X, Trash2 } from "lucide-react";
 import {
   updateProjectAction,
   deleteProjectAction,
@@ -96,7 +97,7 @@ export function ProjectSettings({ project, canEdit }: ProjectSettingsProps) {
     <div className="space-y-8">
       {/* General Settings */}
       <section>
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+        <h3 className="text-lg font-semibold text-white mb-4">
           General
         </h3>
         <form action={updateAction} className="space-y-4">
@@ -105,7 +106,7 @@ export function ProjectSettings({ project, canEdit }: ProjectSettingsProps) {
           <div>
             <label
               htmlFor="name"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              className="block text-sm font-medium text-neutral-400 mb-1"
             >
               Project Name
             </label>
@@ -122,7 +123,7 @@ export function ProjectSettings({ project, canEdit }: ProjectSettingsProps) {
           <div>
             <label
               htmlFor="description"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              className="block text-sm font-medium text-neutral-400 mb-1"
             >
               Description
             </label>
@@ -152,7 +153,7 @@ export function ProjectSettings({ project, canEdit }: ProjectSettingsProps) {
       {/* Labels */}
       <section>
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+          <h3 className="text-lg font-semibold text-white">
             Labels
           </h3>
           {canEdit && (
@@ -168,7 +169,7 @@ export function ProjectSettings({ project, canEdit }: ProjectSettingsProps) {
 
         <div className="flex flex-wrap gap-2">
           {project.labels.length === 0 ? (
-            <p className="text-gray-500 dark:text-gray-400">No labels yet</p>
+            <p className="text-neutral-500">No labels yet</p>
           ) : (
             project.labels.map((label) => (
               <div
@@ -191,21 +192,9 @@ export function ProjectSettings({ project, canEdit }: ProjectSettingsProps) {
                     <input type="hidden" name="labelId" value={label.id} />
                     <button
                       type="submit"
-                      className="text-gray-400 hover:text-red-500 transition-colors"
+                      className="text-neutral-500 hover:text-red-400 transition-colors"
                     >
-                      <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M6 18L18 6M6 6l12 12"
-                        />
-                      </svg>
+                      <X className="w-4 h-4" />
                     </button>
                   </form>
                 )}
@@ -218,7 +207,7 @@ export function ProjectSettings({ project, canEdit }: ProjectSettingsProps) {
       {/* Custom Statuses */}
       <section>
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+          <h3 className="text-lg font-semibold text-white">
             Custom Statuses
           </h3>
           {canEdit && (
@@ -234,40 +223,40 @@ export function ProjectSettings({ project, canEdit }: ProjectSettingsProps) {
 
         <div className="space-y-2">
           {/* Default statuses */}
-          <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-            <span className="w-3 h-3 rounded-full bg-gray-400" />
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+          <div className="flex items-center gap-3 p-3 bg-neutral-800 rounded-lg">
+            <span className="w-3 h-3 rounded-full bg-neutral-500" />
+            <span className="text-sm font-medium text-neutral-300">
               Backlog
             </span>
-            <span className="text-xs text-gray-500">(default)</span>
+            <span className="text-xs text-neutral-500">(default)</span>
           </div>
-          <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+          <div className="flex items-center gap-3 p-3 bg-neutral-800 rounded-lg">
             <span className="w-3 h-3 rounded-full bg-violet-500" />
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            <span className="text-sm font-medium text-neutral-300">
               In Progress
             </span>
-            <span className="text-xs text-gray-500">(default)</span>
+            <span className="text-xs text-neutral-500">(default)</span>
           </div>
-          <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-            <span className="w-3 h-3 rounded-full bg-green-500" />
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+          <div className="flex items-center gap-3 p-3 bg-neutral-800 rounded-lg">
+            <span className="w-3 h-3 rounded-full bg-emerald-500" />
+            <span className="text-sm font-medium text-neutral-300">
               Done
             </span>
-            <span className="text-xs text-gray-500">(default)</span>
+            <span className="text-xs text-neutral-500">(default)</span>
           </div>
 
           {/* Custom statuses */}
           {project.customStatuses.map((status) => (
             <div
               key={status.id}
-              className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg"
+              className="flex items-center justify-between p-3 bg-neutral-800 rounded-lg"
             >
               <div className="flex items-center gap-3">
                 <span
                   className="w-3 h-3 rounded-full"
                   style={{ backgroundColor: status.color ?? "#6b7280" }}
                 />
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                <span className="text-sm font-medium text-neutral-300">
                   {status.name}
                 </span>
               </div>
@@ -276,21 +265,9 @@ export function ProjectSettings({ project, canEdit }: ProjectSettingsProps) {
                   <input type="hidden" name="statusId" value={status.id} />
                   <button
                     type="submit"
-                    className="text-gray-400 hover:text-red-500 transition-colors"
+                    className="text-neutral-500 hover:text-red-400 transition-colors"
                   >
-                    <svg
-                      className="w-4 h-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                      />
-                    </svg>
+                    <Trash2 className="w-4 h-4" />
                   </button>
                 </form>
               )}
@@ -301,18 +278,18 @@ export function ProjectSettings({ project, canEdit }: ProjectSettingsProps) {
 
       {/* Danger Zone */}
       {canEdit && (
-        <section className="border-t border-gray-200 dark:border-gray-700 pt-8">
-          <h3 className="text-lg font-semibold text-red-600 dark:text-red-400 mb-4">
+        <section className="border-t border-neutral-700/50 pt-8">
+          <h3 className="text-lg font-semibold text-red-400 mb-4">
             Danger Zone
           </h3>
 
           <div className="space-y-4">
-            <div className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+            <div className="flex items-center justify-between p-4 border border-neutral-700/50 rounded-lg">
               <div>
-                <p className="font-medium text-gray-900 dark:text-white">
+                <p className="font-medium text-white">
                   {project.isArchived ? "Unarchive Project" : "Archive Project"}
                 </p>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
+                <p className="text-sm text-neutral-500">
                   {project.isArchived
                     ? "Make this project visible again"
                     : "Hide this project from the main view"}
@@ -330,12 +307,12 @@ export function ProjectSettings({ project, canEdit }: ProjectSettingsProps) {
               </form>
             </div>
 
-            <div className="flex items-center justify-between p-4 border border-red-200 dark:border-red-800 rounded-lg bg-red-50 dark:bg-red-900/20">
+            <div className="flex items-center justify-between p-4 border border-red-500/30 rounded-lg bg-red-500/5">
               <div>
-                <p className="font-medium text-gray-900 dark:text-white">
+                <p className="font-medium text-white">
                   Delete Project
                 </p>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
+                <p className="text-sm text-neutral-500">
                   Permanently delete this project and all its data
                 </p>
               </div>
@@ -353,12 +330,12 @@ export function ProjectSettings({ project, canEdit }: ProjectSettingsProps) {
         onClose={() => setShowDeleteModal(false)}
         title="Delete Project"
       >
-        <p className="text-gray-600 dark:text-gray-400 mb-4">
-          Are you sure you want to delete <strong>{project.name}</strong>? This
+        <p className="text-neutral-400 mb-4">
+          Are you sure you want to delete <strong className="text-white">{project.name}</strong>? This
           action cannot be undone.
         </p>
         {deleteState.error && (
-          <p className="text-sm text-red-600 mb-4">{deleteState.error}</p>
+          <p className="text-sm text-red-400 mb-4">{deleteState.error}</p>
         )}
         <div className="flex justify-end gap-3">
           <Button variant="outline" onClick={() => setShowDeleteModal(false)}>
@@ -384,7 +361,7 @@ export function ProjectSettings({ project, canEdit }: ProjectSettingsProps) {
           <input type="hidden" name="color" value={newLabelColor} />
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label className="block text-sm font-medium text-neutral-400 mb-1">
               Label Name
             </label>
             <Input
@@ -396,7 +373,7 @@ export function ProjectSettings({ project, canEdit }: ProjectSettingsProps) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-neutral-400 mb-2">
               Color
             </label>
             <div className="flex flex-wrap gap-2">
@@ -417,7 +394,7 @@ export function ProjectSettings({ project, canEdit }: ProjectSettingsProps) {
           </div>
 
           {labelState.error && (
-            <p className="text-sm text-red-600">{labelState.error}</p>
+            <p className="text-sm text-red-400">{labelState.error}</p>
           )}
 
           <div className="flex justify-end gap-3">
@@ -446,7 +423,7 @@ export function ProjectSettings({ project, canEdit }: ProjectSettingsProps) {
           <input type="hidden" name="color" value={newStatusColor} />
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label className="block text-sm font-medium text-neutral-400 mb-1">
               Status Name
             </label>
             <Input
@@ -458,7 +435,7 @@ export function ProjectSettings({ project, canEdit }: ProjectSettingsProps) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-neutral-400 mb-2">
               Color
             </label>
             <div className="flex flex-wrap gap-2">
@@ -479,7 +456,7 @@ export function ProjectSettings({ project, canEdit }: ProjectSettingsProps) {
           </div>
 
           {statusState.error && (
-            <p className="text-sm text-red-600">{statusState.error}</p>
+            <p className="text-sm text-red-400">{statusState.error}</p>
           )}
 
           <div className="flex justify-end gap-3">

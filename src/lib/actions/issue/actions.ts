@@ -10,6 +10,7 @@ import {
   getProjectTeamId,
   logIssueChange,
 } from "./helpers";
+import { notifyIssueAssigned } from "@/lib/actions/notification";
 
 // FR-030: Create Issue
 export async function createIssueAction(
@@ -81,6 +82,17 @@ export async function createIssueAction(
 
     // Log creation
     await logIssueChange(issue.id, session.user.id, "created", null, title);
+
+    // Notify assignee if different from creator
+    if (assigneeId && assigneeId !== session.user.id) {
+      await notifyIssueAssigned(
+        assigneeId,
+        issue.id,
+        title,
+        projectId,
+        session.user.name || "Someone"
+      );
+    }
 
     revalidatePath(`/projects/${projectId}`);
 

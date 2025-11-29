@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Avatar } from "@/components/ui/Avatar";
+import { NotificationBell } from "@/components/layout/NotificationBell";
 import { signOut } from "@/lib/auth-client";
 
 interface HeaderProps {
@@ -25,7 +26,7 @@ export function Header({ user }: HeaderProps) {
       await signOut({
         fetchOptions: {
           onSuccess: () => {
-            window.location.href="/signin";
+            window.location.href = "/signin";
             router.refresh();
           },
         },
@@ -65,23 +66,7 @@ export function Header({ user }: HeaderProps) {
       {/* Actions */}
       <div className="flex items-center gap-4">
         {/* Notifications */}
-        <button className="relative p-2 rounded-xl hover:bg-neutral-800 transition-colors">
-          <svg
-            className="w-5 h-5 text-neutral-400"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
-            />
-          </svg>
-          {/* Notification badge */}
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full"></span>
-        </button>
+        <NotificationBell />
 
         {/* User Menu */}
         <div className="relative">
@@ -113,9 +98,7 @@ export function Header({ user }: HeaderProps) {
               />
               <div className="absolute right-0 mt-2 w-56 bg-neutral-900 border border-neutral-700/50 rounded-xl shadow-2xl shadow-black/40 py-1 z-20">
                 <div className="px-4 py-3 border-b border-neutral-700/50">
-                  <p className="text-sm font-medium text-white">
-                    {user.name}
-                  </p>
+                  <p className="text-sm font-medium text-white">{user.name}</p>
                   <p className="text-sm text-neutral-500 truncate">
                     {user.email}
                   </p>

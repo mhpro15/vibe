@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/actions/auth";
 import { revalidatePath } from "next/cache";
 import { IssueActionResult, isTeamMember, logIssueChange } from "./helpers";
+import { notifyCommentAdded } from "@/lib/actions/notification";
 
 // FR-036: Add Comment
 export async function addCommentAction(
@@ -54,6 +55,22 @@ export async function addCommentAction(
       null,
       comment.id
     );
+
+    // Notify issue creator and assignee about the comment
+    const usersToNotify: string[] = [];
+    if (issue.creatorId) usersToNotify.push(issue.creatorId);
+    if (issue.assigneeId) usersToNotify.push(issue.assigneeId);
+    
+    if (usersToNotify.length > 0) {
+      await notifyCommentAdded(
+        usersToNotify,
+        session.user.id, // Exclude the commenter
+        issueId,
+        issue.title,
+        issue.projectId,
+        session.user.name || "Someone"
+      );
+    }
 
     revalidatePath(`/projects/${issue.projectId}/issues/${issueId}`);
 

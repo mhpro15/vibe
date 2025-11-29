@@ -56,12 +56,12 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
         <nav className="flex items-center gap-2 text-sm">
           <Link
             href="/projects"
-            className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+            className="text-neutral-500 hover:text-neutral-300 transition-colors"
           >
             Projects
           </Link>
           <svg
-            className="w-4 h-4 text-gray-400"
+            className="w-4 h-4 text-neutral-600"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -73,13 +73,17 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
               d="M9 5l7 7-7 7"
             />
           </svg>
-          <span className="text-gray-900 dark:text-white font-medium">
+          <span className="text-white font-medium">
             {project.name}
           </span>
         </nav>
       </div>
 
-      <ProjectDetailClient project={project} canEdit={canEdit} issues={kanbanIssues} />
+      <ProjectDetailClient
+        project={project}
+        canEdit={canEdit}
+        issues={kanbanIssues}
+      />
     </div>
   );
 }

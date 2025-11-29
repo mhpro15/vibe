@@ -78,10 +78,10 @@ function CommentItem({
       <Avatar src={comment.author.image} name={comment.author.name} size="sm" />
       <div className="flex-1">
         <div className="flex items-center gap-2">
-          <span className="font-medium text-gray-900 dark:text-white">
+          <span className="font-medium text-white">
             {comment.author.name}
           </span>
-          <span className="text-xs text-gray-500 dark:text-gray-400">
+          <span className="text-xs text-neutral-500">
             {formatTimeAgo(comment.createdAt)}
             {wasEdited && " (edited)"}
           </span>
@@ -98,7 +98,7 @@ function CommentItem({
               rows={3}
             />
             {updateState.error && (
-              <p className="text-sm text-red-600 mt-1">{updateState.error}</p>
+              <p className="text-sm text-red-400 mt-1">{updateState.error}</p>
             )}
             <div className="flex gap-2 mt-2">
               <Button type="submit" size="sm" disabled={isUpdating}>
@@ -116,7 +116,7 @@ function CommentItem({
           </form>
         ) : (
           <>
-            <p className="mt-1 text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+            <p className="mt-1 text-neutral-300 whitespace-pre-wrap">
               {comment.content}
             </p>
             {isOwner && (
@@ -132,7 +132,7 @@ function CommentItem({
                   <button
                     type="submit"
                     disabled={isDeleting}
-                    className="text-xs text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400"
+                    className="text-xs text-neutral-500 hover:text-red-400 transition-colors"
                   >
                     {isDeleting ? "Deleting..." : "Delete"}
                   </button>
@@ -149,7 +149,7 @@ function CommentItem({
 export function CommentList({ comments, currentUserId }: CommentListProps) {
   if (comments.length === 0) {
     return (
-      <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+      <div className="text-center py-8 text-neutral-500">
         No comments yet. Be the first to comment!
       </div>
     );

@@ -11,6 +11,7 @@ import {
   addCommentAction,
   IssueActionResult,
 } from "@/lib/actions/issue";
+import { Check, Calendar, User, Clock } from "lucide-react";
 
 interface Label {
   id: string;
@@ -112,7 +113,7 @@ export function IssueDetailClient({
       {/* Main content */}
       <div className="lg:col-span-2 space-y-6">
         {/* Header */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+        <div className="bg-neutral-900 rounded-xl border border-neutral-700/50 p-6">
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-2">
@@ -132,9 +133,7 @@ export function IssueDetailClient({
                   {issue.priority} Priority
                 </span>
               </div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-                {issue.title}
-              </h1>
+              <h1 className="text-2xl font-bold text-white">{issue.title}</h1>
             </div>
 
             <div className="flex items-center gap-2">
@@ -165,24 +164,22 @@ export function IssueDetailClient({
 
           {/* Description */}
           <div className="mt-6">
-            <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <h3 className="text-sm font-medium text-neutral-400 mb-2">
               Description
             </h3>
             {issue.description ? (
-              <p className="text-gray-600 dark:text-gray-400 whitespace-pre-wrap">
+              <p className="text-neutral-300 whitespace-pre-wrap">
                 {issue.description}
               </p>
             ) : (
-              <p className="text-gray-400 dark:text-gray-500 italic">
-                No description provided
-              </p>
+              <p className="text-neutral-600 italic">No description provided</p>
             )}
           </div>
         </div>
 
         {/* Comments */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+        <div className="bg-neutral-900 rounded-xl border border-neutral-700/50 p-6">
+          <h3 className="text-lg font-semibold text-white mb-4">
             Comments ({issue.comments.length})
           </h3>
 
@@ -195,7 +192,7 @@ export function IssueDetailClient({
           <form
             key={formKey}
             action={commentAction}
-            className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700"
+            className="mt-6 pt-6 border-t border-neutral-700/50"
           >
             <input type="hidden" name="issueId" value={issue.id} />
             <textarea
@@ -219,10 +216,8 @@ export function IssueDetailClient({
       {/* Sidebar */}
       <div className="space-y-6">
         {/* Status */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
-          <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-            Status
-          </h3>
+        <div className="bg-neutral-900 rounded-xl border border-neutral-700/50 p-4">
+          <h3 className="text-sm font-medium text-neutral-400 mb-3">Status</h3>
           <div className="space-y-2">
             {statusOptions.map((status) => (
               <form key={status.value} action={statusAction}>
@@ -233,42 +228,30 @@ export function IssueDetailClient({
                   disabled={isChangingStatus || issue.status === status.value}
                   className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg transition-colors ${
                     issue.status === status.value
-                      ? "bg-gray-100 dark:bg-gray-700"
-                      : "hover:bg-gray-50 dark:hover:bg-gray-700"
+                      ? "bg-neutral-800 border border-neutral-600"
+                      : "hover:bg-neutral-800"
                   }`}
                 >
                   <span className={`w-3 h-3 rounded-full ${status.color}`} />
-                  <span className="text-sm text-gray-700 dark:text-gray-300">
+                  <span className="text-sm text-neutral-300">
                     {status.label}
                   </span>
                   {issue.status === status.value && (
-                    <svg
-                      className="w-4 h-4 text-white ml-auto"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
+                    <Check className="w-4 h-4 text-violet-400 ml-auto" />
                   )}
                 </button>
               </form>
             ))}
           </div>
         </div>
-
         {/* Details */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
-          <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-            Details
-          </h3>
+        <div className="bg-neutral-900 rounded-xl border border-neutral-700/50 p-4">
+          <h3 className="text-sm font-medium text-neutral-400 mb-3">Details</h3>
           <div className="space-y-4">
             {/* Assignee */}
             <div>
-              <span className="text-xs text-gray-500 dark:text-gray-400">
+              <span className="text-xs text-neutral-500 flex items-center gap-1">
+                <User className="w-3 h-3" />
                 Assignee
               </span>
               {issue.assignee ? (
@@ -278,39 +261,39 @@ export function IssueDetailClient({
                     name={issue.assignee.name}
                     size="sm"
                   />
-                  <span className="text-sm text-gray-900 dark:text-white">
+                  <span className="text-sm text-white">
                     {issue.assignee.name}
                   </span>
                 </div>
               ) : (
-                <p className="text-sm text-gray-400 mt-1">Unassigned</p>
+                <p className="text-sm text-neutral-500 mt-1">Unassigned</p>
               )}
             </div>
 
             {/* Due Date */}
             <div>
-              <span className="text-xs text-gray-500 dark:text-gray-400">
+              <span className="text-xs text-neutral-500 flex items-center gap-1">
+                <Calendar className="w-3 h-3" />
                 Due Date
               </span>
               {issue.dueDate ? (
                 <p
                   className={`text-sm mt-1 ${
-                    isOverdue
-                      ? "text-red-600 dark:text-red-400"
-                      : "text-gray-900 dark:text-white"
+                    isOverdue ? "text-red-400" : "text-white"
                   }`}
                 >
                   {new Date(issue.dueDate).toLocaleDateString()}
                   {isOverdue && " (Overdue)"}
                 </p>
               ) : (
-                <p className="text-sm text-gray-400 mt-1">No due date</p>
+                <p className="text-sm text-neutral-500 mt-1">No due date</p>
               )}
             </div>
 
             {/* Created */}
             <div>
-              <span className="text-xs text-gray-500 dark:text-gray-400">
+              <span className="text-xs text-neutral-500 flex items-center gap-1">
+                <Clock className="w-3 h-3" />
                 Created by
               </span>
               <div className="flex items-center gap-2 mt-1">
@@ -319,11 +302,9 @@ export function IssueDetailClient({
                   name={issue.creator.name}
                   size="sm"
                 />
-                <span className="text-sm text-gray-900 dark:text-white">
-                  {issue.creator.name}
-                </span>
+                <span className="text-sm text-white">{issue.creator.name}</span>
               </div>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-neutral-500 mt-1">
                 {new Date(issue.createdAt).toLocaleDateString()}
               </p>
             </div>

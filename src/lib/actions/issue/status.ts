@@ -5,6 +5,7 @@ import { getSession } from "@/lib/actions/auth";
 import { revalidatePath } from "next/cache";
 import { IssueStatus } from "@/generated/prisma/client";
 import { IssueActionResult, isTeamMember, logIssueChange } from "./helpers";
+import { notifyIssueAssigned } from "@/lib/actions/notification";
 
 // FR-033: Assign Issue
 export async function assignIssueAction(
@@ -65,6 +66,17 @@ export async function assignIssueAction(
       oldAssignee,
       newAssigneeName
     );
+
+    // Notify new assignee if they're different from the person assigning
+    if (assigneeId && assigneeId !== session.user.id) {
+      await notifyIssueAssigned(
+        assigneeId,
+        issueId,
+        issue.title,
+        issue.projectId,
+        session.user.name || "Someone"
+      );
+    }
 
     revalidatePath(`/projects/${issue.projectId}`);
     revalidatePath(`/projects/${issue.projectId}/issues/${issueId}`);

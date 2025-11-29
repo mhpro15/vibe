@@ -65,7 +65,7 @@ export function ProjectsClient({ projects, favorites }: ProjectsClientProps) {
   return (
     <div>
       {/* Tabs */}
-      <div className="flex gap-4 mb-6 border-b border-gray-200 dark:border-gray-700">
+      <div className="flex gap-4 mb-6 border-b border-neutral-700/50">
         <button
           onClick={() => setActiveTab("all")}
           className={`pb-3 px-1 text-sm font-medium transition-colors border-b-2 -mb-px ${

@@ -68,12 +68,12 @@ export default async function NewIssuePage({ params }: NewIssuePageProps) {
         <nav className="flex items-center gap-2 text-sm">
           <Link
             href="/projects"
-            className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+            className="text-neutral-400 hover:text-neutral-300"
           >
             Projects
           </Link>
           <svg
-            className="w-4 h-4 text-gray-400"
+            className="w-4 h-4 text-neutral-500"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -87,12 +87,12 @@ export default async function NewIssuePage({ params }: NewIssuePageProps) {
           </svg>
           <Link
             href={`/projects/${projectId}`}
-            className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+            className="text-neutral-400 hover:text-neutral-300"
           >
             {project.name}
           </Link>
           <svg
-            className="w-4 h-4 text-gray-400"
+            className="w-4 h-4 text-neutral-500"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -104,14 +104,14 @@ export default async function NewIssuePage({ params }: NewIssuePageProps) {
               d="M9 5l7 7-7 7"
             />
           </svg>
-          <span className="text-gray-900 dark:text-white font-medium">
+          <span className="text-white font-medium">
             New Issue
           </span>
         </nav>
       </div>
 
       <div className="max-w-3xl">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+        <h1 className="text-2xl font-bold text-white mb-6">
           Create New Issue
         </h1>
 

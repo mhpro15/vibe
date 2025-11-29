@@ -1,6 +1,7 @@
 "use client";
 
 import { IssueCard } from "./IssueCard";
+import { ClipboardList } from "lucide-react";
 
 interface Label {
   id: string;
@@ -42,22 +43,10 @@ export function IssueList({
   if (issues.length === 0) {
     return (
       <div className="text-center py-12">
-        <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
-          <svg
-            className="w-8 h-8 text-gray-400"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-            />
-          </svg>
+        <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-neutral-800 border border-neutral-700/50 flex items-center justify-center">
+          <ClipboardList className="w-8 h-8 text-neutral-500" />
         </div>
-        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-1">
+        <h3 className="text-lg font-medium text-white mb-1">
           {emptyMessage}
         </h3>
       </div>

@@ -8,6 +8,7 @@ import {
   hasAdminPrivileges,
   checkTeamMembership,
 } from "./helpers";
+import { notifyTeamInvite, notifyRoleChanged } from "@/lib/actions/notification";
 
 // FR-013: Invite Team Member
 export async function inviteMemberAction(
@@ -91,6 +92,20 @@ export async function inviteMemberAction(
         details: { invitedEmail: email, role },
       },
     });
+
+    // Notify the invited user if they already have an account
+    if (existingUser) {
+      const team = await prisma.team.findUnique({
+        where: { id: teamId },
+        select: { name: true },
+      });
+      await notifyTeamInvite(
+        existingUser.id,
+        team?.name || "a team",
+        session.user.name || "Someone",
+        teamId
+      );
+    }
 
     revalidatePath(`/teams/${teamId}`);
     return { success: true };
@@ -354,6 +369,18 @@ export async function changeRoleAction(
         }),
       ]);
     }
+
+    // Notify the member about their role change
+    const team = await prisma.team.findUnique({
+      where: { id: teamId },
+      select: { name: true },
+    });
+    await notifyRoleChanged(
+      targetMember.userId,
+      team?.name || "a team",
+      newRole,
+      teamId
+    );
 
     revalidatePath(`/teams/${teamId}`);
     return { success: true };

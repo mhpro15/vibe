@@ -48,10 +48,10 @@ export function CreateProjectModal({
         <input type="hidden" name="teamId" value={teamId} />
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          <label className="block text-sm font-medium text-neutral-400 mb-1">
             Team
           </label>
-          <div className="px-3 py-2 bg-gray-50 dark:bg-gray-700 rounded-lg text-gray-600 dark:text-gray-400">
+          <div className="px-3 py-2 bg-neutral-800 rounded-lg text-neutral-400 border border-neutral-700/50">
             {teamName}
           </div>
         </div>
@@ -59,7 +59,7 @@ export function CreateProjectModal({
         <div>
           <label
             htmlFor="name"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            className="block text-sm font-medium text-neutral-400 mb-1"
           >
             Project Name
           </label>
@@ -70,7 +70,7 @@ export function CreateProjectModal({
             maxLength={100}
             required
           />
-          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+          <p className="mt-1 text-xs text-neutral-500">
             1-100 characters
           </p>
         </div>
@@ -78,7 +78,7 @@ export function CreateProjectModal({
         <div>
           <label
             htmlFor="description"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            className="block text-sm font-medium text-neutral-400 mb-1"
           >
             Description (optional)
           </label>
@@ -90,14 +90,14 @@ export function CreateProjectModal({
             placeholder="Describe your project..."
             className="w-full px-4 py-2.5 border border-neutral-700/50 rounded-xl bg-neutral-900 text-white placeholder-neutral-500 focus:ring-2 focus:ring-white/10 focus:border-neutral-600 resize-none transition-all"
           />
-          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+          <p className="mt-1 text-xs text-neutral-500">
             Max 2000 characters
           </p>
         </div>
 
         {state.error && (
-          <div className="p-3 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg">
-            <p className="text-sm text-red-600 dark:text-red-400">
+          <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
+            <p className="text-sm text-red-400">
               {state.error}
             </p>
           </div>

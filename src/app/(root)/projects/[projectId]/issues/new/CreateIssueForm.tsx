@@ -114,7 +114,7 @@ export function CreateIssueForm({
       const result = await suggestLabelsSimple(projectId, title, description);
       if (result.success && result.labels) {
         // Extract just the label names for suggestions
-        setSuggestedLabels(result.labels.map(l => l.name));
+        setSuggestedLabels(result.labels.map((l) => l.name));
       }
     } catch {
       // Silently fail label suggestion
@@ -158,16 +158,16 @@ export function CreateIssueForm({
       <input type="hidden" name="labelIds" value={selectedLabels.join(",")} />
 
       {/* Project indicator */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+      <div className="bg-neutral-800/50 rounded-xl border border-neutral-700/50 p-4">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-lg bg-linear-to-br from-neutral-700 to-neutral-800 border border-neutral-600/50 flex items-center justify-center text-white font-bold">
             {projectName.charAt(0).toUpperCase()}
           </div>
           <div>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+            <p className="text-sm text-neutral-400">
               Creating issue in
             </p>
-            <p className="font-medium text-gray-900 dark:text-white">
+            <p className="font-medium text-white">
               {projectName}
             </p>
           </div>
@@ -175,14 +175,14 @@ export function CreateIssueForm({
       </div>
 
       {/* Main form */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 space-y-6">
+      <div className="bg-neutral-900 rounded-xl border border-neutral-700/50 p-6 space-y-6">
         {/* Title */}
         <div>
           <label
             htmlFor="title"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            className="block text-sm font-medium text-neutral-300 mb-2"
           >
-            Title <span className="text-red-500">*</span>
+            Title <span className="text-red-400">*</span>
           </label>
           <Input
             id="title"
@@ -193,10 +193,10 @@ export function CreateIssueForm({
             className="text-lg"
             onChange={handleTitleChange}
           />
-          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+          <p className="mt-1 text-xs text-neutral-500">
             Max 200 characters
             {isCheckingDuplicates && (
-              <span className="ml-2 text-blue-400">
+              <span className="ml-2 text-violet-400">
                 🔍 Checking for duplicates...
               </span>
             )}
@@ -223,7 +223,7 @@ export function CreateIssueForm({
                       <span className="text-sm text-white truncate">
                         {dup.title}
                       </span>
-                      <span className="text-xs text-gray-400 ml-2 shrink-0">
+                      <span className="text-xs text-neutral-400 ml-2 shrink-0">
                         {Math.round(dup.similarity * 100)}% match
                       </span>
                     </div>
@@ -233,7 +233,7 @@ export function CreateIssueForm({
               <button
                 type="button"
                 onClick={() => setShowDuplicateWarning(false)}
-                className="mt-2 text-xs text-gray-400 hover:text-white"
+                className="mt-2 text-xs text-neutral-400 hover:text-white"
               >
                 Dismiss warning
               </button>
@@ -245,7 +245,7 @@ export function CreateIssueForm({
         <div>
           <label
             htmlFor="description"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            className="block text-sm font-medium text-neutral-300 mb-2"
           >
             Description
           </label>
@@ -257,7 +257,7 @@ export function CreateIssueForm({
             placeholder="Add more details about this issue..."
             className="w-full px-4 py-3 border border-neutral-700/50 rounded-xl bg-neutral-900 text-white placeholder-neutral-500 focus:ring-2 focus:ring-white/10 focus:border-neutral-600 resize-none transition-all"
           />
-          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+          <p className="mt-1 text-xs text-neutral-500">
             Max 5000 characters
           </p>
         </div>
@@ -267,7 +267,7 @@ export function CreateIssueForm({
           <div>
             <label
               htmlFor="priority"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              className="block text-sm font-medium text-neutral-300 mb-2"
             >
               Priority
             </label>
@@ -286,7 +286,7 @@ export function CreateIssueForm({
           <div>
             <label
               htmlFor="assigneeId"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              className="block text-sm font-medium text-neutral-300 mb-2"
             >
               Assignee
             </label>
@@ -310,7 +310,7 @@ export function CreateIssueForm({
         <div>
           <label
             htmlFor="dueDate"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            className="block text-sm font-medium text-neutral-300 mb-2"
           >
             Due Date
           </label>
@@ -326,14 +326,14 @@ export function CreateIssueForm({
         {labels.length > 0 && (
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label className="block text-sm font-medium text-neutral-300">
                 Labels
               </label>
               <button
                 type="button"
                 onClick={handleSuggestLabels}
                 disabled={isSuggestingLabels}
-                className="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1 disabled:opacity-50"
+                className="text-xs text-violet-400 hover:text-violet-300 flex items-center gap-1 disabled:opacity-50"
               >
                 {isSuggestingLabels ? (
                   <>
@@ -351,8 +351,8 @@ export function CreateIssueForm({
 
             {/* AI Suggested Labels */}
             {suggestedLabels.length > 0 && (
-              <div className="mb-3 p-3 bg-blue-900/20 border border-blue-600/30 rounded-lg">
-                <p className="text-xs text-blue-400 mb-2">
+              <div className="mb-3 p-3 bg-violet-900/20 border border-violet-600/30 rounded-lg">
+                <p className="text-xs text-violet-400 mb-2">
                   ✨ AI Suggested Labels
                 </p>
                 <div className="flex flex-wrap gap-2">
@@ -361,7 +361,7 @@ export function CreateIssueForm({
                       key={labelName}
                       type="button"
                       onClick={() => applySuggestedLabel(labelName)}
-                      className="px-2 py-1 text-xs bg-blue-600/20 text-blue-300 rounded-lg hover:bg-blue-600/40 transition-colors flex items-center gap-1"
+                      className="px-2 py-1 text-xs bg-violet-600/20 text-violet-300 rounded-lg hover:bg-violet-600/40 transition-colors flex items-center gap-1"
                     >
                       <span>+</span>
                       {labelName}
@@ -388,7 +388,7 @@ export function CreateIssueForm({
               ))}
             </div>
             {selectedLabels.length > 0 && (
-              <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+              <p className="mt-2 text-xs text-neutral-500">
                 {selectedLabels.length} label(s) selected
               </p>
             )}
@@ -397,8 +397,8 @@ export function CreateIssueForm({
 
         {/* Error message */}
         {state.error && (
-          <div className="p-4 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-xl">
-            <p className="text-sm text-red-600 dark:text-red-400">
+          <div className="p-4 bg-red-900/30 border border-red-800 rounded-xl">
+            <p className="text-sm text-red-400">
               {state.error}
             </p>
           </div>

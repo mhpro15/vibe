@@ -42,12 +42,12 @@ export default async function IssuePage({ params }: IssuePageProps) {
         <nav className="flex items-center gap-2 text-sm">
           <Link
             href="/projects"
-            className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+            className="text-neutral-400 hover:text-neutral-300"
           >
             Projects
           </Link>
           <svg
-            className="w-4 h-4 text-gray-400"
+            className="w-4 h-4 text-neutral-500"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -61,12 +61,12 @@ export default async function IssuePage({ params }: IssuePageProps) {
           </svg>
           <Link
             href={`/projects/${projectId}`}
-            className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+            className="text-neutral-400 hover:text-neutral-300"
           >
             {issue.project.name}
           </Link>
           <svg
-            className="w-4 h-4 text-gray-400"
+            className="w-4 h-4 text-neutral-500"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -78,13 +78,16 @@ export default async function IssuePage({ params }: IssuePageProps) {
               d="M9 5l7 7-7 7"
             />
           </svg>
-          <span className="text-gray-900 dark:text-white font-medium truncate max-w-[200px]">
+          <span className="text-white font-medium truncate max-w-[200px]">
             {issue.title}
           </span>
         </nav>
       </div>
 
-      <IssueDetailClient issue={transformedIssue} currentUserId={session.user.id} />
+      <IssueDetailClient
+        issue={transformedIssue}
+        currentUserId={session.user.id}
+      />
     </div>
   );
 }

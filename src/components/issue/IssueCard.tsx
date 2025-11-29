@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
+import { Calendar, MessageSquare, ChevronUp, ChevronDown, Minus } from "lucide-react";
 
 interface Label {
   id: string;
@@ -45,38 +46,9 @@ const priorityColors: Record<string, string> = {
 };
 
 const priorityIcons: Record<string, React.ReactNode> = {
-  HIGH: (
-    <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-      <path
-        fillRule="evenodd"
-        d="M5.293 7.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L10 4.414 6.707 7.707a1 1 0 01-1.414 0z"
-        clipRule="evenodd"
-      />
-      <path
-        fillRule="evenodd"
-        d="M5.293 12.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L10 9.414l-3.293 3.293a1 1 0 01-1.414 0z"
-        clipRule="evenodd"
-      />
-    </svg>
-  ),
-  MEDIUM: (
-    <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-      <path
-        fillRule="evenodd"
-        d="M3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
-        clipRule="evenodd"
-      />
-    </svg>
-  ),
-  LOW: (
-    <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-      <path
-        fillRule="evenodd"
-        d="M14.707 12.293a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L10 15.586l3.293-3.293a1 1 0 011.414 0z"
-        clipRule="evenodd"
-      />
-    </svg>
-  ),
+  HIGH: <ChevronUp className="w-3.5 h-3.5" />,
+  MEDIUM: <Minus className="w-3.5 h-3.5" />,
+  LOW: <ChevronDown className="w-3.5 h-3.5" />,
 };
 
 export function IssueCard({ issue, showProject, projectName }: IssueCardProps) {
@@ -97,7 +69,7 @@ export function IssueCard({ issue, showProject, projectName }: IssueCardProps) {
           </h3>
 
           {showProject && projectName && (
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            <p className="text-sm text-neutral-500 mt-1">
               {projectName}
             </p>
           )}
@@ -123,7 +95,7 @@ export function IssueCard({ issue, showProject, projectName }: IssueCardProps) {
             </Badge>
           ))}
           {issue.labels.length > 3 && (
-            <span className="text-xs text-gray-500 dark:text-gray-400 px-1">
+            <span className="text-xs text-neutral-500 px-1">
               +{issue.labels.length - 3}
             </span>
           )}
@@ -131,7 +103,7 @@ export function IssueCard({ issue, showProject, projectName }: IssueCardProps) {
       )}
 
       {/* Footer */}
-      <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+      <div className="flex items-center justify-between mt-3 pt-3 border-t border-neutral-700/50">
         <div className="flex items-center gap-3">
           {/* Status */}
           <span
@@ -147,43 +119,19 @@ export function IssueCard({ issue, showProject, projectName }: IssueCardProps) {
             <span
               className={`flex items-center gap-1 text-xs ${
                 isOverdue
-                  ? "text-red-600 dark:text-red-400"
-                  : "text-gray-500 dark:text-gray-400"
+                  ? "text-red-400"
+                  : "text-neutral-500"
               }`}
             >
-              <svg
-                className="w-3.5 h-3.5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                />
-              </svg>
+              <Calendar className="w-3.5 h-3.5" />
               {new Date(issue.dueDate).toLocaleDateString()}
             </span>
           )}
 
           {/* Comments count */}
           {issue._count && issue._count.comments > 0 && (
-            <span className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
-              <svg
-                className="w-3.5 h-3.5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-                />
-              </svg>
+            <span className="flex items-center gap-1 text-xs text-neutral-500">
+              <MessageSquare className="w-3.5 h-3.5" />
               {issue._count.comments}
             </span>
           )}

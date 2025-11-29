@@ -65,7 +65,12 @@ interface Column {
 
 const DEFAULT_COLUMNS: Column[] = [
   { id: "BACKLOG", title: "Backlog", color: "#6b7280", isCustom: false },
-  { id: "IN_PROGRESS", title: "In Progress", color: "#8b5cf6", isCustom: false },
+  {
+    id: "IN_PROGRESS",
+    title: "In Progress",
+    color: "#8b5cf6",
+    isCustom: false,
+  },
   { id: "DONE", title: "Done", color: "#22c55e", isCustom: false },
 ];
 
@@ -120,7 +125,11 @@ export function KanbanBoard({
     // Optimistically update UI
     const newIssues = issues.map((issue) =>
       issue.id === draggableId
-        ? { ...issue, status: destination.droppableId, position: destination.index }
+        ? {
+            ...issue,
+            status: destination.droppableId,
+            position: destination.index,
+          }
         : issue
     );
     setIssues(newIssues);
@@ -180,7 +189,9 @@ export function KanbanBoard({
                   </div>
                 </div>
                 {isOverLimit && (
-                  <p className="text-xs text-red-400 mt-1">WIP limit exceeded</p>
+                  <p className="text-xs text-red-400 mt-1">
+                    WIP limit exceeded
+                  </p>
                 )}
               </div>
 
