@@ -64,3 +64,13 @@ button:focus {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--foreground);
 }
+
+/* Date input calendar icon - make it white for dark theme */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  cursor: pointer;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 0.8;
+}
