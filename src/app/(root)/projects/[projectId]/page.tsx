@@ -10,9 +10,12 @@ interface ProjectPageProps {
   params: Promise<{
     projectId: string;
   }>;
+  searchParams: Promise<{
+    tab?: string;
+  }>;
 }
 
-export default async function ProjectPage({ params }: ProjectPageProps) {
+export default async function ProjectPage({ params, searchParams }: ProjectPageProps) {
   const session = await getSession();
 
   if (!session) {
@@ -20,6 +23,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
   }
 
   const { projectId } = await params;
+  const { tab } = await searchParams;
   const [project, issues] = await Promise.all([
     getProjectById(projectId),
     getProjectIssues(projectId),
@@ -101,6 +105,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
         canEdit={canEdit}
         issues={kanbanIssues}
         teamMembers={teamMembersList}
+        initialTab={tab as "dashboard" | "issues" | "board" | "settings" | undefined}
       />
     </div>
   );

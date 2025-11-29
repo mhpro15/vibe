@@ -273,12 +273,11 @@ export default async function DashboardPage() {
               <h2 className="text-sm font-medium text-white uppercase tracking-wider">
                 Currently Working On
               </h2>
-              <Link
-                href="/issues?status=IN_PROGRESS"
-                className="text-xs text-neutral-400 hover:text-white transition-colors"
-              >
-                View all →
-              </Link>
+              {inProgressIssues.length > 4 && (
+                <span className="text-xs text-neutral-500">
+                  +{inProgressIssues.length - 4} more
+                </span>
+              )}
             </div>
             {inProgressIssues.length === 0 ? (
               <div className="border border-dashed border-neutral-700 rounded-lg p-6 text-center">
@@ -419,12 +418,11 @@ export default async function DashboardPage() {
               <h2 className="text-sm font-medium text-white uppercase tracking-wider">
                 Up Next
               </h2>
-              <Link
-                href="/issues?status=BACKLOG"
-                className="text-xs text-neutral-400 hover:text-white transition-colors"
-              >
-                View all →
-              </Link>
+              {backlogIssues.length > 5 && (
+                <span className="text-xs text-neutral-500">
+                  +{backlogIssues.length - 5} more
+                </span>
+              )}
             </div>
             {backlogIssues.length === 0 ? (
               <div className="border border-dashed border-neutral-700 rounded-lg p-6 text-center">

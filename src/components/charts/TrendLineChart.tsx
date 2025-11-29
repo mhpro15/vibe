@@ -41,15 +41,16 @@ export function TrendLineChart({
         data={mergedData}
         margin={{ top: 10, right: 10, left: -10, bottom: 0 }}
       >
-        <CartesianGrid strokeDasharray="3 3" stroke="#404040" />
-        <XAxis dataKey="date" stroke="#737373" fontSize={12} tickLine={false} />
-        <YAxis stroke="#737373" fontSize={12} tickLine={false} />
+        <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+        <XAxis dataKey="date" stroke="#9ca3af" fontSize={12} tickLine={false} />
+        <YAxis stroke="#9ca3af" fontSize={12} tickLine={false} />
         <Tooltip
           contentStyle={{
-            backgroundColor: "#262626",
-            border: "1px solid #404040",
+            backgroundColor: "#171717",
+            border: "1px solid #374151",
             borderRadius: "8px",
-            color: "#fff",
+            color: "#ededed",
+            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.4)",
           }}
         />
         <Legend
@@ -61,19 +62,19 @@ export function TrendLineChart({
         <Line
           type="monotone"
           dataKey="created"
-          stroke="#8b5cf6"
+          stroke="#60a5fa"
           strokeWidth={2}
-          dot={{ fill: "#8b5cf6", strokeWidth: 0, r: 3 }}
-          activeDot={{ r: 5 }}
+          dot={{ fill: "#60a5fa", strokeWidth: 0, r: 3 }}
+          activeDot={{ r: 6, fill: "#3b82f6" }}
           name="Created"
         />
         <Line
           type="monotone"
           dataKey="completed"
-          stroke="#10b981"
+          stroke="#34d399"
           strokeWidth={2}
-          dot={{ fill: "#10b981", strokeWidth: 0, r: 3 }}
-          activeDot={{ r: 5 }}
+          dot={{ fill: "#34d399", strokeWidth: 0, r: 3 }}
+          activeDot={{ r: 6, fill: "#22c55e" }}
           name="Completed"
         />
       </LineChart>

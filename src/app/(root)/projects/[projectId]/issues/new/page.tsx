@@ -86,7 +86,7 @@ export default async function NewIssuePage({ params }: NewIssuePageProps) {
             />
           </svg>
           <Link
-            href={`/projects/${projectId}`}
+            href={`/projects/${projectId}?tab=issues`}
             className="text-neutral-400 hover:text-neutral-300"
           >
             {project.name}

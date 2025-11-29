@@ -407,7 +407,7 @@ export function CreateIssueForm({
 
       {/* Actions */}
       <div className="flex items-center justify-end gap-3">
-        <Link href={`/projects/${projectId}`}>
+        <Link href={`/projects/${projectId}?tab=issues`}>
           <Button type="button" variant="outline">
             Cancel
           </Button>

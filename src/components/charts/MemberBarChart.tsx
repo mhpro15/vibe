@@ -49,17 +49,18 @@ export function MemberBarChart({ data }: MemberBarChartProps) {
       >
         <CartesianGrid
           strokeDasharray="3 3"
-          stroke="#404040"
+          stroke="#374151"
           vertical={false}
         />
-        <XAxis dataKey="name" stroke="#737373" fontSize={12} tickLine={false} />
-        <YAxis stroke="#737373" fontSize={12} tickLine={false} />
+        <XAxis dataKey="name" stroke="#9ca3af" fontSize={12} tickLine={false} />
+        <YAxis stroke="#9ca3af" fontSize={12} tickLine={false} />
         <Tooltip
           contentStyle={{
-            backgroundColor: "#262626",
-            border: "1px solid #404040",
+            backgroundColor: "#171717",
+            border: "1px solid #374151",
             borderRadius: "8px",
-            color: "#fff",
+            color: "#ededed",
+            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.4)",
           }}
           formatter={(value: number, name: string) => [
             `${value} issues`,
@@ -78,13 +79,13 @@ export function MemberBarChart({ data }: MemberBarChartProps) {
         />
         <Bar
           dataKey="assigned"
-          fill="#8b5cf6"
+          fill="#60a5fa"
           radius={[4, 4, 0, 0]}
           name="Assigned"
         />
         <Bar
           dataKey="completed"
-          fill="#10b981"
+          fill="#34d399"
           radius={[4, 4, 0, 0]}
           name="Completed"
         />

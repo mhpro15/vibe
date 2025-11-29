@@ -15,12 +15,12 @@ interface PriorityBarChartProps {
   data: { name: string; value: number; priority: string }[];
 }
 
-// Priority colors
+// Priority colors matching dark theme
 const PRIORITY_COLORS: Record<string, string> = {
-  LOW: "#6b7280", // neutral-500
-  MEDIUM: "#facc15", // yellow-400
-  HIGH: "#fb923c", // orange-400
-  URGENT: "#f87171", // red-400
+  LOW: "#a1a1aa", // zinc-400 (more visible on dark)
+  MEDIUM: "#fbbf24", // amber-400 (matches --warning)
+  HIGH: "#f97316", // orange-500 (brighter)
+  URGENT: "#ef4444", // red-500 (matches --danger)
 };
 
 export function PriorityBarChart({ data }: PriorityBarChartProps) {
@@ -48,23 +48,24 @@ export function PriorityBarChart({ data }: PriorityBarChartProps) {
       >
         <CartesianGrid
           strokeDasharray="3 3"
-          stroke="#404040"
+          stroke="#374151"
           horizontal={false}
         />
-        <XAxis type="number" stroke="#737373" fontSize={12} />
+        <XAxis type="number" stroke="#9ca3af" fontSize={12} />
         <YAxis
           type="category"
           dataKey="name"
-          stroke="#737373"
+          stroke="#9ca3af"
           fontSize={12}
           width={80}
         />
         <Tooltip
           contentStyle={{
-            backgroundColor: "#262626",
-            border: "1px solid #404040",
+            backgroundColor: "#171717",
+            border: "1px solid #374151",
             borderRadius: "8px",
-            color: "#fff",
+            color: "#ededed",
+            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.4)",
           }}
           formatter={(value: number) => [`${value} issues`, "Count"]}
         />

@@ -13,14 +13,14 @@ interface StatusPieChartProps {
   data: { name: string; value: number; status: string }[];
 }
 
-// Status colors matching the app's design
+// Status colors matching the dark theme design
 const STATUS_COLORS: Record<string, string> = {
-  BACKLOG: "#6b7280", // neutral-500
-  TODO: "#3b82f6", // blue-500
-  IN_PROGRESS: "#8b5cf6", // violet-500
-  IN_REVIEW: "#f59e0b", // amber-500
-  DONE: "#10b981", // emerald-500
-  CANCELLED: "#6b7280", // neutral-500
+  BACKLOG: "#525252", // neutral-600 (darker for dark theme)
+  TODO: "#60a5fa", // blue-400 (matches --primary)
+  IN_PROGRESS: "#a78bfa", // violet-400 (brighter violet)
+  IN_REVIEW: "#fbbf24", // amber-400 (matches --warning)
+  DONE: "#34d399", // emerald-400 (matches --success brighter)
+  CANCELLED: "#737373", // neutral-500
 };
 
 export function StatusPieChart({ data }: StatusPieChartProps) {
@@ -58,10 +58,11 @@ export function StatusPieChart({ data }: StatusPieChartProps) {
         </Pie>
         <Tooltip
           contentStyle={{
-            backgroundColor: "#262626",
-            border: "1px solid #404040",
+            backgroundColor: "#171717",
+            border: "1px solid #374151",
             borderRadius: "8px",
-            color: "#fff",
+            color: "#ededed",
+            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.4)",
           }}
           formatter={(value: number) => [`${value} issues`, "Count"]}
         />

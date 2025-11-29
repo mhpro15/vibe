@@ -91,6 +91,7 @@ interface ProjectDetailClientProps {
   canEdit: boolean;
   issues: KanbanIssue[];
   teamMembers?: TeamMember[];
+  initialTab?: "dashboard" | "issues" | "board" | "settings";
 }
 
 export function ProjectDetailClient({
@@ -98,10 +99,11 @@ export function ProjectDetailClient({
   canEdit,
   issues,
   teamMembers = [],
+  initialTab = "dashboard",
 }: ProjectDetailClientProps) {
   const [activeTab, setActiveTab] = useState<
     "dashboard" | "issues" | "board" | "settings"
-  >("dashboard");
+  >(initialTab);
   const [isFavorite, setIsFavorite] = useState(project.isFavorite);
   const [localIssues, setLocalIssues] = useState(issues);
   const [, startTransition] = useTransition();
