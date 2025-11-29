@@ -41,6 +41,7 @@ model User {
   teamInvitesReceived TeamInvite[]  @relation("InviteRecipient")
   issueChanges    IssueChange[]
   teamActivityLogs TeamActivityLog[]
+  teamActivityTargets TeamActivityLog[] @relation("TeamActivityTarget")
 
   @@map("user")
 }
@@ -132,33 +133,42 @@ model TeamMember {
 }
 
 model TeamInvite {
-  id          String   @id @default(cuid())
+  id          String           @id @default(cuid())
   teamId      String
-  team        Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  team        Team             @relation(fields: [teamId], references: [id], onDelete: Cascade)
   email       String
+  role        TeamRole         @default(MEMBER)
+  status      InviteStatus     @default(PENDING)
   senderId    String
-  sender      User     @relation("InviteSender", fields: [senderId], references: [id])
+  sender      User             @relation("InviteSender", fields: [senderId], references: [id])
   recipientId String?
-  recipient   User?    @relation("InviteRecipient", fields: [recipientId], references: [id])
-  expiresAt   DateTime // 7 days expiration (FR-013)
+  recipient   User?            @relation("InviteRecipient", fields: [recipientId], references: [id])
+  expiresAt   DateTime         // 7 days expiration (FR-013)
   acceptedAt  DateTime?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
 
   @@map("team_invite")
 }
 
+enum InviteStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  EXPIRED
+}
+
 model TeamActivityLog {
-  id          String   @id @default(cuid())
-  teamId      String
-  team        Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
-  actorId     String
-  actor       User     @relation(fields: [actorId], references: [id])
-  action      String   // e.g., "MEMBER_JOINED", "ROLE_CHANGED", etc.
-  targetType  String?  // e.g., "USER", "PROJECT"
-  targetId    String?
-  details     Json?    // Additional context
-  createdAt   DateTime @default(now())
+  id           String   @id @default(cuid())
+  teamId       String
+  team         Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  userId       String
+  user         User     @relation(fields: [userId], references: [id])
+  action       String   // e.g., "MEMBER_JOINED", "ROLE_CHANGED", etc.
+  targetUserId String?
+  targetUser   User?    @relation("TeamActivityTarget", fields: [targetUserId], references: [id])
+  details      Json?    // Additional context
+  createdAt    DateTime @default(now())
 
   @@map("team_activity_log")
 }

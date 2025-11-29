@@ -11,13 +11,18 @@ const initialState: AuthActionResult = {
 };
 
 export function SignUpForm() {
-  const [state, formAction, isPending] = useActionState(signUpAction, initialState);
+  const [state, formAction, isPending] = useActionState(
+    signUpAction,
+    initialState
+  );
 
   return (
     <div className="w-full max-w-md mx-auto">
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8">
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Create an account</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+            Create an account
+          </h1>
           <p className="text-gray-600 dark:text-gray-400 mt-2">
             Get started with Jira Lite
           </p>
@@ -33,7 +38,9 @@ export function SignUpForm() {
 
         {state.error && (
           <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-            <p className="text-sm text-red-600 dark:text-red-400">{state.error}</p>
+            <p className="text-sm text-red-600 dark:text-red-400">
+              {state.error}
+            </p>
           </div>
         )}
 
@@ -88,7 +95,9 @@ export function SignUpForm() {
               <div className="w-full border-t border-gray-300 dark:border-gray-600"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white dark:bg-gray-800 text-gray-500">Or continue with</span>
+              <span className="px-2 bg-white dark:bg-gray-800 text-gray-500">
+                Or continue with
+              </span>
             </div>
           </div>
 
@@ -97,7 +106,10 @@ export function SignUpForm() {
 
         <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
           Already have an account?{" "}
-          <Link href="/signin" className="font-medium text-blue-600 hover:text-blue-500">
+          <Link
+            href="/signin"
+            className="font-medium text-blue-600 hover:text-blue-500"
+          >
             Sign in
           </Link>
         </p>

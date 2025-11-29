@@ -15,10 +15,16 @@ export function ProfileForm() {
   const router = useRouter();
   const { data: session, isPending } = useSession();
   const [imageUrl, setImageUrl] = useState("");
-  const [state, formAction, isSubmitting] = useActionState(updateProfileAction, initialState);
+  const [state, formAction, isSubmitting] = useActionState(
+    updateProfileAction,
+    initialState
+  );
 
   // Get initial image URL from session (memoized)
-  const initialImageUrl = useMemo(() => session?.user?.image || "", [session?.user?.image]);
+  const initialImageUrl = useMemo(
+    () => session?.user?.image || "",
+    [session?.user?.image]
+  );
 
   useEffect(() => {
     if (state.success) {
@@ -38,27 +44,33 @@ export function ProfileForm() {
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
-      <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">Profile Information</h2>
+      <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">
+        Profile Information
+      </h2>
 
       {state.error && (
         <div className="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-          <p className="text-sm text-red-600 dark:text-red-400">{state.error}</p>
+          <p className="text-sm text-red-600 dark:text-red-400">
+            {state.error}
+          </p>
         </div>
       )}
 
       {state.success && (
         <div className="mb-4 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
-          <p className="text-sm text-green-600 dark:text-green-400">Profile updated successfully!</p>
+          <p className="text-sm text-green-600 dark:text-green-400">
+            Profile updated successfully!
+          </p>
         </div>
       )}
 
       <form action={formAction} className="space-y-5">
         <div className="flex items-center gap-4 mb-6">
           <div className="w-20 h-20 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center overflow-hidden relative">
-            {(imageUrl || initialImageUrl) ? (
-              <Image 
-                src={imageUrl || initialImageUrl} 
-                alt="Profile" 
+            {imageUrl || initialImageUrl ? (
+              <Image
+                src={imageUrl || initialImageUrl}
+                alt="Profile"
                 fill
                 className="object-cover"
                 unoptimized
@@ -95,7 +107,9 @@ export function ProfileForm() {
 
         <div className="pt-2">
           <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Email</p>
-          <p className="text-gray-900 dark:text-white">{session?.user?.email}</p>
+          <p className="text-gray-900 dark:text-white">
+            {session?.user?.email}
+          </p>
         </div>
 
         <div className="flex justify-end pt-4">

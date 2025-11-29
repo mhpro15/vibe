@@ -21,11 +21,11 @@ export const auth = betterAuth({
           const response = await fetch("https://api.resend.com/emails", {
             method: "POST",
             headers: {
-              "Authorization": `Bearer ${process.env.RESEND_API_KEY}`,
+              Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              from: process.env.EMAIL_FROM || "noreply@yourdomain.com",
+              from: process.env.EMAIL_FROM || "noreply@manhhung.app",
               to: user.email,
               subject: "Reset Your Password - Jira Lite",
               html: `
@@ -39,7 +39,10 @@ export const auth = betterAuth({
             }),
           });
           if (!response.ok) {
-            console.error("Failed to send password reset email:", await response.text());
+            console.error(
+              "Failed to send password reset email:",
+              await response.text()
+            );
           }
         } catch (error) {
           console.error("Error sending password reset email:", error);
@@ -102,9 +105,7 @@ export const auth = betterAuth({
   secret: process.env.BETTER_AUTH_SECRET,
 
   // Trust host for production
-  trustedOrigins: [
-    process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
-  ],
+  trustedOrigins: [process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"],
 });
 
 export type Session = typeof auth.$Infer.Session;

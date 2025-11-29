@@ -9,7 +9,12 @@ interface AvatarProps {
   className?: string;
 }
 
-export function Avatar({ src, name, size = "md", className = "" }: AvatarProps) {
+export function Avatar({
+  src,
+  name,
+  size = "md",
+  className = "",
+}: AvatarProps) {
   const sizes = {
     sm: { class: "w-6 h-6 text-xs", pixels: 24 },
     md: { class: "w-8 h-8 text-sm", pixels: 32 },
@@ -58,7 +63,9 @@ export function Avatar({ src, name, size = "md", className = "" }: AvatarProps) 
 
   return (
     <div
-      className={`${sizes[size].class} ${getColorFromName(name)} rounded-full flex items-center justify-center text-white font-medium ${className}`}
+      className={`${sizes[size].class} ${getColorFromName(
+        name
+      )} rounded-full flex items-center justify-center text-white font-medium ${className}`}
     >
       {getInitials(name)}
     </div>

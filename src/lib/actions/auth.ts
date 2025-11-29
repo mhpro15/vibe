@@ -22,15 +22,25 @@ export async function signUpAction(
 
   // Validation
   if (!name || name.length < 1 || name.length > 50) {
-    return { success: false, error: "Name must be between 1 and 50 characters" };
+    return {
+      success: false,
+      error: "Name must be between 1 and 50 characters",
+    };
   }
 
-  if (!email || email.length > 255 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+  if (
+    !email ||
+    email.length > 255 ||
+    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+  ) {
     return { success: false, error: "Please enter a valid email address" };
   }
 
   if (!password || password.length < 6 || password.length > 100) {
-    return { success: false, error: "Password must be between 6 and 100 characters" };
+    return {
+      success: false,
+      error: "Password must be between 6 and 100 characters",
+    };
   }
 
   if (password !== confirmPassword) {
@@ -58,9 +68,13 @@ export async function signUpAction(
       throw error;
     }
     console.error("Sign up error:", error);
-    const errorMessage = error instanceof Error ? error.message : "Failed to create account";
+    const errorMessage =
+      error instanceof Error ? error.message : "Failed to create account";
     if (errorMessage.includes("email") || errorMessage.includes("exists")) {
-      return { success: false, error: "An account with this email already exists" };
+      return {
+        success: false,
+        error: "An account with this email already exists",
+      };
     }
     return { success: false, error: errorMessage };
   }
@@ -114,7 +128,10 @@ export async function forgotPasswordAction(
 
   try {
     // Use the internal API endpoint for password reset request
-    const baseUrl = process.env.BETTER_AUTH_URL || process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+    const baseUrl =
+      process.env.BETTER_AUTH_URL ||
+      process.env.NEXT_PUBLIC_APP_URL ||
+      "http://localhost:3000";
     const response = await fetch(`${baseUrl}/api/auth/forget-password`, {
       method: "POST",
       headers: {
@@ -152,7 +169,10 @@ export async function resetPasswordAction(
   }
 
   if (!password || password.length < 6 || password.length > 100) {
-    return { success: false, error: "Password must be between 6 and 100 characters" };
+    return {
+      success: false,
+      error: "Password must be between 6 and 100 characters",
+    };
   }
 
   if (password !== confirmPassword) {
@@ -171,7 +191,10 @@ export async function resetPasswordAction(
     return { success: true, redirectTo: "/signin" };
   } catch (error) {
     console.error("Reset password error:", error);
-    return { success: false, error: "Invalid or expired reset link. Please request a new one." };
+    return {
+      success: false,
+      error: "Invalid or expired reset link. Please request a new one.",
+    };
   }
 }
 
@@ -201,7 +224,10 @@ export async function changePasswordAction(
   }
 
   if (!newPassword || newPassword.length < 6 || newPassword.length > 100) {
-    return { success: false, error: "New password must be between 6 and 100 characters" };
+    return {
+      success: false,
+      error: "New password must be between 6 and 100 characters",
+    };
   }
 
   if (newPassword !== confirmPassword) {
@@ -233,7 +259,10 @@ export async function updateProfileAction(
   const image = formData.get("image") as string;
 
   if (!name || name.length < 1 || name.length > 50) {
-    return { success: false, error: "Name must be between 1 and 50 characters" };
+    return {
+      success: false,
+      error: "Name must be between 1 and 50 characters",
+    };
   }
 
   try {
