@@ -203,7 +203,9 @@ export async function sendMentionEmail(
         ${issueTitle}
       </p>
       <p style="color: #9ca3af; font-size: 13px; margin: 0; font-style: italic;">
-        "${commentPreview.substring(0, 100)}${commentPreview.length > 100 ? "..." : ""}"
+        "${commentPreview.substring(0, 100)}${
+    commentPreview.length > 100 ? "..." : ""
+  }"
       </p>
     </div>
     

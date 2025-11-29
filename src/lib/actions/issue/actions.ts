@@ -141,7 +141,12 @@ export async function updateIssueAction(
   const title = formData.get("title") as string;
   const description = formData.get("description") as string | null;
   const priority = formData.get("priority") as IssuePriority;
-  const dueDate = formData.get("dueDate") as string | null;
+  const dueDateStr = formData.get("dueDate") as string | null;
+  const assigneeIdStr = formData.get("assigneeId") as string | null;
+  
+  // Handle empty strings as null
+  const dueDate = dueDateStr && dueDateStr.trim() !== "" ? dueDateStr : null;
+  const assigneeId = assigneeIdStr && assigneeIdStr.trim() !== "" ? assigneeIdStr : null;
 
   // Validate
   if (!title || title.length < 1 || title.length > 200) {
@@ -175,7 +180,7 @@ export async function updateIssueAction(
   try {
     const oldIssue = await prisma.issue.findUnique({
       where: { id: issueId },
-      select: { title: true, description: true, priority: true, dueDate: true },
+      select: { title: true, description: true, priority: true, dueDate: true, assigneeId: true },
     });
 
     await prisma.issue.update({
@@ -185,6 +190,7 @@ export async function updateIssueAction(
         description,
         priority,
         dueDate: dueDate ? new Date(dueDate) : null,
+        assigneeId: assigneeId || null,
       },
     });
 
@@ -214,6 +220,15 @@ export async function updateIssueAction(
         "priority",
         oldIssue?.priority || null,
         priority
+      );
+    }
+    if (oldIssue?.assigneeId !== (assigneeId || null)) {
+      await logIssueChange(
+        issueId,
+        session.user.id,
+        "assignee",
+        oldIssue?.assigneeId || null,
+        assigneeId || null
       );
     }
 

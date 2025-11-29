@@ -1,8 +1,10 @@
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import { getSession } from "@/lib/actions/auth";
-import { getIssueById } from "@/lib/actions/issue";
+import { getIssueById, getSubtasks } from "@/lib/actions/issue";
+import { prisma } from "@/lib/prisma";
 import { IssueDetailClient } from "./IssueDetailClient";
+import { ChevronRight } from "lucide-react";
 
 interface IssuePageProps {
   params: Promise<{
@@ -25,6 +27,26 @@ export default async function IssuePage({ params }: IssuePageProps) {
     notFound();
   }
 
+  // Fetch team members for assignee selection
+  const teamMembers = await prisma.teamMember.findMany({
+    where: { teamId: issue.project.teamId },
+    include: {
+      user: {
+        select: { id: true, name: true, email: true, image: true },
+      },
+    },
+  });
+
+  const teamMembersList = teamMembers.map((m) => ({
+    id: m.user.id,
+    name: m.user.name,
+    email: m.user.email,
+    image: m.user.image,
+  }));
+
+  // Fetch subtasks
+  const subtasks = await getSubtasks(issueId);
+
   // Transform labels to flatten the structure
   const transformedIssue = {
     ...issue,
@@ -38,55 +60,29 @@ export default async function IssuePage({ params }: IssuePageProps) {
   return (
     <div>
       {/* Breadcrumb */}
-      <div className="mb-6">
-        <nav className="flex items-center gap-2 text-sm">
-          <Link
-            href="/projects"
-            className="text-neutral-400 hover:text-neutral-300"
-          >
-            Projects
-          </Link>
-          <svg
-            className="w-4 h-4 text-neutral-500"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 5l7 7-7 7"
-            />
-          </svg>
-          <Link
-            href={`/projects/${projectId}?tab=issues`}
-            className="text-neutral-400 hover:text-neutral-300"
-          >
-            {issue.project.name}
-          </Link>
-          <svg
-            className="w-4 h-4 text-neutral-500"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 5l7 7-7 7"
-            />
-          </svg>
-          <span className="text-white font-medium truncate max-w-[200px]">
-            {issue.title}
-          </span>
-        </nav>
-      </div>
+      <nav className="flex items-center gap-2 text-sm mb-6">
+        <Link
+          href="/projects"
+          className="text-neutral-500 hover:text-white transition-colors"
+        >
+          Projects
+        </Link>
+        <ChevronRight className="w-4 h-4 text-neutral-600" />
+        <Link
+          href={`/projects/${projectId}?tab=issues`}
+          className="text-neutral-500 hover:text-white transition-colors"
+        >
+          {issue.project.name}
+        </Link>
+        <ChevronRight className="w-4 h-4 text-neutral-600" />
+        <span className="text-white truncate max-w-[200px]">{issue.title}</span>
+      </nav>
 
       <IssueDetailClient
         issue={transformedIssue}
         currentUserId={session.user.id}
+        teamMembers={teamMembersList}
+        subtasks={subtasks}
       />
     </div>
   );

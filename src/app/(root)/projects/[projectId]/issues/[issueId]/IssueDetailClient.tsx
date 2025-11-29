@@ -4,7 +4,7 @@ import { useState, useRef, useEffect, useActionState } from "react";
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import { CommentList, AIFeatures } from "@/components/issue";
+import { CommentList, AIFeatures, SubtasksList } from "@/components/issue";
 import {
   deleteIssueAction,
   changeStatusAction,
@@ -12,7 +12,15 @@ import {
   updateIssueAction,
   IssueActionResult,
 } from "@/lib/actions/issue";
-import { Check, Calendar, User, Clock, Pencil, X } from "lucide-react";
+import {
+  Check,
+  Calendar,
+  User,
+  Clock,
+  Pencil,
+  X,
+  ChevronDown,
+} from "lucide-react";
 
 interface Label {
   id: string;
@@ -30,6 +38,13 @@ interface Comment {
     name: string;
     image?: string | null;
   };
+}
+
+interface Subtask {
+  id: string;
+  title: string;
+  isCompleted: boolean;
+  position: number;
 }
 
 interface Issue {
@@ -66,6 +81,13 @@ interface Issue {
 interface IssueDetailClientProps {
   issue: Issue;
   currentUserId: string;
+  teamMembers: Array<{
+    id: string;
+    name: string | null;
+    email: string | null;
+    image: string | null;
+  }>;
+  subtasks: Subtask[];
 }
 
 const initialState: IssueActionResult = {
@@ -79,14 +101,17 @@ const statusOptions = [
 ];
 
 const priorityOptions = [
-  { value: "HIGH", label: "High", color: "text-red-600" },
-  { value: "MEDIUM", label: "Medium", color: "text-yellow-600" },
-  { value: "LOW", label: "Low", color: "text-gray-500" },
+  { value: "LOW", label: "Low", color: "bg-emerald-500" },
+  { value: "MEDIUM", label: "Medium", color: "bg-amber-500" },
+  { value: "HIGH", label: "High", color: "bg-orange-500" },
+  { value: "URGENT", label: "Urgent", color: "bg-red-500" },
 ];
 
 export function IssueDetailClient({
   issue,
   currentUserId,
+  teamMembers,
+  subtasks,
 }: IssueDetailClientProps) {
   const [, deleteAction, isDeleting] = useActionState(
     deleteIssueAction,
@@ -109,10 +134,73 @@ export function IssueDetailClient({
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [isEditingDescription, setIsEditingDescription] = useState(false);
   const [editTitle, setEditTitle] = useState(issue.title);
-  const [editDescription, setEditDescription] = useState(issue.description || "");
-  
+  const [editDescription, setEditDescription] = useState(
+    issue.description || ""
+  );
+
+  // Sidebar editing states
+  const [isPriorityDropdownOpen, setIsPriorityDropdownOpen] = useState(false);
+  const [isAssigneeDropdownOpen, setIsAssigneeDropdownOpen] = useState(false);
+  const [isEditingDueDate, setIsEditingDueDate] = useState(false);
+  const [editDueDate, setEditDueDate] = useState(
+    issue.dueDate ? issue.dueDate.toISOString().split("T")[0] : ""
+  );
+
   const titleInputRef = useRef<HTMLInputElement>(null);
   const descriptionInputRef = useRef<HTMLTextAreaElement>(null);
+  const priorityDropdownRef = useRef<HTMLDivElement>(null);
+  const assigneeDropdownRef = useRef<HTMLDivElement>(null);
+  const dueDateInputRef = useRef<HTMLInputElement>(null);
+
+  // Form refs for programmatic submission
+  const priorityFormRef = useRef<HTMLFormElement>(null);
+  const assigneeFormRef = useRef<HTMLFormElement>(null);
+
+  // Selected values for the hidden forms
+  const [selectedPriority, setSelectedPriority] = useState(issue.priority);
+  const [selectedAssigneeId, setSelectedAssigneeId] = useState(
+    issue.assignee?.id || ""
+  );
+
+  // Handle priority selection
+  const handlePrioritySelect = (priority: string) => {
+    setSelectedPriority(priority);
+    setIsPriorityDropdownOpen(false);
+    // Submit form after state update and dropdown close
+    setTimeout(() => {
+      priorityFormRef.current?.requestSubmit();
+    }, 0);
+  };
+
+  // Handle assignee selection
+  const handleAssigneeSelect = (assigneeId: string) => {
+    setSelectedAssigneeId(assigneeId);
+    setIsAssigneeDropdownOpen(false);
+    // Submit form after state update and dropdown close
+    setTimeout(() => {
+      assigneeFormRef.current?.requestSubmit();
+    }, 0);
+  };
+
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        priorityDropdownRef.current &&
+        !priorityDropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsPriorityDropdownOpen(false);
+      }
+      if (
+        assigneeDropdownRef.current &&
+        !assigneeDropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsAssigneeDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   // Focus input when editing starts
   useEffect(() => {
@@ -169,14 +257,22 @@ export function IssueDetailClient({
                   {issue.priority} Priority
                 </span>
               </div>
-              
+
               {/* Editable Title */}
               {isEditingTitle ? (
                 <form action={updateAction} className="flex items-center gap-2">
                   <input type="hidden" name="issueId" value={issue.id} />
-                  <input type="hidden" name="description" value={issue.description || ""} />
+                  <input
+                    type="hidden"
+                    name="description"
+                    value={issue.description || ""}
+                  />
                   <input type="hidden" name="priority" value={issue.priority} />
-                  <input type="hidden" name="dueDate" value={issue.dueDate?.toString() || ""} />
+                  <input
+                    type="hidden"
+                    name="dueDate"
+                    value={issue.dueDate?.toString() || ""}
+                  />
                   <input
                     ref={titleInputRef}
                     type="text"
@@ -186,7 +282,11 @@ export function IssueDetailClient({
                     className="flex-1 text-2xl font-bold bg-neutral-800 border border-neutral-600 rounded-lg px-3 py-1 text-white focus:outline-none focus:ring-2 focus:ring-violet-500/50"
                     maxLength={200}
                   />
-                  <Button type="submit" size="sm" disabled={isUpdating || !editTitle.trim()}>
+                  <Button
+                    type="submit"
+                    size="sm"
+                    disabled={isUpdating || !editTitle.trim()}
+                  >
                     {isUpdating ? "..." : "Save"}
                   </Button>
                   <button
@@ -202,7 +302,9 @@ export function IssueDetailClient({
                 </form>
               ) : (
                 <div className="group flex items-center gap-2">
-                  <h1 className="text-2xl font-bold text-white">{issue.title}</h1>
+                  <h1 className="text-2xl font-bold text-white">
+                    {issue.title}
+                  </h1>
                   <button
                     onClick={() => setIsEditingTitle(true)}
                     className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg hover:bg-neutral-700 text-neutral-400 hover:text-white transition-all"
@@ -212,7 +314,7 @@ export function IssueDetailClient({
                   </button>
                 </div>
               )}
-              
+
               {updateState.error && (
                 <p className="text-sm text-red-400 mt-1">{updateState.error}</p>
               )}
@@ -260,13 +362,17 @@ export function IssueDetailClient({
                 </button>
               )}
             </div>
-            
+
             {isEditingDescription ? (
               <form action={updateAction} className="space-y-3">
                 <input type="hidden" name="issueId" value={issue.id} />
                 <input type="hidden" name="title" value={issue.title} />
                 <input type="hidden" name="priority" value={issue.priority} />
-                <input type="hidden" name="dueDate" value={issue.dueDate?.toString() || ""} />
+                <input
+                  type="hidden"
+                  name="dueDate"
+                  value={issue.dueDate?.toString() || ""}
+                />
                 <textarea
                   ref={descriptionInputRef}
                   name="description"
@@ -307,6 +413,9 @@ export function IssueDetailClient({
             )}
           </div>
         </div>
+
+        {/* Subtasks */}
+        {/* <SubtasksList issueId={issue.id} initialSubtasks={subtasks} /> */}
 
         {/* Comments */}
         <div className="bg-neutral-900 rounded-xl border border-neutral-700/50 p-6">
@@ -359,7 +468,7 @@ export function IssueDetailClient({
                   disabled={isChangingStatus || issue.status === status.value}
                   className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg transition-colors bg-transparent ${
                     issue.status === status.value
-                      ? "!bg-neutral-800 border border-neutral-600"
+                      ? "bg-neutral-800! border border-neutral-600"
                       : "hover:bg-neutral-800"
                   }`}
                 >
@@ -375,49 +484,282 @@ export function IssueDetailClient({
             ))}
           </div>
         </div>
+
         {/* Details */}
         <div className="bg-neutral-900 rounded-xl border border-neutral-700/50 p-4">
           <h3 className="text-sm font-medium text-neutral-400 mb-3">Details</h3>
           <div className="space-y-4">
+            {/* Priority */}
+            <div ref={priorityDropdownRef} className="relative">
+              {/* Hidden form for priority updates */}
+              <form
+                ref={priorityFormRef}
+                action={updateAction}
+                className="hidden"
+              >
+                <input type="hidden" name="issueId" value={issue.id} />
+                <input type="hidden" name="title" value={issue.title} />
+                <input
+                  type="hidden"
+                  name="description"
+                  value={issue.description || ""}
+                />
+                <input type="hidden" name="priority" value={selectedPriority} />
+                <input
+                  type="hidden"
+                  name="dueDate"
+                  value={issue.dueDate?.toISOString() || ""}
+                />
+                <input
+                  type="hidden"
+                  name="assigneeId"
+                  value={issue.assignee?.id || ""}
+                />
+              </form>
+
+              <span className="text-xs text-neutral-500 flex items-center gap-1 mb-1">
+                Priority
+              </span>
+              <button
+                type="button"
+                onClick={() =>
+                  setIsPriorityDropdownOpen(!isPriorityDropdownOpen)
+                }
+                className="w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 transition-colors"
+              >
+                <div className="flex items-center gap-2">
+                  <span
+                    className={`w-2 h-2 rounded-full ${
+                      priorityOptions.find((p) => p.value === issue.priority)
+                        ?.color || "bg-neutral-500"
+                    }`}
+                  />
+                  <span className="text-sm text-white">
+                    {priorityOptions.find((p) => p.value === issue.priority)
+                      ?.label || issue.priority}
+                  </span>
+                </div>
+                <ChevronDown
+                  className={`w-4 h-4 text-neutral-400 transition-transform ${
+                    isPriorityDropdownOpen ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+              {isPriorityDropdownOpen && (
+                <div className="absolute top-full left-0 right-0 mt-1 bg-neutral-800 border border-neutral-700 rounded-lg shadow-xl z-10 overflow-hidden">
+                  {priorityOptions.map((priority) => (
+                    <button
+                      key={priority.value}
+                      type="button"
+                      onClick={() => handlePrioritySelect(priority.value)}
+                      className={`w-full flex items-center gap-2 px-3 py-2 hover:bg-neutral-700 transition-colors text-left ${
+                        issue.priority === priority.value
+                          ? "bg-neutral-700"
+                          : ""
+                      }`}
+                    >
+                      <span
+                        className={`w-2 h-2 rounded-full ${priority.color}`}
+                      />
+                      <span className="text-sm text-white">
+                        {priority.label}
+                      </span>
+                      {issue.priority === priority.value && (
+                        <Check className="w-4 h-4 text-violet-400 ml-auto" />
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
             {/* Assignee */}
-            <div>
-              <span className="text-xs text-neutral-500 flex items-center gap-1">
+            <div ref={assigneeDropdownRef} className="relative">
+              {/* Hidden form for assignee updates */}
+              <form
+                ref={assigneeFormRef}
+                action={updateAction}
+                className="hidden"
+              >
+                <input type="hidden" name="issueId" value={issue.id} />
+                <input type="hidden" name="title" value={issue.title} />
+                <input
+                  type="hidden"
+                  name="description"
+                  value={issue.description || ""}
+                />
+                <input type="hidden" name="priority" value={issue.priority} />
+                <input
+                  type="hidden"
+                  name="dueDate"
+                  value={issue.dueDate?.toISOString() || ""}
+                />
+                <input
+                  type="hidden"
+                  name="assigneeId"
+                  value={selectedAssigneeId}
+                />
+              </form>
+
+              <span className="text-xs text-neutral-500 flex items-center gap-1 mb-1">
                 <User className="w-3 h-3" />
                 Assignee
               </span>
-              {issue.assignee ? (
-                <div className="flex items-center gap-2 mt-1">
-                  <Avatar
-                    src={issue.assignee.image}
-                    name={issue.assignee.name}
-                    size="sm"
-                  />
-                  <span className="text-sm text-white">
-                    {issue.assignee.name}
-                  </span>
+              <button
+                type="button"
+                onClick={() =>
+                  setIsAssigneeDropdownOpen(!isAssigneeDropdownOpen)
+                }
+                className="w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 transition-colors"
+              >
+                {issue.assignee ? (
+                  <div className="flex items-center gap-2">
+                    <Avatar
+                      src={issue.assignee.image}
+                      name={issue.assignee.name}
+                      size="sm"
+                    />
+                    <span className="text-sm text-white">
+                      {issue.assignee.name}
+                    </span>
+                  </div>
+                ) : (
+                  <span className="text-sm text-neutral-500">Unassigned</span>
+                )}
+                <ChevronDown
+                  className={`w-4 h-4 text-neutral-400 transition-transform ${
+                    isAssigneeDropdownOpen ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+              {isAssigneeDropdownOpen && (
+                <div className="absolute top-full left-0 right-0 mt-1 bg-neutral-800 border border-neutral-700 rounded-lg shadow-xl z-10 overflow-hidden max-h-64 overflow-y-auto">
+                  {/* Unassign option */}
+                  <button
+                    type="button"
+                    onClick={() => handleAssigneeSelect("")}
+                    className={`w-full flex items-center gap-2 px-3 py-2 hover:bg-neutral-700 transition-colors text-left ${
+                      !issue.assignee ? "bg-neutral-700" : ""
+                    }`}
+                  >
+                    <div className="w-6 h-6 rounded-full bg-neutral-600 flex items-center justify-center">
+                      <User className="w-3 h-3 text-neutral-400" />
+                    </div>
+                    <span className="text-sm text-neutral-400">Unassigned</span>
+                    {!issue.assignee && (
+                      <Check className="w-4 h-4 text-violet-400 ml-auto" />
+                    )}
+                  </button>
+                  {teamMembers.map((member) => (
+                    <button
+                      key={member.id}
+                      type="button"
+                      onClick={() => handleAssigneeSelect(member.id)}
+                      className={`w-full flex items-center gap-3 px-3 py-2 hover:bg-neutral-700 transition-colors text-left ${
+                        issue.assignee?.id === member.id ? "bg-neutral-700" : ""
+                      }`}
+                    >
+                      <Avatar
+                        src={member.image}
+                        name={member.name || ""}
+                        size="sm"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm text-white truncate">
+                          {member.name || "Unknown"}
+                        </p>
+                        {member.email && (
+                          <p className="text-xs text-neutral-500 truncate">
+                            {member.email}
+                          </p>
+                        )}
+                      </div>
+                      {issue.assignee?.id === member.id && (
+                        <Check className="w-4 h-4 text-violet-400 shrink-0" />
+                      )}
+                    </button>
+                  ))}
                 </div>
-              ) : (
-                <p className="text-sm text-neutral-500 mt-1">Unassigned</p>
               )}
             </div>
 
             {/* Due Date */}
             <div>
-              <span className="text-xs text-neutral-500 flex items-center gap-1">
+              <span className="text-xs text-neutral-500 flex items-center gap-1 mb-1">
                 <Calendar className="w-3 h-3" />
                 Due Date
               </span>
-              {issue.dueDate ? (
-                <p
-                  className={`text-sm mt-1 ${
-                    isOverdue ? "text-red-400" : "text-white"
+              {isEditingDueDate ? (
+                <form action={updateAction} className="space-y-2">
+                  <input type="hidden" name="issueId" value={issue.id} />
+                  <input type="hidden" name="title" value={issue.title} />
+                  <input
+                    type="hidden"
+                    name="description"
+                    value={issue.description || ""}
+                  />
+                  <input type="hidden" name="priority" value={issue.priority} />
+                  <input
+                    type="hidden"
+                    name="assigneeId"
+                    value={issue.assignee?.id || ""}
+                  />
+                  <input
+                    ref={dueDateInputRef}
+                    type="date"
+                    name="dueDate"
+                    value={editDueDate}
+                    onChange={(e) => setEditDueDate(e.target.value)}
+                    className="w-full px-3 py-2 bg-neutral-800 border border-neutral-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-500/50"
+                  />
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsEditingDueDate(false);
+                        setEditDueDate(
+                          issue.dueDate
+                            ? issue.dueDate.toISOString().split("T")[0]
+                            : ""
+                        );
+                      }}
+                      className="px-2 py-1 text-xs rounded hover:bg-neutral-700 text-neutral-400 hover:text-white transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <Button type="submit" size="sm" disabled={isUpdating}>
+                      {isUpdating ? "..." : "Save"}
+                    </Button>
+                  </div>
+                </form>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsEditingDueDate(true);
+                    setTimeout(() => dueDateInputRef.current?.focus(), 0);
+                  }}
+                  className={`w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 transition-colors text-left ${
+                    isOverdue ? "text-red-400" : ""
                   }`}
                 >
-                  {new Date(issue.dueDate).toLocaleDateString()}
-                  {isOverdue && " (Overdue)"}
-                </p>
-              ) : (
-                <p className="text-sm text-neutral-500 mt-1">No due date</p>
+                  <span
+                    className={`text-sm ${
+                      issue.dueDate
+                        ? isOverdue
+                          ? "text-red-400"
+                          : "text-white"
+                        : "text-neutral-500"
+                    }`}
+                  >
+                    {issue.dueDate
+                      ? `${new Date(issue.dueDate).toLocaleDateString()}${
+                          isOverdue ? " (Overdue)" : ""
+                        }`
+                      : "Set due date"}
+                  </span>
+                  <Pencil className="w-3 h-3 text-neutral-400" />
+                </button>
               )}
             </div>
 
