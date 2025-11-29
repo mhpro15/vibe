@@ -3,6 +3,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/actions/auth";
 import { CreateIssueForm } from "./CreateIssueForm";
+import { ChevronRight, Plus } from "lucide-react";
 
 interface NewIssuePageProps {
   params: Promise<{
@@ -62,66 +63,47 @@ export default async function NewIssuePage({ params }: NewIssuePageProps) {
   }));
 
   return (
-    <div>
+    <div className="max-w-4xl mx-auto">
       {/* Breadcrumb */}
-      <div className="mb-6">
-        <nav className="flex items-center gap-2 text-sm">
-          <Link
-            href="/projects"
-            className="text-neutral-400 hover:text-neutral-300"
-          >
-            Projects
-          </Link>
-          <svg
-            className="w-4 h-4 text-neutral-500"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 5l7 7-7 7"
-            />
-          </svg>
-          <Link
-            href={`/projects/${projectId}?tab=issues`}
-            className="text-neutral-400 hover:text-neutral-300"
-          >
-            {project.name}
-          </Link>
-          <svg
-            className="w-4 h-4 text-neutral-500"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 5l7 7-7 7"
-            />
-          </svg>
-          <span className="text-white font-medium">
-            New Issue
-          </span>
-        </nav>
+      <nav className="flex items-center gap-2 text-sm mb-8">
+        <Link
+          href="/projects"
+          className="text-neutral-500 hover:text-white transition-colors"
+        >
+          Projects
+        </Link>
+        <ChevronRight className="w-4 h-4 text-neutral-600" />
+        <Link
+          href={`/projects/${projectId}?tab=issues`}
+          className="text-neutral-500 hover:text-white transition-colors"
+        >
+          {project.name}
+        </Link>
+        <ChevronRight className="w-4 h-4 text-neutral-600" />
+        <span className="text-white">New Issue</span>
+      </nav>
+
+      {/* Header */}
+      <div className="flex items-center gap-4 mb-8">
+        <div className="w-12 h-12 rounded-xl bg-violet-500/20 border border-violet-500/30 flex items-center justify-center">
+          <Plus className="w-6 h-6 text-violet-400" />
+        </div>
+        <div>
+          <h1 className="text-2xl font-semibold text-white">
+            Create New Issue
+          </h1>
+          <p className="text-sm text-neutral-500 mt-0.5">
+            Add a new issue to {project.name}
+          </p>
+        </div>
       </div>
 
-      <div className="max-w-3xl">
-        <h1 className="text-2xl font-bold text-white mb-6">
-          Create New Issue
-        </h1>
-
-        <CreateIssueForm
-          projectId={projectId}
-          projectName={project.name}
-          labels={project.labels}
-          teamMembers={teamMembers}
-        />
-      </div>
+      <CreateIssueForm
+        projectId={projectId}
+        projectName={project.name}
+        labels={project.labels}
+        teamMembers={teamMembers}
+      />
     </div>
   );
 }

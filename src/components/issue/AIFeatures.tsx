@@ -62,9 +62,7 @@ export function AIFeatures({
       {/* Header */}
       <div className="px-4 py-3 border-b border-neutral-700/50 flex items-center gap-2">
         <Sparkles className="w-5 h-5 text-violet-400" />
-        <h3 className="font-semibold text-white">
-          AI Assistant
-        </h3>
+        <h3 className="font-semibold text-white">AI Assistant</h3>
       </div>
 
       {/* Tabs */}
@@ -118,13 +116,14 @@ export function AIFeatures({
             )}
 
             {summaryState.error && (
-              <p className="text-sm text-red-400">
-                {summaryState.error}
-              </p>
+              <p className="text-sm text-red-400">{summaryState.error}</p>
             )}
 
             <form action={summaryAction}>
               <input type="hidden" name="issueId" value={issueId} />
+              {summaryState.data?.summary && (
+                <input type="hidden" name="regenerate" value="true" />
+              )}
               <Button
                 type="submit"
                 size="sm"
@@ -167,13 +166,14 @@ export function AIFeatures({
             )}
 
             {suggestionState.error && (
-              <p className="text-sm text-red-400">
-                {suggestionState.error}
-              </p>
+              <p className="text-sm text-red-400">{suggestionState.error}</p>
             )}
 
             <form action={suggestionAction}>
               <input type="hidden" name="issueId" value={issueId} />
+              {suggestionState.data?.suggestion && (
+                <input type="hidden" name="regenerate" value="true" />
+              )}
               <Button
                 type="submit"
                 size="sm"
@@ -216,13 +216,14 @@ export function AIFeatures({
             )}
 
             {commentState.error && (
-              <p className="text-sm text-red-400">
-                {commentState.error}
-              </p>
+              <p className="text-sm text-red-400">{commentState.error}</p>
             )}
 
             <form action={commentAction}>
               <input type="hidden" name="issueId" value={issueId} />
+              {commentState.data?.commentSummary && (
+                <input type="hidden" name="regenerate" value="true" />
+              )}
               <Button
                 type="submit"
                 size="sm"

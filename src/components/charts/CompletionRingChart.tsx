@@ -73,7 +73,9 @@ export function CompletionRingChart({
         {inProgressCount > 0 && (
           <div className="flex items-center gap-1.5">
             <div className="w-2.5 h-2.5 rounded-full bg-blue-400" />
-            <span className="text-neutral-400">In Progress ({inProgressCount})</span>
+            <span className="text-neutral-400">
+              In Progress ({inProgressCount})
+            </span>
           </div>
         )}
         <div className="flex items-center gap-1.5">

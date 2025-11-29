@@ -12,6 +12,7 @@ import {
   notifyTeamInvite,
   notifyRoleChanged,
 } from "@/lib/actions/notification";
+import { sendTeamInviteEmail } from "@/lib/email";
 
 // FR-013: Invite Team Member
 export async function inviteMemberAction(
@@ -96,18 +97,20 @@ export async function inviteMemberAction(
       },
     });
 
-    // Notify the invited user if they already have an account
+    // Get team info for email
+    const team = await prisma.team.findUnique({
+      where: { id: teamId },
+      select: { name: true },
+    });
+    const teamName = team?.name || "a team";
+    const inviterName = session.user.name || "Someone";
+
+    // Send invitation email (FR-013)
+    await sendTeamInviteEmail(email, inviterName, teamName, role);
+
+    // Notify the invited user if they already have an account (in-app notification)
     if (existingUser) {
-      const team = await prisma.team.findUnique({
-        where: { id: teamId },
-        select: { name: true },
-      });
-      await notifyTeamInvite(
-        existingUser.id,
-        team?.name || "a team",
-        session.user.name || "Someone",
-        teamId
-      );
+      await notifyTeamInvite(existingUser.id, teamName, inviterName, teamId);
     }
 
     revalidatePath(`/teams/${teamId}`);

@@ -21,7 +21,11 @@ import {
 import { Button } from "@/components/ui/Button";
 import { Card, CardHeader, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
-import { TeamMembersList, InviteMemberModal, TeamStatistics } from "@/components/team";
+import {
+  TeamMembersList,
+  InviteMemberModal,
+  TeamStatistics,
+} from "@/components/team";
 import { CreateProjectModal } from "@/components/project";
 import {
   deleteTeamAction,
@@ -77,7 +81,9 @@ export function TeamDetailClient({
   const [isUpdating, setIsUpdating] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isLeaving, setIsLeaving] = useState(false);
-  const [activeTab, setActiveTab] = useState<"members" | "statistics">("members");
+  const [activeTab, setActiveTab] = useState<"members" | "statistics">(
+    "members"
+  );
 
   const isOwner = currentUserRole === "OWNER";
   const isAdmin = currentUserRole === "ADMIN";
@@ -325,9 +331,7 @@ export function TeamDetailClient({
                     <FolderKanban className="w-5 h-5 text-neutral-400 group-hover:text-white transition-colors" />
                   </div>
                   <div>
-                    <p className="font-medium text-white">
-                      View Projects
-                    </p>
+                    <p className="font-medium text-white">View Projects</p>
                     <p className="text-sm text-neutral-500">
                       {team.projectCount} projects
                     </p>
@@ -342,9 +346,7 @@ export function TeamDetailClient({
                       <UserPlus className="w-5 h-5 text-emerald-400" />
                     </div>
                     <div className="text-left">
-                      <p className="font-medium text-white">
-                        Invite Members
-                      </p>
+                      <p className="font-medium text-white">Invite Members</p>
                       <p className="text-sm text-neutral-500">
                         Add team members
                       </p>
@@ -356,22 +358,28 @@ export function TeamDetailClient({
 
             <Card>
               <CardHeader>
-                <h2 className="text-lg font-semibold text-white">
-                  Your Role
-                </h2>
+                <h2 className="text-lg font-semibold text-white">Your Role</h2>
               </CardHeader>
               <CardContent>
                 <div className="flex items-center gap-3 p-3 rounded-xl bg-neutral-800/30 border border-neutral-700/50">
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                    currentUserRole === "OWNER" 
-                      ? "bg-amber-900/30 border border-amber-700/30" 
-                      : currentUserRole === "ADMIN"
-                      ? "bg-violet-900/30 border border-violet-700/30"
-                      : "bg-neutral-800 border border-neutral-700/50"
-                  }`}>
-                    {currentUserRole === "OWNER" && <Crown className="w-5 h-5 text-amber-400" />}
-                    {currentUserRole === "ADMIN" && <Shield className="w-5 h-5 text-violet-400" />}
-                    {currentUserRole === "MEMBER" && <User className="w-5 h-5 text-neutral-400" />}
+                  <div
+                    className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                      currentUserRole === "OWNER"
+                        ? "bg-amber-900/30 border border-amber-700/30"
+                        : currentUserRole === "ADMIN"
+                        ? "bg-violet-900/30 border border-violet-700/30"
+                        : "bg-neutral-800 border border-neutral-700/50"
+                    }`}
+                  >
+                    {currentUserRole === "OWNER" && (
+                      <Crown className="w-5 h-5 text-amber-400" />
+                    )}
+                    {currentUserRole === "ADMIN" && (
+                      <Shield className="w-5 h-5 text-violet-400" />
+                    )}
+                    {currentUserRole === "MEMBER" && (
+                      <User className="w-5 h-5 text-neutral-400" />
+                    )}
                   </div>
                   <div>
                     <Badge
@@ -387,9 +395,12 @@ export function TeamDetailClient({
                       {currentUserRole}
                     </Badge>
                     <p className="text-sm text-neutral-400 mt-1">
-                      {currentUserRole === "OWNER" && "Full control over the team"}
-                      {currentUserRole === "ADMIN" && "Can manage projects and members"}
-                      {currentUserRole === "MEMBER" && "Can view and work on projects"}
+                      {currentUserRole === "OWNER" &&
+                        "Full control over the team"}
+                      {currentUserRole === "ADMIN" &&
+                        "Can manage projects and members"}
+                      {currentUserRole === "MEMBER" &&
+                        "Can view and work on projects"}
                     </p>
                   </div>
                 </div>
@@ -399,9 +410,7 @@ export function TeamDetailClient({
         </div>
       )}
 
-      {activeTab === "statistics" && (
-        <TeamStatistics teamId={team.id} />
-      )}
+      {activeTab === "statistics" && <TeamStatistics teamId={team.id} />}
 
       <InviteMemberModal
         isOpen={isInviteModalOpen}

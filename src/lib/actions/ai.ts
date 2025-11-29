@@ -105,19 +105,12 @@ async function checkRateLimit(
 /**
  * Call the AI API (using OpenAI-compatible API)
  * Uses fetch directly to support both OpenAI and compatible APIs (Azure, local LLMs, etc.)
- *
- * API Reference: https://platform.openai.com/docs/api-reference/chat/create
- *
- * Request format:
- * - model: The model to use (e.g., "gpt-4o-mini", "gpt-4o")
- * - messages: Array of {role: "system"|"user"|"assistant", content: string}
- * - max_tokens: Maximum tokens in response
- * - temperature: 0-2, controls randomness (0.7 is balanced)
- *
- * Response format:
- * - choices[0].message.content: The generated text
  */
-async function callAI(prompt: string, systemPrompt?: string): Promise<string> {
+async function callAI(
+  prompt: string,
+  systemPrompt?: string,
+  maxTokens: number = 200
+): Promise<string> {
   const apiKey = process.env.OPENAI_API_KEY || process.env.AI_API_KEY;
   const apiUrl =
     process.env.AI_API_URL || "https://api.openai.com/v1/chat/completions";
@@ -150,8 +143,8 @@ async function callAI(prompt: string, systemPrompt?: string): Promise<string> {
       body: JSON.stringify({
         model,
         messages,
-        max_tokens: 500,
-        temperature: 0.7,
+        max_tokens: maxTokens,
+        temperature: 0.5,
       }),
     });
 
@@ -231,8 +224,11 @@ export async function generateSummaryAction(
     };
   }
 
-  // Check cache - return cached if exists and description hasn't changed
-  if (issue.aiSummary && issue.aiSummaryCachedAt) {
+  // Check if regeneration is requested
+  const regenerate = formData.get("regenerate") === "true";
+
+  // Check cache - return cached if exists and regeneration not requested
+  if (!regenerate && issue.aiSummary && issue.aiSummaryCachedAt) {
     return { success: true, data: { summary: issue.aiSummary } };
   }
 
@@ -243,14 +239,14 @@ export async function generateSummaryAction(
   }
 
   try {
-    const prompt = `Summarize the following issue in 2-4 sentences. Be concise and focus on the key points:
-
+    const prompt = `Summarize this issue in 2-3 sentences:
 Title: ${issue.title}
 Description: ${issue.description}`;
 
     const summary = await callAI(
       prompt,
-      "You are a helpful assistant that summarizes software issues concisely."
+      "Summarize software issues concisely.",
+      150
     );
 
     // Cache the result
@@ -306,8 +302,11 @@ export async function generateSuggestionAction(
     };
   }
 
-  // Check cache
-  if (issue.aiSuggestion && issue.aiSuggestionCachedAt) {
+  // Check if regeneration is requested
+  const regenerate = formData.get("regenerate") === "true";
+
+  // Check cache - return cached if exists and regeneration not requested
+  if (!regenerate && issue.aiSuggestion && issue.aiSuggestionCachedAt) {
     return { success: true, data: { suggestion: issue.aiSuggestion } };
   }
 
@@ -318,15 +317,15 @@ export async function generateSuggestionAction(
   }
 
   try {
-    const prompt = `Suggest an approach to solve this issue. Provide practical, actionable steps:
-
+    const prompt = `Suggest a solution for this issue in 3-5 bullet points:
 Title: ${issue.title}
 Description: ${issue.description}
 Priority: ${issue.priority}`;
 
     const suggestion = await callAI(
       prompt,
-      "You are a senior software engineer helping to solve issues. Provide clear, practical solutions."
+      "Senior engineer providing brief, actionable solutions.",
+      250
     );
 
     // Cache the result
@@ -386,19 +385,11 @@ export async function suggestLabelsAction(
 
   try {
     const labelNames = labels.map((l) => l.name).join(", ");
-    const prompt = `Given the following issue and available labels, suggest the most appropriate labels (max 3).
+    const prompt = `Labels: ${labelNames}\nIssue: ${title} - ${
+      description || "No description"
+    }\nPick 1-3 matching labels, comma-separated, or "none".`;
 
-Issue Title: ${title}
-Issue Description: ${description || "No description"}
-
-Available Labels: ${labelNames}
-
-Respond with ONLY the label names that apply, separated by commas. If no labels apply, respond with "none".`;
-
-    const response = await callAI(
-      prompt,
-      "You are a helpful assistant that categorizes software issues."
-    );
+    const response = await callAI(prompt, "Categorize issues briefly.", 50);
 
     // Parse response to find matching labels
     const suggestedNames = response
@@ -558,18 +549,12 @@ export async function generateCommentSummaryAction(
       .map((c) => `${c.author.name}: ${c.content}`)
       .join("\n\n");
 
-    const prompt = `Summarize the following discussion about an issue. Provide:
-1. A brief summary (3-5 sentences)
-2. Key decisions made (if any)
-
-Issue Title: ${issue.title}
-
-Discussion:
-${commentText}`;
+    const prompt = `Summarize this discussion briefly (3-4 sentences) and list key decisions:\nIssue: ${issue.title}\n\n${commentText}`;
 
     const commentSummary = await callAI(
       prompt,
-      "You are a helpful assistant that summarizes technical discussions concisely."
+      "Summarize discussions concisely.",
+      200
     );
 
     return { success: true, data: { commentSummary } };
@@ -636,19 +621,11 @@ export async function suggestLabelsSimple(
 
   try {
     const labelNames = labels.map((l) => l.name).join(", ");
-    const prompt = `Given the following issue and available labels, suggest the most appropriate labels (max 3).
+    const prompt = `Labels: ${labelNames}\nIssue: ${title} - ${
+      description || ""
+    }\nPick 1-3 labels, comma-separated, or "none".`;
 
-Issue Title: ${title}
-Issue Description: ${description || "No description"}
-
-Available Labels: ${labelNames}
-
-Respond with ONLY the label names that apply, separated by commas. If no labels apply, respond with "none".`;
-
-    const response = await callAI(
-      prompt,
-      "You are a helpful assistant that categorizes software issues."
-    );
+    const response = await callAI(prompt, "Categorize issues.", 50);
 
     // Parse response to find matching labels
     const suggestedNames = response
@@ -720,19 +697,9 @@ export async function detectDuplicatesSimple(
       .map((issue, i) => `${i + 1}. "${issue.title}"`)
       .join("\n");
 
-    const prompt = `Given a new issue title, identify which existing issues might be duplicates or very similar.
+    const prompt = `New: "${title}"\nExisting:\n${issueList}\nSimilar issue numbers (1-3) or "none":`;
 
-New Issue Title: "${title}"
-
-Existing Issues:
-${issueList}
-
-Respond with ONLY the numbers of similar issues (1-3 max), separated by commas. If no duplicates, respond with "none".`;
-
-    const response = await callAI(
-      prompt,
-      "You are a helpful assistant that detects duplicate software issues."
-    );
+    const response = await callAI(prompt, "Detect duplicates.", 30);
 
     // Parse response
     if (response.toLowerCase().includes("none")) {

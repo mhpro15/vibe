@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   DragDropContext,
   Droppable,
@@ -10,6 +10,7 @@ import {
 } from "@hello-pangea/dnd";
 import { Avatar } from "@/components/ui/Avatar";
 import { changeStatusAction } from "@/lib/actions/issue";
+import { ExternalLink } from "lucide-react";
 
 interface Label {
   id: string;
@@ -252,31 +253,46 @@ interface IssueCardProps {
 }
 
 function IssueCard({ issue, projectId, isDragging }: IssueCardProps) {
+  const router = useRouter();
   const completedSubtasks = issue.subtasks.filter((s) => s.isCompleted).length;
   const totalSubtasks = issue.subtasks.length;
   const isOverdue = issue.dueDate && new Date(issue.dueDate) < new Date();
 
+  const handleOpenIssue = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    router.push(`/projects/${projectId}/issues/${issue.id}?tab=board`);
+  };
+
   return (
     <div
-      className={`p-3 bg-neutral-800 rounded-lg border border-neutral-700/50 cursor-grab active:cursor-grabbing transition-all hover:border-neutral-600 ${
+      onDoubleClick={handleOpenIssue}
+      className={`group p-3 bg-neutral-800 rounded-lg border border-neutral-700/50 cursor-grab active:cursor-grabbing transition-all hover:border-neutral-600 ${
         isDragging ? "shadow-lg ring-2 ring-violet-500/50" : ""
       }`}
     >
-      {/* Priority indicator */}
+      {/* Priority indicator and open button */}
       <div className="flex items-start justify-between gap-2 mb-2">
-        <Link
-          href={`/projects/${projectId}/issues/${issue.id}`}
-          className="text-sm font-medium text-white hover:text-violet-400 transition-colors line-clamp-2"
-          onClick={(e) => e.stopPropagation()}
+        <span
+          className="text-sm font-medium text-white line-clamp-2 flex-1"
         >
           {issue.title}
-        </Link>
-        <span
-          className={`w-2 h-2 rounded-full shrink-0 mt-1.5 ${
-            PRIORITY_COLORS[issue.priority]
-          }`}
-          title={issue.priority}
-        />
+        </span>
+        <div className="flex items-center gap-1.5 shrink-0">
+          <button
+            onClick={handleOpenIssue}
+            className="p-1 rounded opacity-0 group-hover:opacity-100 hover:bg-neutral-700 text-neutral-400 hover:text-violet-400 transition-all"
+            title="Open issue"
+          >
+            <ExternalLink className="w-3.5 h-3.5" />
+          </button>
+          <span
+            className={`w-2 h-2 rounded-full mt-1 ${
+              PRIORITY_COLORS[issue.priority]
+            }`}
+            title={issue.priority}
+          />
+        </div>
       </div>
 
       {/* Labels */}

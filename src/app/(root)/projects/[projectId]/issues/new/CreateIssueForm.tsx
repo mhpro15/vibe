@@ -46,7 +46,6 @@ const initialState: IssueActionResult = {
 
 export function CreateIssueForm({
   projectId,
-  projectName,
   labels,
   teamMembers,
 }: CreateIssueFormProps) {
@@ -157,25 +156,8 @@ export function CreateIssueForm({
       <input type="hidden" name="projectId" value={projectId} />
       <input type="hidden" name="labelIds" value={selectedLabels.join(",")} />
 
-      {/* Project indicator */}
-      <div className="bg-neutral-800/50 rounded-xl border border-neutral-700/50 p-4">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-linear-to-br from-neutral-700 to-neutral-800 border border-neutral-600/50 flex items-center justify-center text-white font-bold">
-            {projectName.charAt(0).toUpperCase()}
-          </div>
-          <div>
-            <p className="text-sm text-neutral-400">
-              Creating issue in
-            </p>
-            <p className="font-medium text-white">
-              {projectName}
-            </p>
-          </div>
-        </div>
-      </div>
-
       {/* Main form */}
-      <div className="bg-neutral-900 rounded-xl border border-neutral-700/50 p-6 space-y-6">
+      <div className="bg-neutral-900/50 rounded-xl border border-neutral-700/50 p-6 space-y-6">
         {/* Title */}
         <div>
           <label
@@ -318,7 +300,7 @@ export function CreateIssueForm({
             type="date"
             id="dueDate"
             name="dueDate"
-            className="w-full md:w-auto px-4 py-2.5 border border-neutral-700/50 rounded-xl bg-neutral-900 text-white focus:ring-2 focus:ring-white/10 focus:border-neutral-600 transition-all"
+            className="w-full md:w-auto px-4 py-2.5 border  border-neutral-700/50 rounded-xl bg-neutral-900 text-white focus:ring-2 focus:ring-white/10 focus:border-neutral-600 transition-all"
           />
         </div>
 
