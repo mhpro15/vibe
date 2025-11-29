@@ -35,7 +35,7 @@ export default async function NewIssuePage({ params }: NewIssuePageProps) {
           members: {
             include: {
               user: {
-                select: { id: true, name: true, image: true },
+                select: { id: true, name: true, email: true, image: true },
               },
             },
           },
@@ -59,6 +59,7 @@ export default async function NewIssuePage({ params }: NewIssuePageProps) {
   const teamMembers = project.team.members.map((m) => ({
     id: m.user.id,
     name: m.user.name,
+    email: m.user.email,
     image: m.user.image,
   }));
 

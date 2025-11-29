@@ -12,8 +12,10 @@ import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Badge } from "@/components/ui/Badge";
+import { Avatar } from "@/components/ui/Avatar";
 import { createIssueAction, IssueActionResult } from "@/lib/actions/issue";
 import { suggestLabelsSimple, detectDuplicatesSimple } from "@/lib/actions/ai";
+import { ChevronDown, User } from "lucide-react";
 
 interface Label {
   id: string;
@@ -24,6 +26,7 @@ interface Label {
 interface TeamMember {
   id: string;
   name: string;
+  email: string;
   image?: string | null;
 }
 
@@ -57,11 +60,27 @@ export function CreateIssueForm({
   const [duplicates, setDuplicates] = useState<DuplicateIssue[]>([]);
   const [isCheckingDuplicates, setIsCheckingDuplicates] = useState(false);
   const [showDuplicateWarning, setShowDuplicateWarning] = useState(false);
+  const [selectedAssignee, setSelectedAssignee] = useState<string>("");
+  const [isAssigneeDropdownOpen, setIsAssigneeDropdownOpen] = useState(false);
+  const assigneeDropdownRef = useRef<HTMLDivElement>(null);
   const debounceTimer = useRef<NodeJS.Timeout | null>(null);
   const [state, formAction, isPending] = useActionState(
     createIssueAction,
     initialState
   );
+
+  // Close assignee dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (assigneeDropdownRef.current && !assigneeDropdownRef.current.contains(event.target as Node)) {
+        setIsAssigneeDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const selectedMember = teamMembers.find(m => m.id === selectedAssignee);
 
   // Debounced duplicate check when title changes
   const handleTitleChange = useCallback(
@@ -265,26 +284,86 @@ export function CreateIssueForm({
             </select>
           </div>
 
-          <div>
+          <div ref={assigneeDropdownRef} className="relative">
             <label
-              htmlFor="assigneeId"
               className="block text-sm font-medium text-neutral-300 mb-2"
             >
               Assignee
             </label>
-            <select
-              id="assigneeId"
-              name="assigneeId"
-              defaultValue=""
-              className="w-full px-4 py-2.5 border border-neutral-700/50 rounded-xl bg-neutral-900 text-white focus:ring-2 focus:ring-white/10 focus:border-neutral-600 transition-all"
+            <input type="hidden" name="assigneeId" value={selectedAssignee} />
+            <button
+              type="button"
+              onClick={() => setIsAssigneeDropdownOpen(!isAssigneeDropdownOpen)}
+              className="w-full px-4 py-2.5 border border-neutral-700/50 rounded-xl bg-neutral-900 text-white focus:ring-2 focus:ring-white/10 focus:border-neutral-600 transition-all flex items-center justify-between"
             >
-              <option value="">Unassigned</option>
-              {teamMembers.map((member) => (
-                <option key={member.id} value={member.id}>
-                  {member.name}
-                </option>
-              ))}
-            </select>
+              {selectedMember ? (
+                <div className="flex items-center gap-3">
+                  <Avatar src={selectedMember.image} name={selectedMember.name} size="xs" />
+                  <div className="text-left">
+                    <p className="text-sm text-white">{selectedMember.name}</p>
+                    <p className="text-xs text-neutral-500">{selectedMember.email}</p>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 text-neutral-400">
+                  <User className="w-4 h-4" />
+                  <span>Unassigned</span>
+                </div>
+              )}
+              <ChevronDown className={`w-4 h-4 text-neutral-400 transition-transform ${isAssigneeDropdownOpen ? "rotate-180" : ""}`} />
+            </button>
+
+            {isAssigneeDropdownOpen && (
+              <div className="absolute z-50 top-full left-0 right-0 mt-2 bg-neutral-900 border border-neutral-700/50 rounded-xl shadow-xl overflow-hidden">
+                {/* Unassigned option */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedAssignee("");
+                    setIsAssigneeDropdownOpen(false);
+                  }}
+                  className={`w-full px-4 py-3 flex items-center gap-3 hover:bg-neutral-800 transition-colors ${
+                    selectedAssignee === "" ? "bg-neutral-800" : ""
+                  }`}
+                >
+                  <div className="w-8 h-8 rounded-full bg-neutral-700 flex items-center justify-center">
+                    <User className="w-4 h-4 text-neutral-400" />
+                  </div>
+                  <div className="text-left">
+                    <p className="text-sm text-white">Unassigned</p>
+                    <p className="text-xs text-neutral-500">No one assigned</p>
+                  </div>
+                </button>
+
+                <div className="border-t border-neutral-700/50" />
+
+                {/* Team members */}
+                <div className="max-h-60 overflow-y-auto">
+                  {teamMembers.map((member) => (
+                    <button
+                      key={member.id}
+                      type="button"
+                      onClick={() => {
+                        setSelectedAssignee(member.id);
+                        setIsAssigneeDropdownOpen(false);
+                      }}
+                      className={`w-full px-4 py-3 flex items-center gap-3 hover:bg-neutral-800 transition-colors ${
+                        selectedAssignee === member.id ? "bg-neutral-800" : ""
+                      }`}
+                    >
+                      <Avatar src={member.image} name={member.name} size="sm" />
+                      <div className="text-left flex-1 min-w-0">
+                        <p className="text-sm text-white truncate">{member.name}</p>
+                        <p className="text-xs text-neutral-500 truncate">{member.email}</p>
+                      </div>
+                      {selectedAssignee === member.id && (
+                        <div className="w-2 h-2 rounded-full bg-violet-500" />
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 

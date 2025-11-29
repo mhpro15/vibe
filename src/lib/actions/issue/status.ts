@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import { IssueStatus } from "@/generated/prisma/client";
 import { IssueActionResult, isTeamMember, logIssueChange } from "./helpers";
 import { notifyIssueAssigned } from "@/lib/actions/notification";
+import { sendIssueAssignedEmail } from "@/lib/email";
 
 // FR-033: Assign Issue
 export async function assignIssueAction(
@@ -69,6 +70,7 @@ export async function assignIssueAction(
 
     // Notify new assignee if they're different from the person assigning
     if (assigneeId && assigneeId !== session.user.id) {
+      // In-app notification
       await notifyIssueAssigned(
         assigneeId,
         issueId,
@@ -76,6 +78,26 @@ export async function assignIssueAction(
         issue.projectId,
         session.user.name || "Someone"
       );
+
+      // Email notification
+      const assignee = await prisma.user.findUnique({
+        where: { id: assigneeId },
+        select: { email: true },
+      });
+      const project = await prisma.project.findUnique({
+        where: { id: issue.projectId },
+        select: { name: true },
+      });
+      if (assignee?.email) {
+        const issueUrl = `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/projects/${issue.projectId}/issues/${issueId}`;
+        await sendIssueAssignedEmail(
+          assignee.email,
+          session.user.name || "Someone",
+          issue.title,
+          project?.name || "a project",
+          issueUrl
+        );
+      }
     }
 
     revalidatePath(`/projects/${issue.projectId}`);

@@ -169,7 +169,7 @@ export function CreateIssueModal({
           >
             Due Date (optional)
           </label>
-          <Input id="dueDate" name="dueDate" type="date" />
+          <Input id="dueDate" name="dueDate" type="date" className="" />
         </div>
 
         {labels.length > 0 && (
