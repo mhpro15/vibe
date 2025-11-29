@@ -51,5 +51,9 @@ export type ProjectActionResult = {
   error?: string;
   data?: {
     projectId?: string;
+    labelId?: string;
+    customStatusId?: string;
+    isArchived?: boolean;
+    isFavorite?: boolean;
   };
 };

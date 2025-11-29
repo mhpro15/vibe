@@ -44,7 +44,7 @@ interface CustomStatus {
   name: string;
   color: string | null;
   position: number;
-  wipLimit: number | null;
+  wipLimit?: number | null;
 }
 
 interface KanbanBoardProps {

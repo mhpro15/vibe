@@ -8,7 +8,12 @@ import { prisma } from "@/lib/prisma";
 export type IssueActionResult = {
   success: boolean;
   error?: string;
-  data?: unknown;
+  data?: {
+    issueId?: string;
+    commentId?: string;
+    subtaskId?: string;
+    isCompleted?: boolean;
+  };
 };
 
 /**

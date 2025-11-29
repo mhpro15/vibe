@@ -127,6 +127,35 @@ export async function forgotPasswordAction(
   }
 
   try {
+    // Import prisma to check if user exists and how they signed up
+    const { prisma } = await import("@/lib/prisma");
+    
+    const user = await prisma.user.findUnique({
+      where: { email },
+      include: {
+        accounts: {
+          select: { providerId: true, password: true }
+        }
+      }
+    });
+
+    // If user exists, check if they have a credential account
+    if (user) {
+      const hasCredentialAccount = user.accounts.some(
+        (acc) => acc.providerId === "credential" && acc.password
+      );
+      
+      // If user only has OAuth account, return helpful message
+      if (!hasCredentialAccount && user.accounts.length > 0) {
+        const oauthProvider = user.accounts[0].providerId;
+        const providerName = oauthProvider === "google" ? "Google" : oauthProvider;
+        return { 
+          success: false, 
+          error: `This account uses ${providerName} sign-in. Please use the "${providerName}" button to sign in.`
+        };
+      }
+    }
+
     // Use the internal API endpoint for password reset request
     const baseUrl =
       process.env.BETTER_AUTH_URL ||
@@ -143,7 +172,7 @@ export async function forgotPasswordAction(
       }),
     });
 
-    // Always return success to prevent email enumeration
+    // Always return success to prevent email enumeration (for non-OAuth users)
     if (!response.ok) {
       console.error("Forgot password API error:", await response.text());
     }
@@ -278,6 +307,36 @@ export async function updateProfileAction(
   } catch (error) {
     console.error("Update profile error:", error);
     return { success: false, error: "Failed to update profile" };
+  }
+}
+
+// Check if user has a password (vs OAuth-only)
+export async function checkUserHasPasswordAction(): Promise<{ hasPassword: boolean }> {
+  try {
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+    
+    if (!session?.user?.id) {
+      return { hasPassword: false };
+    }
+
+    // Import prisma dynamically to avoid circular deps
+    const { prisma } = await import("@/lib/prisma");
+    
+    // Check if user has a credential account with password
+    const credentialAccount = await prisma.account.findFirst({
+      where: {
+        userId: session.user.id,
+        providerId: "credential",
+        password: { not: null },
+      },
+    });
+
+    return { hasPassword: !!credentialAccount };
+  } catch (error) {
+    console.error("Check password error:", error);
+    return { hasPassword: false };
   }
 }
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -39,6 +40,7 @@ export function CreateIssueModal({
   labels,
   teamMembers,
 }: CreateIssueModalProps) {
+  const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
   const [selectedLabels, setSelectedLabels] = useState<string[]>([]);
   const [state, formAction, isPending] = useActionState(
@@ -47,11 +49,12 @@ export function CreateIssueModal({
   );
 
   useEffect(() => {
-    if (state.success) {
+    if (state.success && state.data?.issueId) {
       formRef.current?.reset();
       onClose();
+      router.push(`/projects/${projectId}/issues/${state.data.issueId}`);
     }
-  }, [state.success, onClose]);
+  }, [state.success, state.data?.issueId, onClose, projectId, router]);
 
   const handleClose = () => {
     setSelectedLabels([]);
