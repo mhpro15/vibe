@@ -19,7 +19,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         {label && (
           <label
             htmlFor={inputId}
-            className="block text-sm font-medium mb-1.5 text-gray-700 dark:text-gray-300"
+            className="block text-sm font-medium mb-2 text-neutral-300"
           >
             {label}
           </label>
@@ -30,12 +30,12 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             id={inputId}
             type={isPassword && showPassword ? "text" : type}
             className={`
-              w-full px-3 py-2 border rounded-lg transition-colors
-              bg-white dark:bg-gray-900
-              border-gray-300 dark:border-gray-600
-              focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
-              disabled:bg-gray-100 dark:disabled:bg-gray-800 disabled:cursor-not-allowed
-              ${error ? "border-red-500 focus:ring-red-500" : ""}
+              w-full px-4 py-2.5 border rounded-xl transition-all duration-200
+              bg-neutral-950 text-white placeholder:text-neutral-500
+              border-neutral-800 hover:border-neutral-700
+              focus:outline-none focus:ring-2 focus:ring-white/10 focus:border-neutral-600
+              disabled:bg-neutral-900 disabled:text-neutral-500 disabled:cursor-not-allowed
+              ${error ? "border-red-500/50 focus:ring-red-500/20" : ""}
               ${isPassword ? "pr-10" : ""}
               ${className}
             `}
@@ -45,7 +45,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-white transition-colors"
             >
               {showPassword ? (
                 <svg
@@ -79,9 +79,9 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             </button>
           )}
         </div>
-        {error && <p className="mt-1.5 text-sm text-red-500">{error}</p>}
+        {error && <p className="mt-2 text-sm text-red-400">{error}</p>}
         {helperText && !error && (
-          <p className="mt-1.5 text-sm text-gray-500">{helperText}</p>
+          <p className="mt-2 text-sm text-neutral-500">{helperText}</p>
         )}
       </div>
     );

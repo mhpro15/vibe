@@ -18,27 +18,27 @@ export function SignUpForm() {
 
   return (
     <div className="w-full max-w-md mx-auto">
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8">
+      <div className="bg-neutral-900/50 backdrop-blur-sm border border-neutral-800 rounded-2xl p-8">
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+          <h1 className="text-2xl font-semibold text-white tracking-tight">
             Create an account
           </h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-2">
+          <p className="text-neutral-400 mt-2 text-sm">
             Get started with Vibe
           </p>
         </div>
 
         {state.success && (
-          <div className="mb-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
-            <p className="text-sm text-green-600 dark:text-green-400">
+          <div className="mb-6 p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
+            <p className="text-sm text-emerald-400">
               Account created successfully! Redirecting...
             </p>
           </div>
         )}
 
         {state.error && (
-          <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-            <p className="text-sm text-red-600 dark:text-red-400">
+          <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
+            <p className="text-sm text-red-400">
               {state.error}
             </p>
           </div>
@@ -92,10 +92,10 @@ export function SignUpForm() {
         <div className="mt-6">
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300 dark:border-gray-600"></div>
+              <div className="w-full border-t border-neutral-800"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white dark:bg-gray-800 text-gray-500">
+              <span className="px-3 bg-neutral-900/50 text-neutral-500">
                 Or continue with
               </span>
             </div>
@@ -104,11 +104,11 @@ export function SignUpForm() {
           <GoogleSignInButton className="mt-4" />
         </div>
 
-        <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
+        <p className="mt-6 text-center text-sm text-neutral-400">
           Already have an account?{" "}
           <Link
             href="/signin"
-            className="font-medium text-blue-600 hover:text-blue-500"
+            className="font-medium text-white hover:text-neutral-300 transition-colors"
           >
             Sign in
           </Link>

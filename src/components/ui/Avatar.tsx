@@ -5,7 +5,7 @@ import Image from "next/image";
 interface AvatarProps {
   src?: string | null;
   name: string;
-  size?: "sm" | "md" | "lg" | "xl";
+  size?: "xs" | "sm" | "md" | "lg" | "xl";
   className?: string;
 }
 
@@ -16,6 +16,7 @@ export function Avatar({
   className = "",
 }: AvatarProps) {
   const sizes = {
+    xs: { class: "w-5 h-5 text-[10px]", pixels: 20 },
     sm: { class: "w-6 h-6 text-xs", pixels: 24 },
     md: { class: "w-8 h-8 text-sm", pixels: 32 },
     lg: { class: "w-10 h-10 text-base", pixels: 40 },

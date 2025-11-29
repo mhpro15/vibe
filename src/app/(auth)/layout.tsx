@@ -6,28 +6,22 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900 px-4 py-12">
-      <Link href="/" className="mb-8 flex items-center gap-2">
-        <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-          <svg
-            className="w-6 h-6 text-white"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
-            />
-          </svg>
-        </div>
-        <span className="text-xl font-bold text-gray-900 dark:text-white">
-          Vibe
-        </span>
-      </Link>
-      {children}
+    <div className="min-h-screen flex flex-col items-center justify-center bg-neutral-950 px-4 py-12 relative overflow-hidden">
+      {/* Subtle gradient background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-950" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-neutral-800/20 via-transparent to-transparent" />
+      
+      {/* Minimal grid pattern */}
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:64px_64px]" />
+      
+      <div className="relative z-10 w-full flex flex-col items-center">
+        <Link href="/" className="mb-10 group">
+          <span className="text-2xl font-light text-white tracking-widest uppercase hover:tracking-[0.3em] transition-all duration-300">
+            Vibe
+          </span>
+        </Link>
+        {children}
+      </div>
     </div>
   );
 }

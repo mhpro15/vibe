@@ -49,10 +49,10 @@ export function ResetPasswordForm() {
   if (!token && !urlError) {
     return (
       <div className="w-full max-w-md mx-auto">
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 text-center">
-          <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+        <div className="bg-neutral-900/50 backdrop-blur-sm border border-neutral-800 rounded-2xl p-8 text-center">
+          <div className="w-16 h-16 bg-red-500/10 border border-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
             <svg
-              className="w-8 h-8 text-red-600"
+              className="w-8 h-8 text-red-400"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -65,10 +65,10 @@ export function ResetPasswordForm() {
               />
             </svg>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+          <h1 className="text-2xl font-semibold text-white tracking-tight mb-2">
             Invalid Link
           </h1>
-          <p className="text-gray-600 dark:text-gray-400 mb-6">
+          <p className="text-neutral-400 mb-6 text-sm">
             This password reset link is invalid. Please request a new one.
           </p>
           <Link href="/forgot-password">
@@ -82,10 +82,10 @@ export function ResetPasswordForm() {
   if (state.success) {
     return (
       <div className="w-full max-w-md mx-auto">
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 text-center">
-          <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+        <div className="bg-neutral-900/50 backdrop-blur-sm border border-neutral-800 rounded-2xl p-8 text-center">
+          <div className="w-16 h-16 bg-emerald-500/10 border border-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
             <svg
-              className="w-8 h-8 text-green-600"
+              className="w-8 h-8 text-emerald-400"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -98,10 +98,10 @@ export function ResetPasswordForm() {
               />
             </svg>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+          <h1 className="text-2xl font-semibold text-white tracking-tight mb-2">
             Password Reset!
           </h1>
-          <p className="text-gray-600 dark:text-gray-400 mb-6">
+          <p className="text-neutral-400 mb-6 text-sm">
             Your password has been successfully reset. Redirecting to sign in...
           </p>
           <Link href="/signin">
@@ -116,19 +116,19 @@ export function ResetPasswordForm() {
 
   return (
     <div className="w-full max-w-md mx-auto">
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8">
+      <div className="bg-neutral-900/50 backdrop-blur-sm border border-neutral-800 rounded-2xl p-8">
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+          <h1 className="text-2xl font-semibold text-white tracking-tight">
             Reset your password
           </h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-2">
+          <p className="text-neutral-400 mt-2 text-sm">
             Enter your new password below
           </p>
         </div>
 
         {displayError && (
-          <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-            <p className="text-sm text-red-600 dark:text-red-400">
+          <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
+            <p className="text-sm text-red-400">
               {displayError}
             </p>
           </div>
@@ -161,11 +161,11 @@ export function ResetPasswordForm() {
           </Button>
         </form>
 
-        <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
+        <p className="mt-6 text-center text-sm text-neutral-400">
           Remember your password?{" "}
           <Link
             href="/signin"
-            className="font-medium text-blue-600 hover:text-blue-500"
+            className="font-medium text-white hover:text-neutral-300 transition-colors"
           >
             Sign in
           </Link>
