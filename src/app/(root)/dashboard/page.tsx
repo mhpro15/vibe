@@ -15,6 +15,7 @@ import {
   Clock,
   MessageSquare,
   CalendarClock,
+  FolderKanban,
 } from "lucide-react";
 
 export default async function DashboardPage() {
@@ -158,6 +159,31 @@ export default async function DashboardPage() {
 
   // Get pending team invitations
   const pendingInvitations = await getMyInvites();
+
+  // Get recent projects the user has access to
+  const recentProjects = await prisma.project.findMany({
+    where: {
+      deletedAt: null,
+      team: {
+        deletedAt: null,
+        members: {
+          some: { userId: session.user.id },
+        },
+      },
+    },
+    orderBy: { updatedAt: "desc" },
+    take: 5,
+    include: {
+      team: {
+        select: { id: true, name: true },
+      },
+      _count: {
+        select: {
+          issues: { where: { deletedAt: null } },
+        },
+      },
+    },
+  });
 
   const getTimeAgo = (date: Date) => {
     const now = new Date();
@@ -608,6 +634,56 @@ export default async function DashboardPage() {
                       </div>
                     )}
                   </div>
+                ))}
+              </div>
+            )}
+          </section>
+
+          {/* Recent Projects */}
+          <section className="bg-neutral-900/50 border border-neutral-700/50 rounded-xl p-4">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <FolderKanban className="w-4 h-4 text-neutral-500" />
+                <h2 className="text-sm font-medium text-white uppercase tracking-wider">
+                  Recent Projects
+                </h2>
+              </div>
+              <Link
+                href="/projects"
+                className="text-xs text-neutral-400 hover:text-white transition-colors"
+              >
+                View all →
+              </Link>
+            </div>
+            {recentProjects.length === 0 ? (
+              <div className="border border-dashed border-neutral-700 rounded-lg p-4 text-center">
+                <p className="text-neutral-400 text-sm mb-2">No projects yet</p>
+                <p className="text-xs text-neutral-500">
+                  Join a team to access projects
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {recentProjects.map((project) => (
+                  <Link
+                    key={project.id}
+                    href={`/projects/${project.id}`}
+                    className="block p-3 rounded-lg bg-neutral-800/50 hover:bg-neutral-800 border border-transparent hover:border-neutral-700/50 transition-all group"
+                  >
+                    <div className="flex items-center gap-2 mb-1">
+                      <div className="w-5 h-5 rounded bg-linear-to-br from-violet-600 to-violet-800 flex items-center justify-center text-[10px] text-white font-medium">
+                        {project.name.charAt(0).toUpperCase()}
+                      </div>
+                      <span className="text-sm text-white truncate group-hover:text-violet-300 transition-colors">
+                        {project.name}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-neutral-500 pl-7">
+                      <span className="truncate">{project.team.name}</span>
+                      <span>•</span>
+                      <span>{project._count.issues} issues</span>
+                    </div>
+                  </Link>
                 ))}
               </div>
             )}
