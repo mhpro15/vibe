@@ -19,6 +19,7 @@
     "@prisma/client": "^7.0.1",
     "@tsparticles/react": "^3.0.0",
     "@tsparticles/slim": "^3.9.1",
+    "@vercel/analytics": "^1.5.0",
     "animejs": "^4.2.2",
     "better-auth": "^1.4.3",
     "dotenv": "^17.2.3",
