@@ -205,7 +205,7 @@ export function KanbanBoard({
 
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
-      <div className="flex gap-4 overflow-x-auto pb-4">
+      <div className="flex gap-3 overflow-x-auto pb-4 min-h-[400px]">
         {columns.map((column) => {
           const columnIssues = getIssuesByStatus(column.id);
           const isOverLimit =
@@ -214,23 +214,25 @@ export function KanbanBoard({
           return (
             <div
               key={column.id}
-              className="shrink-0 w-80 rounded-xl border border-neutral-700/50 bg-neutral-900/50"
+              className="shrink-0 w-56 rounded-xl border border-neutral-700/50 bg-neutral-900/50"
             >
               {/* Column Header */}
               <div
-                className={`p-3 border-b border-neutral-700/50 rounded-t-xl ${
+                className={`p-2.5 border-b border-neutral-700/50 rounded-t-xl ${
                   isOverLimit ? "bg-red-900/20" : ""
                 }`}
               >
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1.5">
                     <span
-                      className="w-3 h-3 rounded-full"
+                      className="w-2.5 h-2.5 rounded-full shrink-0"
                       style={{ backgroundColor: column.color }}
                     />
-                    <h3 className="font-medium text-white">{column.title}</h3>
+                    <h3 className="font-medium text-white text-sm truncate">
+                      {column.title}
+                    </h3>
                     <span
-                      className={`text-sm px-2 py-0.5 rounded-full ${
+                      className={`text-xs px-1.5 py-0.5 rounded-full shrink-0 ${
                         isOverLimit
                           ? "bg-red-500/20 text-red-400"
                           : "bg-neutral-700 text-neutral-300"
@@ -254,7 +256,7 @@ export function KanbanBoard({
                   <div
                     ref={provided.innerRef}
                     {...provided.droppableProps}
-                    className={`p-2 min-h-[200px] max-h-[calc(100vh-300px)] overflow-y-auto space-y-2 transition-colors ${
+                    className={`p-1.5 min-h-[150px] max-h-[calc(100vh-320px)] overflow-y-auto space-y-1.5 transition-colors ${
                       snapshot.isDraggingOver ? "bg-neutral-800/50" : ""
                     }`}
                   >
@@ -319,25 +321,25 @@ function IssueCard({ issue, projectId, isDragging }: IssueCardProps) {
   return (
     <div
       onDoubleClick={handleOpenIssue}
-      className={`group p-3 bg-neutral-800 rounded-lg border border-neutral-700/50 cursor-grab active:cursor-grabbing transition-all hover:border-neutral-600 ${
+      className={`group p-2.5 bg-neutral-800 rounded-lg border border-neutral-700/50 cursor-grab active:cursor-grabbing transition-all hover:border-neutral-600 ${
         isDragging ? "shadow-lg ring-2 ring-violet-500/50" : ""
       }`}
     >
       {/* Priority indicator and open button */}
-      <div className="flex items-start justify-between gap-2 mb-2">
-        <span className="text-sm font-medium text-white line-clamp-2 flex-1">
+      <div className="flex items-start justify-between gap-1.5 mb-1.5">
+        <span className="text-xs font-medium text-white line-clamp-2 flex-1">
           {issue.title}
         </span>
-        <div className="flex items-center gap-1.5 shrink-0">
+        <div className="flex items-center gap-1 shrink-0">
           <button
             onClick={handleOpenIssue}
-            className="p-1 rounded opacity-0 group-hover:opacity-100 hover:bg-neutral-700 text-neutral-400 hover:text-violet-400 transition-all"
+            className="p-0.5 rounded opacity-0 group-hover:opacity-100 hover:bg-neutral-700 text-neutral-400 hover:text-violet-400 transition-all"
             title="Open issue"
           >
-            <ExternalLink className="w-3.5 h-3.5" />
+            <ExternalLink className="w-3 h-3" />
           </button>
           <span
-            className={`w-2 h-2 rounded-full mt-1 ${
+            className={`w-1.5 h-1.5 rounded-full ${
               PRIORITY_COLORS[issue.priority]
             }`}
             title={issue.priority}
@@ -347,11 +349,11 @@ function IssueCard({ issue, projectId, isDragging }: IssueCardProps) {
 
       {/* Labels */}
       {issue.labels.length > 0 && (
-        <div className="flex flex-wrap gap-1 mb-2">
-          {issue.labels.slice(0, 3).map((label) => (
+        <div className="flex flex-wrap gap-0.5 mb-1.5">
+          {issue.labels.slice(0, 2).map((label) => (
             <span
               key={label.id}
-              className="text-xs px-2 py-0.5 rounded-full"
+              className="text-[10px] px-1.5 py-0.5 rounded-full truncate max-w-[70px]"
               style={{
                 backgroundColor: `${label.color}20`,
                 color: label.color,
@@ -360,16 +362,16 @@ function IssueCard({ issue, projectId, isDragging }: IssueCardProps) {
               {label.name}
             </span>
           ))}
-          {issue.labels.length > 3 && (
-            <span className="text-xs text-neutral-400">
-              +{issue.labels.length - 3}
+          {issue.labels.length > 2 && (
+            <span className="text-[10px] text-neutral-400">
+              +{issue.labels.length - 2}
             </span>
           )}
         </div>
       )}
 
       {/* Footer */}
-      <div className="flex items-center justify-between text-xs text-neutral-400">
+      <div className="flex items-center justify-between text-[10px] text-neutral-400">
         <div className="flex items-center gap-2">
           {/* Due date */}
           {issue.dueDate && (
