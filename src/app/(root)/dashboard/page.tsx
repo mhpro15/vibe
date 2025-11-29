@@ -1,6 +1,8 @@
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/actions/auth";
+import { getMyInvites } from "@/lib/actions/team";
+import { PendingInvitations } from "@/components/team";
 import Link from "next/link";
 import {
   LayoutGrid,
@@ -154,6 +156,9 @@ export default async function DashboardPage() {
     take: 8,
   });
 
+  // Get pending team invitations
+  const pendingInvitations = await getMyInvites();
+
   const getTimeAgo = (date: Date) => {
     const now = new Date();
     const diff = now.getTime() - new Date(date).getTime();
@@ -234,6 +239,13 @@ export default async function DashboardPage() {
           })}
         </p>
       </div>
+
+      {/* Pending Invitations */}
+      {pendingInvitations.length > 0 && (
+        <div className="mb-6">
+          <PendingInvitations invitations={pendingInvitations} />
+        </div>
+      )}
 
       {/* Quick Stats Row */}
       <div className="flex flex-wrap items-center gap-4 mb-8 text-sm">

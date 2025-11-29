@@ -28,13 +28,7 @@ body {
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
 }
 
-/* Reset button styles for consistent cross-browser appearance */
-button {
-  background-color: transparent;
-  border: none;
-  outline: none;
-}
-
+/* Reset button focus styles for consistent cross-browser appearance */
 button:focus {
   outline: none;
 }

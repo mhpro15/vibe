@@ -92,6 +92,8 @@ export async function getProjectStats(projectId: string) {
   );
   const doneCount =
     issuesByStatus.find((item) => item.status === "DONE")?._count.id ?? 0;
+  const inProgressCount =
+    issuesByStatus.find((item) => item.status === "IN_PROGRESS")?._count.id ?? 0;
   const completionRate =
     totalIssues > 0 ? Math.round((doneCount / totalIssues) * 100) : 0;
 
@@ -111,6 +113,7 @@ export async function getProjectStats(projectId: string) {
   return {
     totalIssues,
     doneCount,
+    inProgressCount,
     completionRate,
     statusChartData,
     priorityChartData,

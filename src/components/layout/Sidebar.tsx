@@ -8,7 +8,6 @@ import {
   LayoutDashboard,
   Users,
   FolderKanban,
-  ClipboardList,
 } from "lucide-react";
 
 interface SidebarProps {
@@ -35,11 +34,6 @@ const navigation = [
     name: "Projects",
     href: "/projects",
     icon: FolderKanban,
-  },
-  {
-    name: "My Issues",
-    href: "/issues",
-    icon: ClipboardList,
   },
 ];
 

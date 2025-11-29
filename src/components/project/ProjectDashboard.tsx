@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Avatar } from "@/components/ui/Avatar";
-import { StatusPieChart, PriorityBarChart } from "@/components/charts";
+import { StatusPieChart, CompletionRingChart } from "@/components/charts";
 import { getProjectStats } from "@/lib/actions/stats";
 import {
   LayoutDashboard,
@@ -172,9 +172,14 @@ export function ProjectDashboard({ projectId }: ProjectDashboardProps) {
 
         <div className="bg-neutral-900/50 border border-neutral-700/50 rounded-xl p-4">
           <h3 className="text-sm font-medium text-white uppercase tracking-wider mb-4">
-            Issues by Priority
+            Project Completion
           </h3>
-          <PriorityBarChart data={stats.priorityChartData} />
+          <CompletionRingChart
+            completionRate={stats.completionRate}
+            totalIssues={stats.totalIssues}
+            doneCount={stats.doneCount}
+            inProgressCount={stats.inProgressCount}
+          />
         </div>
       </div>
 

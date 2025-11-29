@@ -295,7 +295,7 @@ export async function notifyTeamInvite(
     "TEAM_INVITE",
     "Team Invitation",
     `${inviterName} invited you to join ${teamName}`,
-    `/teams/${teamId}`
+    `/teams`
   );
 }
 
