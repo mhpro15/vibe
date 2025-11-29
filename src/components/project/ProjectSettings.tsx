@@ -99,9 +99,7 @@ export function ProjectSettings({ project, canEdit }: ProjectSettingsProps) {
     <div className="space-y-8">
       {/* General Settings */}
       <section>
-        <h3 className="text-lg font-semibold text-white mb-4">
-          General
-        </h3>
+        <h3 className="text-lg font-semibold text-white mb-4">General</h3>
         <form action={updateAction} className="space-y-4">
           <input type="hidden" name="projectId" value={project.id} />
 
@@ -155,9 +153,7 @@ export function ProjectSettings({ project, canEdit }: ProjectSettingsProps) {
       {/* Labels */}
       <section>
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-white">
-            Labels
-          </h3>
+          <h3 className="text-lg font-semibold text-white">Labels</h3>
           {canEdit && (
             <Button
               variant="outline"
@@ -209,9 +205,7 @@ export function ProjectSettings({ project, canEdit }: ProjectSettingsProps) {
       {/* Custom Statuses */}
       <section>
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-white">
-            Custom Statuses
-          </h3>
+          <h3 className="text-lg font-semibold text-white">Custom Statuses</h3>
           {canEdit && (
             <Button
               variant="outline"
@@ -241,9 +235,7 @@ export function ProjectSettings({ project, canEdit }: ProjectSettingsProps) {
           </div>
           <div className="flex items-center gap-3 p-3 bg-neutral-800 rounded-lg">
             <span className="w-3 h-3 rounded-full bg-emerald-500" />
-            <span className="text-sm font-medium text-neutral-300">
-              Done
-            </span>
+            <span className="text-sm font-medium text-neutral-300">Done</span>
             <span className="text-xs text-neutral-500">(default)</span>
           </div>
 
@@ -292,9 +284,7 @@ export function ProjectSettings({ project, canEdit }: ProjectSettingsProps) {
 
             <div className="flex items-center justify-between p-4 border border-red-500/30 rounded-lg bg-red-500/5">
               <div>
-                <p className="font-medium text-white">
-                  Delete Project
-                </p>
+                <p className="font-medium text-white">Delete Project</p>
                 <p className="text-sm text-neutral-500">
                   Permanently delete this project and all its data
                 </p>
@@ -314,8 +304,9 @@ export function ProjectSettings({ project, canEdit }: ProjectSettingsProps) {
         title="Delete Project"
       >
         <p className="text-neutral-400 mb-4">
-          Are you sure you want to delete <strong className="text-white">{project.name}</strong>? This
-          action cannot be undone.
+          Are you sure you want to delete{" "}
+          <strong className="text-white">{project.name}</strong>? This action
+          cannot be undone.
         </p>
         {deleteState.error && (
           <p className="text-sm text-red-400 mb-4">{deleteState.error}</p>
@@ -471,9 +462,7 @@ function CustomStatusItem({
   deleteAction: (formData: FormData) => void;
 }) {
   const [isEditingWip, setIsEditingWip] = useState(false);
-  const [wipValue, setWipValue] = useState(
-    status.wipLimit?.toString() ?? ""
-  );
+  const [wipValue, setWipValue] = useState(status.wipLimit?.toString() ?? "");
   const [_wipState, wipAction, isSettingWip] = useActionState(
     setWipLimitAction,
     { success: false }
@@ -500,7 +489,10 @@ function CustomStatusItem({
         {canEdit && (
           <>
             {isEditingWip ? (
-              <form action={handleWipSubmit} className="flex items-center gap-1">
+              <form
+                action={handleWipSubmit}
+                className="flex items-center gap-1"
+              >
                 <input type="hidden" name="statusId" value={status.id} />
                 <input
                   type="number"

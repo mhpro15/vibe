@@ -326,7 +326,10 @@ export async function setWipLimitAction(
 
   // Check if user is project owner or team admin
   const isOwner = customStatus.project.ownerId === session.user.id;
-  const isAdmin = await isTeamAdmin(session.user.id, customStatus.project.teamId);
+  const isAdmin = await isTeamAdmin(
+    session.user.id,
+    customStatus.project.teamId
+  );
 
   if (!isOwner && !isAdmin) {
     return {

@@ -73,6 +73,15 @@ export function SubtasksList({
         // Rollback on error
         setSubtasks((prev) => prev.filter((s) => s.id !== tempId));
         setError(result.error || "Failed to add subtask");
+      } else if (result.data?.subtaskId) {
+        // Update with real ID from server
+        setSubtasks((prev) =>
+          prev.map((s) =>
+            s.id === tempId
+              ? { ...s, id: result.data!.subtaskId! }
+              : s
+          )
+        );
       }
     });
   };
@@ -97,9 +106,6 @@ export function SubtasksList({
             s.id === subtaskId ? { ...s, isCompleted: currentState } : s
           )
         );
-        setError(result.error || "Failed to toggle subtask");
-        // Clear error after 3 seconds
-        setTimeout(() => setError(null), 3000);
       }
     });
   };
@@ -224,7 +230,11 @@ export function SubtasksList({
             size="sm"
             disabled={isPending || !newTitle.trim()}
           >
-            {isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Add"}
+            {isPending ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              "Add"
+            )}
           </Button>
           <Button
             type="button"
@@ -248,13 +258,13 @@ export function SubtasksList({
       )}
 
       {/* Error display */}
-      {error && <p className="text-xs text-red-400 mt-2">{error}</p>}
+      {error && (
+        <p className="text-xs text-red-400 mt-2">{error}</p>
+      )}
 
       {/* Limit warning */}
       {totalCount >= 20 && (
-        <p className="text-xs text-amber-500 mt-2">
-          Maximum 20 subtasks reached
-        </p>
+        <p className="text-xs text-amber-500 mt-2">Maximum 20 subtasks reached</p>
       )}
     </div>
   );

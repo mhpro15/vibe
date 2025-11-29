@@ -57,34 +57,62 @@ async function sendEmail(options: EmailOptions): Promise<boolean> {
 }
 
 /**
- * Email template wrapper - clean minimal design matching app style
+ * Email template wrapper - professional design matching app style
  */
-function wrapInTemplate(content: string): string {
+function wrapInTemplate(content: string, preheader: string = ""): string {
   return `
     <!DOCTYPE html>
-    <html>
+    <html lang="en">
       <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="color-scheme" content="dark">
+        <meta name="supported-color-schemes" content="dark">
+        <title>${APP_NAME}</title>
+        <!--[if mso]>
+        <noscript>
+          <xml>
+            <o:OfficeDocumentSettings>
+              <o:PixelsPerInch>96</o:PixelsPerInch>
+            </o:OfficeDocumentSettings>
+          </xml>
+        </noscript>
+        <![endif]-->
       </head>
-      <body style="margin: 0; padding: 0; background-color: #0a0a0a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;">
-        <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #0a0a0a; padding: 48px 20px;">
+      <body style="margin: 0; padding: 0; background-color: #0a0a0a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;">
+        <!-- Preheader text (hidden) -->
+        <div style="display: none; max-height: 0; overflow: hidden; mso-hide: all;">
+          ${preheader}
+          ${"&nbsp;&zwnj;".repeat(30)}
+        </div>
+        
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color: #0a0a0a;">
           <tr>
-            <td align="center">
-              <table width="100%" style="max-width: 480px;">
-                <!-- Logo Header -->
+            <td align="center" style="padding: 40px 16px;">
+              <table role="presentation" width="100%" style="max-width: 520px;">
+                
+                <!-- Header -->
                 <tr>
-                  <td style="padding-bottom: 32px; text-align: center;">
-                    <span style="font-size: 24px; font-weight: 300; color: #ffffff; letter-spacing: 0.25em; text-transform: uppercase;">${APP_NAME}</span>
+                  <td style="padding-bottom: 32px;">
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td>
+                          <span style="font-size: 20px; font-weight: 300; color: #ffffff; letter-spacing: 0.2em; text-transform: uppercase;">${APP_NAME}</span>
+                        </td>
+                        <td align="right">
+                          <span style="font-size: 12px; color: #525252;">Project Management</span>
+                        </td>
+                      </tr>
+                    </table>
                   </td>
                 </tr>
                 
-                <!-- Main Card -->
+                <!-- Main Content Card -->
                 <tr>
                   <td>
-                    <table width="100%" style="background-color: #171717; border-radius: 12px; border: 1px solid #262626;">
+                    <table role="presentation" width="100%" style="background-color: #141414; border-radius: 12px; border: 1px solid #262626;" cellpadding="0" cellspacing="0">
                       <tr>
-                        <td style="padding: 32px;">
+                        <td style="padding: 40px;">
                           ${content}
                         </td>
                       </tr>
@@ -94,12 +122,46 @@ function wrapInTemplate(content: string): string {
                 
                 <!-- Footer -->
                 <tr>
-                  <td style="padding-top: 24px; text-align: center;">
-                    <p style="color: #525252; font-size: 12px; margin: 0;">
-                      © ${new Date().getFullYear()} Vibe. All rights reserved.
-                    </p>
+                  <td style="padding-top: 32px;">
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td align="center">
+                          <p style="color: #404040; font-size: 12px; margin: 0 0 8px 0; line-height: 1.5;">
+                            This is an automated message from ${APP_NAME}.<br>
+                            Please do not reply directly to this email.
+                          </p>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td align="center" style="padding-top: 16px;">
+                          <table role="presentation" cellpadding="0" cellspacing="0">
+                            <tr>
+                              <td style="padding: 0 8px;">
+                                <a href="${APP_URL}/dashboard" style="color: #525252; font-size: 12px; text-decoration: none;">Dashboard</a>
+                              </td>
+                              <td style="color: #333333;">•</td>
+                              <td style="padding: 0 8px;">
+                                <a href="${APP_URL}/profile" style="color: #525252; font-size: 12px; text-decoration: none;">Settings</a>
+                              </td>
+                              <td style="color: #333333;">•</td>
+                              <td style="padding: 0 8px;">
+                                <a href="${APP_URL}" style="color: #525252; font-size: 12px; text-decoration: none;">Help</a>
+                              </td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td align="center" style="padding-top: 20px; border-top: 1px solid #1a1a1a; margin-top: 20px;">
+                          <p style="color: #333333; font-size: 11px; margin: 20px 0 0 0;">
+                            © ${new Date().getFullYear()} Vibe. All rights reserved.
+                          </p>
+                        </td>
+                      </tr>
+                    </table>
                   </td>
                 </tr>
+                
               </table>
             </td>
           </tr>
@@ -110,15 +172,44 @@ function wrapInTemplate(content: string): string {
 }
 
 /**
- * Button component - simple and clean
+ * Primary button component
  */
 function createButton(text: string, url: string): string {
   return `
-    <a href="${url}" 
-       style="display: inline-block; padding: 12px 24px; background-color: #60a5fa; color: #0a0a0a; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 14px;">
-      ${text}
-    </a>
+    <table role="presentation" cellpadding="0" cellspacing="0" style="margin: 0 auto;">
+      <tr>
+        <td style="background-color: #60a5fa; border-radius: 8px;">
+          <a href="${url}" style="display: inline-block; padding: 14px 32px; color: #0a0a0a; text-decoration: none; font-weight: 600; font-size: 14px; letter-spacing: 0.01em;">
+            ${text}
+          </a>
+        </td>
+      </tr>
+    </table>
   `;
+}
+
+/**
+ * Secondary/outline button component
+ */
+function createSecondaryButton(text: string, url: string): string {
+  return `
+    <table role="presentation" cellpadding="0" cellspacing="0" style="margin: 0 auto;">
+      <tr>
+        <td style="border: 1px solid #333333; border-radius: 8px;">
+          <a href="${url}" style="display: inline-block; padding: 12px 24px; color: #a3a3a3; text-decoration: none; font-weight: 500; font-size: 13px;">
+            ${text}
+          </a>
+        </td>
+      </tr>
+    </table>
+  `;
+}
+
+/**
+ * Divider component
+ */
+function createDivider(): string {
+  return `<tr><td style="padding: 24px 0;"><div style="border-top: 1px solid #262626;"></div></td></tr>`;
 }
 
 /**
@@ -131,27 +222,76 @@ export async function sendTeamInviteEmail(
   role: string
 ): Promise<boolean> {
   const content = `
-    <h1 style="color: #ffffff; font-size: 20px; font-weight: 600; margin: 0 0 16px 0;">
-      You're invited to join a team
-    </h1>
-    
-    <p style="color: #a3a3a3; font-size: 14px; line-height: 1.6; margin: 0 0 24px 0;">
-      <span style="color: #ffffff;">${inviterName}</span> has invited you to join <span style="color: #ffffff;">${teamName}</span> as a <span style="color: #60a5fa;">${role}</span>.
-    </p>
-    
-    <div style="margin-bottom: 24px;">
-      ${createButton("Accept Invitation", `${APP_URL}/teams`)}
-    </div>
-    
-    <p style="color: #525252; font-size: 12px; line-height: 1.5; margin: 0;">
-      This invitation expires in 7 days. If you don't have an account, you'll need to sign up first.
-    </p>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+      <!-- Header -->
+      <tr>
+        <td style="padding-bottom: 24px;">
+          <p style="color: #60a5fa; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; margin: 0 0 12px 0;">
+            Team Invitation
+          </p>
+          <h1 style="color: #ffffff; font-size: 24px; font-weight: 600; margin: 0; line-height: 1.3;">
+            You've been invited to join<br>${teamName}
+          </h1>
+        </td>
+      </tr>
+      
+      <!-- Message -->
+      <tr>
+        <td style="padding-bottom: 28px;">
+          <p style="color: #a3a3a3; font-size: 15px; line-height: 1.6; margin: 0;">
+            <strong style="color: #e5e5e5;">${inviterName}</strong> has invited you to collaborate on their team. You'll be joining as a <strong style="color: #e5e5e5;">${role}</strong>.
+          </p>
+        </td>
+      </tr>
+      
+      <!-- Team Info Box -->
+      <tr>
+        <td style="padding-bottom: 32px;">
+          <table role="presentation" width="100%" style="background-color: #1a1a1a; border-radius: 8px; border-left: 3px solid #60a5fa;" cellpadding="0" cellspacing="0">
+            <tr>
+              <td style="padding: 20px;">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                  <tr>
+                    <td width="48" valign="top">
+                      <div style="width: 40px; height: 40px; background-color: #262626; border-radius: 8px; text-align: center; line-height: 40px; font-size: 16px; font-weight: 600; color: #ffffff;">
+                        ${teamName.charAt(0).toUpperCase()}
+                      </div>
+                    </td>
+                    <td style="padding-left: 12px;" valign="middle">
+                      <p style="color: #ffffff; font-size: 15px; font-weight: 600; margin: 0 0 4px 0;">${teamName}</p>
+                      <p style="color: #666666; font-size: 13px; margin: 0;">Your role: ${role}</p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+      
+      <!-- CTA Button -->
+      <tr>
+        <td align="center" style="padding-bottom: 28px;">
+          ${createButton("Accept Invitation", `${APP_URL}/teams`)}
+        </td>
+      </tr>
+      
+      <!-- Note -->
+      <tr>
+        <td>
+          <p style="color: #525252; font-size: 13px; line-height: 1.6; margin: 0; text-align: center;">
+            This invitation will expire in 7 days.<br>
+            If you don't have an account yet, you'll be prompted to create one.
+          </p>
+        </td>
+      </tr>
+    </table>
   `;
 
   return sendEmail({
     to,
-    subject: `${inviterName} invited you to join ${teamName}`,
-    html: wrapInTemplate(content),
+    subject: `[${APP_NAME}] ${inviterName} invited you to join ${teamName}`,
+    html: wrapInTemplate(content, `${inviterName} invited you to join ${teamName} on Vibe`),
   });
 }
 
@@ -166,27 +306,59 @@ export async function sendIssueAssignedEmail(
   issueUrl: string
 ): Promise<boolean> {
   const content = `
-    <h1 style="color: #ffffff; font-size: 20px; font-weight: 600; margin: 0 0 16px 0;">
-      New issue assigned to you
-    </h1>
-    
-    <p style="color: #a3a3a3; font-size: 14px; line-height: 1.6; margin: 0 0 8px 0;">
-      <span style="color: #ffffff;">${assignerName}</span> assigned you an issue in <span style="color: #ffffff;">${projectName}</span>
-    </p>
-    
-    <p style="color: #ffffff; font-size: 16px; font-weight: 500; margin: 0 0 24px 0;">
-      ${issueTitle}
-    </p>
-    
-    <div>
-      ${createButton("View Issue", issueUrl)}
-    </div>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+      <!-- Header -->
+      <tr>
+        <td style="padding-bottom: 24px;">
+          <p style="color: #60a5fa; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; margin: 0 0 12px 0;">
+            Issue Assigned
+          </p>
+          <h1 style="color: #ffffff; font-size: 24px; font-weight: 600; margin: 0; line-height: 1.3;">
+            You have a new assignment
+          </h1>
+        </td>
+      </tr>
+      
+      <!-- Message -->
+      <tr>
+        <td style="padding-bottom: 28px;">
+          <p style="color: #a3a3a3; font-size: 15px; line-height: 1.6; margin: 0;">
+            <strong style="color: #e5e5e5;">${assignerName}</strong> assigned you to an issue in <strong style="color: #e5e5e5;">${projectName}</strong>.
+          </p>
+        </td>
+      </tr>
+      
+      <!-- Issue Box -->
+      <tr>
+        <td style="padding-bottom: 32px;">
+          <table role="presentation" width="100%" style="background-color: #1a1a1a; border-radius: 8px; border-left: 3px solid #60a5fa;" cellpadding="0" cellspacing="0">
+            <tr>
+              <td style="padding: 20px;">
+                <p style="color: #666666; font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; margin: 0 0 8px 0;">
+                  ${projectName}
+                </p>
+                <p style="color: #ffffff; font-size: 16px; font-weight: 500; margin: 0; line-height: 1.4;">
+                  ${issueTitle}
+                </p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+      
+      <!-- CTA Button -->
+      <tr>
+        <td align="center">
+          ${createButton("View Issue", issueUrl)}
+        </td>
+      </tr>
+    </table>
   `;
 
   return sendEmail({
     to,
-    subject: `Assigned: ${issueTitle}`,
-    html: wrapInTemplate(content),
+    subject: `[${APP_NAME}] Assigned to you: ${issueTitle}`,
+    html: wrapInTemplate(content, `${assignerName} assigned you to "${issueTitle}" in ${projectName}`),
   });
 }
 
@@ -200,30 +372,74 @@ export async function sendMentionEmail(
   commentPreview: string,
   issueUrl: string
 ): Promise<boolean> {
+  const truncatedComment = commentPreview.length > 180 
+    ? commentPreview.substring(0, 180) + "..." 
+    : commentPreview;
+
   const content = `
-    <h1 style="color: #ffffff; font-size: 20px; font-weight: 600; margin: 0 0 16px 0;">
-      You were mentioned in a comment
-    </h1>
-    
-    <p style="color: #a3a3a3; font-size: 14px; line-height: 1.6; margin: 0 0 16px 0;">
-      <span style="color: #ffffff;">${mentionerName}</span> mentioned you in <span style="color: #ffffff;">${issueTitle}</span>
-    </p>
-    
-    <div style="border-left: 2px solid #404040; padding-left: 16px; margin-bottom: 24px;">
-      <p style="color: #a3a3a3; font-size: 14px; margin: 0; font-style: italic; line-height: 1.5;">
-        "${commentPreview.substring(0, 150)}${commentPreview.length > 150 ? "..." : ""}"
-      </p>
-    </div>
-    
-    <div>
-      ${createButton("View Comment", issueUrl)}
-    </div>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+      <!-- Header -->
+      <tr>
+        <td style="padding-bottom: 24px;">
+          <p style="color: #60a5fa; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; margin: 0 0 12px 0;">
+            New Mention
+          </p>
+          <h1 style="color: #ffffff; font-size: 24px; font-weight: 600; margin: 0; line-height: 1.3;">
+            ${mentionerName} mentioned you
+          </h1>
+        </td>
+      </tr>
+      
+      <!-- Context -->
+      <tr>
+        <td style="padding-bottom: 20px;">
+          <p style="color: #a3a3a3; font-size: 15px; line-height: 1.6; margin: 0;">
+            You were mentioned in a comment on <strong style="color: #e5e5e5;">${issueTitle}</strong>.
+          </p>
+        </td>
+      </tr>
+      
+      <!-- Comment Box -->
+      <tr>
+        <td style="padding-bottom: 32px;">
+          <table role="presentation" width="100%" style="background-color: #1a1a1a; border-radius: 8px;" cellpadding="0" cellspacing="0">
+            <tr>
+              <td style="padding: 20px;">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                  <tr>
+                    <td style="padding-bottom: 12px; border-bottom: 1px solid #262626;">
+                      <p style="color: #666666; font-size: 13px; margin: 0;">
+                        <strong style="color: #a3a3a3;">${mentionerName}</strong> commented:
+                      </p>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding-top: 12px;">
+                      <p style="color: #d4d4d4; font-size: 14px; margin: 0; line-height: 1.6; font-style: italic;">
+                        "${truncatedComment}"
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+      
+      <!-- CTA Button -->
+      <tr>
+        <td align="center">
+          ${createButton("View Comment", issueUrl)}
+        </td>
+      </tr>
+    </table>
   `;
 
   return sendEmail({
     to,
-    subject: `${mentionerName} mentioned you in ${issueTitle}`,
-    html: wrapInTemplate(content),
+    subject: `[${APP_NAME}] ${mentionerName} mentioned you in ${issueTitle}`,
+    html: wrapInTemplate(content, `${mentionerName} mentioned you: "${truncatedComment.substring(0, 60)}..."`),
   });
 }
 
@@ -239,35 +455,78 @@ export async function sendDueSoonEmail(
 ): Promise<boolean> {
   const formattedDate = dueDate.toLocaleDateString("en-US", {
     weekday: "long",
-    month: "short",
+    month: "long",
     day: "numeric",
+    year: "numeric",
   });
 
+  const now = new Date();
+  const diffTime = dueDate.getTime() - now.getTime();
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  const urgencyText = diffDays <= 1 ? "Due tomorrow" : `Due in ${diffDays} days`;
+
   const content = `
-    <h1 style="color: #ffffff; font-size: 20px; font-weight: 600; margin: 0 0 16px 0;">
-      Issue due soon
-    </h1>
-    
-    <p style="color: #a3a3a3; font-size: 14px; line-height: 1.6; margin: 0 0 8px 0;">
-      An issue in <span style="color: #ffffff;">${projectName}</span> is due soon
-    </p>
-    
-    <p style="color: #ffffff; font-size: 16px; font-weight: 500; margin: 0 0 12px 0;">
-      ${issueTitle}
-    </p>
-    
-    <p style="color: #f59e0b; font-size: 14px; font-weight: 500; margin: 0 0 24px 0;">
-      Due: ${formattedDate}
-    </p>
-    
-    <div>
-      ${createButton("View Issue", issueUrl)}
-    </div>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+      <!-- Header -->
+      <tr>
+        <td style="padding-bottom: 24px;">
+          <p style="color: #f59e0b; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; margin: 0 0 12px 0;">
+            Reminder
+          </p>
+          <h1 style="color: #ffffff; font-size: 24px; font-weight: 600; margin: 0; line-height: 1.3;">
+            ${urgencyText}
+          </h1>
+        </td>
+      </tr>
+      
+      <!-- Message -->
+      <tr>
+        <td style="padding-bottom: 28px;">
+          <p style="color: #a3a3a3; font-size: 15px; line-height: 1.6; margin: 0;">
+            You have an upcoming deadline for an issue in <strong style="color: #e5e5e5;">${projectName}</strong>.
+          </p>
+        </td>
+      </tr>
+      
+      <!-- Issue Box -->
+      <tr>
+        <td style="padding-bottom: 32px;">
+          <table role="presentation" width="100%" style="background-color: #1a1a1a; border-radius: 8px; border-left: 3px solid #f59e0b;" cellpadding="0" cellspacing="0">
+            <tr>
+              <td style="padding: 20px;">
+                <p style="color: #666666; font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; margin: 0 0 8px 0;">
+                  ${projectName}
+                </p>
+                <p style="color: #ffffff; font-size: 16px; font-weight: 500; margin: 0 0 16px 0; line-height: 1.4;">
+                  ${issueTitle}
+                </p>
+                <table role="presentation" cellpadding="0" cellspacing="0">
+                  <tr>
+                    <td style="background-color: #262626; border-radius: 4px; padding: 8px 12px;">
+                      <p style="color: #f59e0b; font-size: 13px; font-weight: 500; margin: 0;">
+                        📅 ${formattedDate}
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+      
+      <!-- CTA Button -->
+      <tr>
+        <td align="center">
+          ${createButton("View Issue", issueUrl)}
+        </td>
+      </tr>
+    </table>
   `;
 
   return sendEmail({
     to,
-    subject: `Due soon: ${issueTitle}`,
-    html: wrapInTemplate(content),
+    subject: `[${APP_NAME}] Reminder: "${issueTitle}" is due ${diffDays <= 1 ? "tomorrow" : `in ${diffDays} days`}`,
+    html: wrapInTemplate(content, `Reminder: "${issueTitle}" in ${projectName} is due on ${formattedDate}`),
   });
 }
