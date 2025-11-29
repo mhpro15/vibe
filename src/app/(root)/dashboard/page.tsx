@@ -2,6 +2,15 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/actions/auth";
 import Link from "next/link";
+import {
+  LayoutGrid,
+  Users,
+  Settings,
+  Signal,
+  SignalMedium,
+  SignalLow,
+  AlertTriangle,
+} from "lucide-react";
 
 export default async function DashboardPage() {
   const session = await getSession();
@@ -95,68 +104,35 @@ export default async function DashboardPage() {
   };
 
   const getPriorityIcon = (priority: string) => {
+    const baseClass = "w-4 h-4 transition-all duration-300";
     switch (priority) {
       case "URGENT":
         return (
-          <svg
-            className="w-3.5 h-3.5 text-red-400"
-            fill="currentColor"
-            viewBox="0 0 20 20"
-          >
-            <path
-              fillRule="evenodd"
-              d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z"
-              clipRule="evenodd"
-            />
-          </svg>
+          <AlertTriangle
+            className={`${baseClass} text-red-400 group-hover:text-red-300 group-hover:drop-shadow-[0_0_8px_rgba(248,113,113,0.6)]`}
+            strokeWidth={2}
+          />
         );
       case "HIGH":
         return (
-          <svg
-            className="w-3.5 h-3.5 text-orange-400"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M5 15l7-7 7 7"
-            />
-          </svg>
+          <Signal
+            className={`${baseClass} text-orange-400 group-hover:text-orange-300 group-hover:drop-shadow-[0_0_8px_rgba(251,146,60,0.6)]`}
+            strokeWidth={2}
+          />
         );
       case "MEDIUM":
         return (
-          <svg
-            className="w-3.5 h-3.5 text-yellow-400"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M20 12H4"
-            />
-          </svg>
+          <SignalMedium
+            className={`${baseClass} text-yellow-400 group-hover:text-yellow-300 group-hover:drop-shadow-[0_0_6px_rgba(250,204,21,0.5)]`}
+            strokeWidth={2}
+          />
         );
       default:
         return (
-          <svg
-            className="w-3.5 h-3.5 text-neutral-500"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M19 9l-7 7-7-7"
-            />
-          </svg>
+          <SignalLow
+            className={`${baseClass} text-neutral-500 group-hover:text-neutral-400`}
+            strokeWidth={2}
+          />
         );
     }
   };
@@ -430,65 +406,32 @@ export default async function DashboardPage() {
             <div className="space-y-1">
               <Link
                 href="/projects"
-                className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-neutral-300 hover:text-white hover:bg-neutral-800 transition-colors"
+                className="group flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-neutral-300 hover:text-white hover:bg-neutral-800 transition-all duration-300"
               >
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={1.5}
-                    d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
-                  />
-                </svg>
+                <LayoutGrid
+                  className="w-4 h-4 transition-all duration-300 group-hover:text-violet-400 group-hover:drop-shadow-[0_0_8px_rgba(167,139,250,0.5)] group-hover:rotate-12"
+                  strokeWidth={1.5}
+                />
                 Browse Projects
               </Link>
               <Link
                 href="/teams"
-                className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-neutral-300 hover:text-white hover:bg-neutral-800 transition-colors"
+                className="group flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-neutral-300 hover:text-white hover:bg-neutral-800 transition-all duration-300"
               >
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={1.5}
-                    d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"
-                  />
-                </svg>
+                <Users
+                  className="w-4 h-4 transition-all duration-300 group-hover:text-emerald-400 group-hover:drop-shadow-[0_0_8px_rgba(52,211,153,0.5)] group-hover:-rotate-6"
+                  strokeWidth={1.5}
+                />
                 Manage Teams
               </Link>
               <Link
                 href="/profile"
-                className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-neutral-300 hover:text-white hover:bg-neutral-800 transition-colors"
+                className="group flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-neutral-300 hover:text-white hover:bg-neutral-800 transition-all duration-300"
               >
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={1.5}
-                    d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-                  />
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={1.5}
-                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                  />
-                </svg>
+                <Settings
+                  className="w-4 h-4 transition-all duration-300 group-hover:text-amber-400 group-hover:drop-shadow-[0_0_8px_rgba(251,191,36,0.5)] group-hover:rotate-90"
+                  strokeWidth={1.5}
+                />
                 Settings
               </Link>
             </div>

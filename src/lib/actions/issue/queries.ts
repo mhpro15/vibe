@@ -107,6 +107,10 @@ export async function getProjectIssues(
           label: true,
         },
       },
+      subtasks: {
+        select: { id: true, isCompleted: true },
+        orderBy: { position: "asc" },
+      },
       _count: {
         select: { comments: { where: { deletedAt: null } } },
       },

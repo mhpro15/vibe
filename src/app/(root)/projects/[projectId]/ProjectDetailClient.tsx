@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import { Avatar } from "@/components/ui/Avatar";
 import { Button } from "@/components/ui/Button";
-import { ProjectSettings } from "@/components/project";
+import { ProjectSettings, KanbanBoard } from "@/components/project";
 import { toggleFavoriteProjectAction } from "@/lib/actions/project";
 
 interface Label {
@@ -13,11 +13,34 @@ interface Label {
   color: string;
 }
 
+interface Subtask {
+  id: string;
+  isCompleted: boolean;
+}
+
+interface KanbanIssue {
+  id: string;
+  title: string;
+  status: string;
+  priority: string;
+  position: number;
+  dueDate: Date | null;
+  projectId: string;
+  assignee: {
+    id: string;
+    name: string;
+    image?: string | null;
+  } | null;
+  labels: Label[];
+  subtasks: Subtask[];
+}
+
 interface CustomStatus {
   id: string;
   name: string;
   color: string | null;
   position: number;
+  wipLimit?: number | null;
 }
 
 interface Project {
@@ -45,11 +68,13 @@ interface Project {
 interface ProjectDetailClientProps {
   project: Project;
   canEdit: boolean;
+  issues: KanbanIssue[];
 }
 
 export function ProjectDetailClient({
   project,
   canEdit,
+  issues,
 }: ProjectDetailClientProps) {
   const [activeTab, setActiveTab] = useState<"issues" | "board" | "settings">(
     "issues"

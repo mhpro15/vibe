@@ -265,7 +265,7 @@ export function ProjectSettings({ project, canEdit }: ProjectSettingsProps) {
               <div className="flex items-center gap-3">
                 <span
                   className="w-3 h-3 rounded-full"
-                  style={{ backgroundColor: status.color }}
+                  style={{ backgroundColor: status.color ?? "#6b7280" }}
                 />
                 <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                   {status.name}
