@@ -61,13 +61,13 @@ export default function TeamsPage() {
   };
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
+    <div className="w-full">
+      <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+          <h1 className="text-xl font-medium text-white">
             Teams
           </h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-1">
+          <p className="text-neutral-500 text-sm mt-1">
             Manage your teams and collaborate with others
           </p>
         </div>
