@@ -225,6 +225,7 @@ enum IssueStatus {
   BACKLOG
   IN_PROGRESS
   DONE
+  CLOSED
 }
 
 model Issue {

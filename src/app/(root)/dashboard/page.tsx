@@ -35,7 +35,7 @@ export default async function DashboardPage() {
     where: {
       assigneeId: session.user.id,
       deletedAt: null,
-      status: { notIn: ["DONE", "CLOSED"] },
+      status: { not: "DONE" },
     },
     include: {
       project: {
@@ -249,10 +249,8 @@ export default async function DashboardPage() {
                       </div>
                       <span
                         className={`px-2 py-1 text-xs font-medium rounded ${
-                          issue.priority === "CRITICAL"
+                          issue.priority === "HIGH"
                             ? "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
-                            : issue.priority === "HIGH"
-                            ? "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400"
                             : issue.priority === "MEDIUM"
                             ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400"
                             : "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-400"
