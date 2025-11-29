@@ -105,10 +105,10 @@ export function ChangePasswordForm() {
           name="newPassword"
           type="password"
           placeholder="••••••••"
-          helperText="Must be at least 6 characters"
+          helperText="Must be at least 8 characters"
           disabled={isPending}
           required
-          minLength={6}
+          minLength={8}
         />
 
         <Input
@@ -118,7 +118,7 @@ export function ChangePasswordForm() {
           placeholder="••••••••"
           disabled={isPending}
           required
-          minLength={6}
+          minLength={8}
         />
 
         <div className="flex justify-end pt-2">

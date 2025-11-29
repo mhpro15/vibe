@@ -10,7 +10,7 @@ export const auth = betterAuth({
   // Email and Password Authentication (FR-001, FR-002)
   emailAndPassword: {
     enabled: true,
-    minPasswordLength: 6,
+    minPasswordLength: 8, // OWASP recommends at least 8 characters
     maxPasswordLength: 100,
     requireEmailVerification: false, // Simplified for MVP
     // Password reset (FR-003)

@@ -120,10 +120,10 @@ export function ResetPasswordForm() {
             name="password"
             type="password"
             placeholder="••••••••"
-            helperText="Must be at least 6 characters"
+            helperText="Must be at least 8 characters"
             disabled={isPending}
             required
-            minLength={6}
+            minLength={8}
           />
 
           <Input
@@ -133,7 +133,7 @@ export function ResetPasswordForm() {
             placeholder="••••••••"
             disabled={isPending}
             required
-            minLength={6}
+            minLength={8}
           />
 
           <Button type="submit" className="w-full" isLoading={isPending}>
