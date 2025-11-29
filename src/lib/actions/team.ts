@@ -326,7 +326,10 @@ export async function respondToInviteAction(
     }
 
     if (invite.status !== "PENDING") {
-      return { success: false, error: "This invitation has already been processed" };
+      return {
+        success: false,
+        error: "This invitation has already been processed",
+      };
     }
 
     if (invite.expiresAt < new Date()) {
@@ -341,7 +344,7 @@ export async function respondToInviteAction(
       await prisma.$transaction([
         prisma.teamInvite.update({
           where: { id: inviteId },
-          data: { 
+          data: {
             status: "ACCEPTED",
             acceptedAt: new Date(),
             recipientId: session.user.id,
@@ -484,7 +487,8 @@ export async function leaveTeamAction(
     if (member.role === "OWNER") {
       return {
         success: false,
-        error: "Owner cannot leave the team. Transfer ownership first or delete the team.",
+        error:
+          "Owner cannot leave the team. Transfer ownership first or delete the team.",
       };
     }
 
@@ -599,7 +603,7 @@ export async function changeRoleAction(
             userId: session.user.id,
             action: "ROLE_CHANGED",
             targetUserId: targetMember.userId,
-            details: { 
+            details: {
               memberName: targetMember.user.name,
               oldRole,
               newRole,
@@ -649,8 +653,8 @@ export async function getUserTeamsAction(
     });
 
     const teams = memberships
-      .filter(m => m.team.deletedAt === null)
-      .map(m => ({
+      .filter((m) => m.team.deletedAt === null)
+      .map((m) => ({
         id: m.team.id,
         name: m.team.name,
         memberCount: m.team._count.members,

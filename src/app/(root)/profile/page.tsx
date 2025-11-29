@@ -29,7 +29,7 @@ export default async function ProfilePage() {
             </h2>
           </CardHeader>
           <CardContent>
-            <ProfileForm user={session.user} />
+            <ProfileForm />
           </CardContent>
         </Card>
 
@@ -60,9 +60,7 @@ export default async function ProfilePage() {
                   Permanently delete your account and all associated data
                 </p>
               </div>
-              <button
-                className="px-4 py-2 text-sm font-medium text-red-600 border border-red-300 rounded-lg hover:bg-red-50 dark:text-red-400 dark:border-red-800 dark:hover:bg-red-900/20"
-              >
+              <button className="px-4 py-2 text-sm font-medium text-red-600 border border-red-300 rounded-lg hover:bg-red-50 dark:text-red-400 dark:border-red-800 dark:hover:bg-red-900/20">
                 Delete Account
               </button>
             </div>

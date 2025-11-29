@@ -34,9 +34,12 @@ export default function TeamsPage() {
 
   useEffect(() => {
     let mounted = true;
-    
+
     const loadTeams = async () => {
-      const result = await getUserTeamsAction({ success: false }, new FormData());
+      const result = await getUserTeamsAction(
+        { success: false },
+        new FormData()
+      );
       if (mounted && result.success && result.teams) {
         setTeams(result.teams);
       }
@@ -44,9 +47,9 @@ export default function TeamsPage() {
         setIsLoading(false);
       }
     };
-    
+
     loadTeams();
-    
+
     return () => {
       mounted = false;
     };
