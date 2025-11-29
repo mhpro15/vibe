@@ -25,6 +25,16 @@ export default async function IssuePage({ params }: IssuePageProps) {
     notFound();
   }
 
+  // Transform labels to flatten the structure
+  const transformedIssue = {
+    ...issue,
+    labels: issue.labels.map((il) => ({
+      id: il.label.id,
+      name: il.label.name,
+      color: il.label.color,
+    })),
+  };
+
   return (
     <div>
       {/* Breadcrumb */}
@@ -74,7 +84,7 @@ export default async function IssuePage({ params }: IssuePageProps) {
         </nav>
       </div>
 
-      <IssueDetailClient issue={issue} currentUserId={session.user.id} />
+      <IssueDetailClient issue={transformedIssue} currentUserId={session.user.id} />
     </div>
   );
 }

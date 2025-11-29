@@ -24,8 +24,8 @@ interface Label {
 interface CustomStatus {
   id: string;
   name: string;
-  color: string;
-  order: number;
+  color: string | null;
+  position: number;
 }
 
 interface ProjectSettingsProps {
@@ -71,7 +71,7 @@ export function ProjectSettings({ project, canEdit }: ProjectSettingsProps) {
     deleteProjectAction,
     initialState
   );
-  const [archiveState, archiveAction, isArchiving] = useActionState(
+  const [_archiveState, archiveAction, isArchiving] = useActionState(
     toggleArchiveProjectAction,
     initialState
   );
@@ -81,6 +81,14 @@ export function ProjectSettings({ project, canEdit }: ProjectSettingsProps) {
   );
   const [statusState, statusAction, isAddingStatus] = useActionState(
     createCustomStatusAction,
+    initialState
+  );
+  const [_deleteLabelState, deleteLabelFormAction] = useActionState(
+    deleteLabelAction,
+    initialState
+  );
+  const [_deleteStatusState, deleteStatusFormAction] = useActionState(
+    deleteCustomStatusAction,
     initialState
   );
 
@@ -179,7 +187,7 @@ export function ProjectSettings({ project, canEdit }: ProjectSettingsProps) {
                   {label.name}
                 </span>
                 {canEdit && (
-                  <form action={deleteLabelAction}>
+                  <form action={deleteLabelFormAction}>
                     <input type="hidden" name="labelId" value={label.id} />
                     <button
                       type="submit"
@@ -264,7 +272,7 @@ export function ProjectSettings({ project, canEdit }: ProjectSettingsProps) {
                 </span>
               </div>
               {canEdit && (
-                <form action={deleteCustomStatusAction}>
+                <form action={deleteStatusFormAction}>
                   <input type="hidden" name="statusId" value={status.id} />
                   <button
                     type="submit"

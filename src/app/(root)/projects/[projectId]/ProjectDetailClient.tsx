@@ -16,8 +16,8 @@ interface Label {
 interface CustomStatus {
   id: string;
   name: string;
-  color: string;
-  order: number;
+  color: string | null;
+  position: number;
 }
 
 interface Project {
