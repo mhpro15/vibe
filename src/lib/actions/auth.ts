@@ -399,6 +399,11 @@ export async function deleteAccountAction(
       };
     }
 
+    // Remove user from all teams they are a member of
+    await prisma.teamMember.deleteMany({
+      where: { userId: session.user.id },
+    });
+
     // Soft delete the user account
     await prisma.user.update({
       where: { id: session.user.id },
