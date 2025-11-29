@@ -1,10 +1,11 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import Link from "next/link";
 import { signInAction, type AuthActionResult } from "@/lib/actions/auth";
 import { signIn } from "@/lib/auth-client";
 import { Button, Input } from "@/components/ui";
+import { AlertCircle, CheckCircle2 } from "lucide-react";
 
 const initialState: AuthActionResult = {
   success: false,
@@ -15,8 +16,10 @@ export function SignInForm() {
     signInAction,
     initialState
   );
+  const [googleError, setGoogleError] = useState<string | null>(null);
 
   const handleGoogleSignIn = async () => {
+    setGoogleError(null);
     try {
       await signIn.social({
         provider: "google",
@@ -24,8 +27,11 @@ export function SignInForm() {
       });
     } catch (error) {
       console.error("Google sign in error:", error);
+      setGoogleError("Failed to sign in with Google. Please try again.");
     }
   };
+
+  const displayError = state.error || googleError;
 
   return (
     <div className="w-full max-w-md mx-auto">
@@ -39,11 +45,22 @@ export function SignInForm() {
           </p>
         </div>
 
-        {state.error && (
-          <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
-            <p className="text-sm text-red-400">
-              {state.error}
-            </p>
+        {displayError && (
+          <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-medium text-red-400">
+                {displayError}
+              </p>
+              {displayError.includes("incorrect") && (
+                <p className="text-xs text-red-400/70 mt-1">
+                  Please check your email and password, or{" "}
+                  <Link href="/forgot-password" className="underline hover:text-red-300">
+                    reset your password
+                  </Link>
+                </p>
+              )}
+            </div>
           </div>
         )}
 

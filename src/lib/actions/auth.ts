@@ -156,12 +156,14 @@ export async function forgotPasswordAction(
       }
     }
 
-    // Use the internal API endpoint for password reset request
+    // Use better-auth API directly for password reset request
     const baseUrl =
       process.env.BETTER_AUTH_URL ||
       process.env.NEXT_PUBLIC_APP_URL ||
       "http://localhost:3000";
-    const response = await fetch(`${baseUrl}/api/auth/forget-password`, {
+    
+    // Call the request-password-reset endpoint
+    const response = await fetch(`${baseUrl}/api/auth/request-password-reset`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -172,10 +174,10 @@ export async function forgotPasswordAction(
       }),
     });
 
-    // Always return success to prevent email enumeration (for non-OAuth users)
     if (!response.ok) {
-      console.error("Forgot password API error:", await response.text());
+      console.error("Password reset request failed:", await response.text());
     }
+
     return { success: true };
   } catch (error) {
     console.error("Forgot password error:", error);

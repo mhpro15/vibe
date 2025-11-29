@@ -5,6 +5,7 @@ import Link from "next/link";
 import { signUpAction, type AuthActionResult } from "@/lib/actions/auth";
 import { signIn } from "@/lib/auth-client";
 import { Button, Input } from "@/components/ui";
+import { AlertCircle, CheckCircle2, Info } from "lucide-react";
 
 const initialState: AuthActionResult = {
   success: false,
@@ -15,6 +16,35 @@ export function SignUpForm() {
     signUpAction,
     initialState
   );
+  const [googleError, setGoogleError] = useState<string | null>(null);
+
+  const displayError = state.error || googleError;
+
+  // Helper to get contextual help for specific errors
+  const getErrorHelp = (error: string) => {
+    if (error.includes("already exists")) {
+      return (
+        <p className="text-xs text-red-400/70 mt-1">
+          Try{" "}
+          <Link href="/signin" className="underline hover:text-red-300">
+            signing in
+          </Link>
+          {" "}instead, or{" "}
+          <Link href="/forgot-password" className="underline hover:text-red-300">
+            reset your password
+          </Link>
+        </p>
+      );
+    }
+    if (error.includes("Password")) {
+      return (
+        <p className="text-xs text-red-400/70 mt-1">
+          Use at least 6 characters with a mix of letters and numbers
+        </p>
+      );
+    }
+    return null;
+  };
 
   return (
     <div className="w-full max-w-md mx-auto">
@@ -29,18 +59,28 @@ export function SignUpForm() {
         </div>
 
         {state.success && (
-          <div className="mb-6 p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
-            <p className="text-sm text-emerald-400">
-              Account created successfully! Redirecting...
-            </p>
+          <div className="mb-6 p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex items-start gap-3">
+            <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-medium text-emerald-400">
+                Account created successfully!
+              </p>
+              <p className="text-xs text-emerald-400/70 mt-1">
+                Redirecting you to the dashboard...
+              </p>
+            </div>
           </div>
         )}
 
-        {state.error && (
-          <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
-            <p className="text-sm text-red-400">
-              {state.error}
-            </p>
+        {displayError && (
+          <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-medium text-red-400">
+                {displayError}
+              </p>
+              {getErrorHelp(displayError)}
+            </div>
           </div>
         )}
 
@@ -101,7 +141,10 @@ export function SignUpForm() {
             </div>
           </div>
 
-          <GoogleSignInButton className="mt-4" />
+          <GoogleSignInButton 
+            className="mt-4" 
+            onError={(error) => setGoogleError(error)}
+          />
         </div>
 
         <p className="mt-6 text-center text-sm text-neutral-400">
@@ -118,7 +161,13 @@ export function SignUpForm() {
   );
 }
 
-function GoogleSignInButton({ className = "" }: { className?: string }) {
+function GoogleSignInButton({ 
+  className = "",
+  onError 
+}: { 
+  className?: string;
+  onError?: (error: string) => void;
+}) {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleGoogleSignIn = async () => {
@@ -130,6 +179,7 @@ function GoogleSignInButton({ className = "" }: { className?: string }) {
       });
     } catch (error) {
       console.error("Google sign in error:", error);
+      onError?.("Failed to sign in with Google. Please try again.");
     } finally {
       setIsLoading(false);
     }

@@ -7,6 +7,7 @@ import {
   type AuthActionResult,
 } from "@/lib/actions/auth";
 import { Button, Input } from "@/components/ui";
+import { AlertCircle, CheckCircle2, Mail } from "lucide-react";
 
 const initialState: AuthActionResult = {
   success: false,
@@ -23,19 +24,7 @@ export function ForgotPasswordForm() {
       <div className="w-full max-w-md mx-auto">
         <div className="bg-neutral-900/50 backdrop-blur-sm border border-neutral-800 rounded-2xl p-8 text-center">
           <div className="w-16 h-16 bg-emerald-500/10 border border-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg
-              className="w-8 h-8 text-emerald-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M5 13l4 4L19 7"
-              />
-            </svg>
+            <Mail className="w-8 h-8 text-emerald-400" />
           </div>
           <h1 className="text-2xl font-semibold text-white tracking-tight mb-2">
             Check your email
@@ -44,6 +33,11 @@ export function ForgotPasswordForm() {
             If an account exists with that email, we&apos;ve sent a password
             reset link. The link will expire in 1 hour.
           </p>
+          <div className="p-3 bg-neutral-800/50 border border-neutral-700/50 rounded-lg mb-6">
+            <p className="text-xs text-neutral-500">
+              Didn&apos;t receive the email? Check your spam folder or try again with a different email.
+            </p>
+          </div>
           <Link href="/signin">
             <Button variant="outline" className="w-full">
               Back to Sign In
@@ -67,10 +61,21 @@ export function ForgotPasswordForm() {
         </div>
 
         {state.error && (
-          <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
-            <p className="text-sm text-red-400">
-              {state.error}
-            </p>
+          <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-medium text-red-400">
+                {state.error}
+              </p>
+              {state.error.includes("Google") && (
+                <p className="text-xs text-red-400/70 mt-1">
+                  <Link href="/signin" className="underline hover:text-red-300">
+                    Go to sign in
+                  </Link>
+                  {" "}and use the Google button instead
+                </p>
+              )}
+            </div>
           </div>
         )}
 

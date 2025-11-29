@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Avatar } from "@/components/ui/Avatar";
-import { signOutAction } from "@/lib/actions/auth";
+import { signOut } from "@/lib/auth-client";
 
 interface HeaderProps {
   user: {
@@ -21,8 +21,19 @@ export function Header({ user }: HeaderProps) {
 
   const handleSignOut = async () => {
     setIsLoggingOut(true);
-    await signOutAction();
-    router.push("/signin");
+    try {
+      await signOut({
+        fetchOptions: {
+          onSuccess: () => {
+            window.location.href="/signin";
+            router.refresh();
+          },
+        },
+      });
+    } catch (error) {
+      console.error("Sign out error:", error);
+      setIsLoggingOut(false);
+    }
   };
 
   return (
