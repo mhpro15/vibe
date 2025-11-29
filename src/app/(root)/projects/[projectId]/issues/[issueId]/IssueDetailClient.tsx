@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useState, useRef, useEffect, useActionState } from "react";
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -9,9 +9,10 @@ import {
   deleteIssueAction,
   changeStatusAction,
   addCommentAction,
+  updateIssueAction,
   IssueActionResult,
 } from "@/lib/actions/issue";
-import { Check, Calendar, User, Clock } from "lucide-react";
+import { Check, Calendar, User, Clock, Pencil, X } from "lucide-react";
 
 interface Label {
   id: string;
@@ -99,6 +100,41 @@ export function IssueDetailClient({
     addCommentAction,
     initialState
   );
+  const [updateState, updateAction, isUpdating] = useActionState(
+    updateIssueAction,
+    initialState
+  );
+
+  // Editing states
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [isEditingDescription, setIsEditingDescription] = useState(false);
+  const [editTitle, setEditTitle] = useState(issue.title);
+  const [editDescription, setEditDescription] = useState(issue.description || "");
+  
+  const titleInputRef = useRef<HTMLInputElement>(null);
+  const descriptionInputRef = useRef<HTMLTextAreaElement>(null);
+
+  // Focus input when editing starts
+  useEffect(() => {
+    if (isEditingTitle && titleInputRef.current) {
+      titleInputRef.current.focus();
+      titleInputRef.current.select();
+    }
+  }, [isEditingTitle]);
+
+  useEffect(() => {
+    if (isEditingDescription && descriptionInputRef.current) {
+      descriptionInputRef.current.focus();
+    }
+  }, [isEditingDescription]);
+
+  // Reset editing state on successful update
+  useEffect(() => {
+    if (updateState.success) {
+      setIsEditingTitle(false);
+      setIsEditingDescription(false);
+    }
+  }, [updateState.success]);
 
   // Generate a stable key based on comment count
   const formKey = `comment-form-${issue.comments.length}`;
@@ -133,7 +169,53 @@ export function IssueDetailClient({
                   {issue.priority} Priority
                 </span>
               </div>
-              <h1 className="text-2xl font-bold text-white">{issue.title}</h1>
+              
+              {/* Editable Title */}
+              {isEditingTitle ? (
+                <form action={updateAction} className="flex items-center gap-2">
+                  <input type="hidden" name="issueId" value={issue.id} />
+                  <input type="hidden" name="description" value={issue.description || ""} />
+                  <input type="hidden" name="priority" value={issue.priority} />
+                  <input type="hidden" name="dueDate" value={issue.dueDate?.toString() || ""} />
+                  <input
+                    ref={titleInputRef}
+                    type="text"
+                    name="title"
+                    value={editTitle}
+                    onChange={(e) => setEditTitle(e.target.value)}
+                    className="flex-1 text-2xl font-bold bg-neutral-800 border border-neutral-600 rounded-lg px-3 py-1 text-white focus:outline-none focus:ring-2 focus:ring-violet-500/50"
+                    maxLength={200}
+                  />
+                  <Button type="submit" size="sm" disabled={isUpdating || !editTitle.trim()}>
+                    {isUpdating ? "..." : "Save"}
+                  </Button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsEditingTitle(false);
+                      setEditTitle(issue.title);
+                    }}
+                    className="p-1.5 rounded-lg hover:bg-neutral-700 text-neutral-400 hover:text-white transition-colors"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </form>
+              ) : (
+                <div className="group flex items-center gap-2">
+                  <h1 className="text-2xl font-bold text-white">{issue.title}</h1>
+                  <button
+                    onClick={() => setIsEditingTitle(true)}
+                    className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg hover:bg-neutral-700 text-neutral-400 hover:text-white transition-all"
+                    title="Edit title"
+                  >
+                    <Pencil className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
+              
+              {updateState.error && (
+                <p className="text-sm text-red-400 mt-1">{updateState.error}</p>
+              )}
             </div>
 
             <div className="flex items-center gap-2">
@@ -164,15 +246,64 @@ export function IssueDetailClient({
 
           {/* Description */}
           <div className="mt-6">
-            <h3 className="text-sm font-medium text-neutral-400 mb-2">
-              Description
-            </h3>
-            {issue.description ? (
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-sm font-medium text-neutral-400">
+                Description
+              </h3>
+              {!isEditingDescription && (
+                <button
+                  onClick={() => setIsEditingDescription(true)}
+                  className="p-1 rounded hover:bg-neutral-700 text-neutral-500 hover:text-white transition-colors"
+                  title="Edit description"
+                >
+                  <Pencil className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+            
+            {isEditingDescription ? (
+              <form action={updateAction} className="space-y-3">
+                <input type="hidden" name="issueId" value={issue.id} />
+                <input type="hidden" name="title" value={issue.title} />
+                <input type="hidden" name="priority" value={issue.priority} />
+                <input type="hidden" name="dueDate" value={issue.dueDate?.toString() || ""} />
+                <textarea
+                  ref={descriptionInputRef}
+                  name="description"
+                  value={editDescription}
+                  onChange={(e) => setEditDescription(e.target.value)}
+                  rows={6}
+                  maxLength={5000}
+                  className="w-full px-4 py-3 bg-neutral-800 border border-neutral-600 rounded-xl text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-violet-500/50 resize-none"
+                  placeholder="Add a description..."
+                />
+                <div className="flex items-center justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsEditingDescription(false);
+                      setEditDescription(issue.description || "");
+                    }}
+                    className="px-3 py-1.5 text-sm rounded-lg hover:bg-neutral-700 text-neutral-400 hover:text-white transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <Button type="submit" size="sm" disabled={isUpdating}>
+                    {isUpdating ? "Saving..." : "Save"}
+                  </Button>
+                </div>
+              </form>
+            ) : issue.description ? (
               <p className="text-neutral-300 whitespace-pre-wrap">
                 {issue.description}
               </p>
             ) : (
-              <p className="text-neutral-600 italic">No description provided</p>
+              <button
+                onClick={() => setIsEditingDescription(true)}
+                className="text-neutral-500 hover:text-neutral-400 italic transition-colors"
+              >
+                Click to add a description...
+              </button>
             )}
           </div>
         </div>
@@ -226,9 +357,9 @@ export function IssueDetailClient({
                 <button
                   type="submit"
                   disabled={isChangingStatus || issue.status === status.value}
-                  className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg transition-colors ${
+                  className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg transition-colors bg-transparent ${
                     issue.status === status.value
-                      ? "bg-neutral-800 border border-neutral-600"
+                      ? "!bg-neutral-800 border border-neutral-600"
                       : "hover:bg-neutral-800"
                   }`}
                 >

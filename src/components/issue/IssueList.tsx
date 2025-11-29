@@ -1,12 +1,18 @@
 "use client";
 
-import { IssueCard } from "./IssueCard";
+import { IssueRow } from "./IssueRow";
 import { ClipboardList } from "lucide-react";
 
 interface Label {
   id: string;
   name: string;
   color: string;
+}
+
+interface TeamMember {
+  id: string;
+  name: string;
+  image?: string | null;
 }
 
 interface Issue {
@@ -29,16 +35,24 @@ interface Issue {
 
 interface IssueListProps {
   issues: Issue[];
+  teamMembers?: TeamMember[];
   showProject?: boolean;
   projectName?: string;
   emptyMessage?: string;
+  onStatusChange?: (issueId: string, status: string) => Promise<void>;
+  onPriorityChange?: (issueId: string, priority: string) => Promise<void>;
+  onAssigneeChange?: (issueId: string, assigneeId: string | null) => Promise<void>;
 }
 
 export function IssueList({
   issues,
+  teamMembers = [],
   showProject,
   projectName,
   emptyMessage = "No issues found",
+  onStatusChange,
+  onPriorityChange,
+  onAssigneeChange,
 }: IssueListProps) {
   if (issues.length === 0) {
     return (
@@ -54,15 +68,43 @@ export function IssueList({
   }
 
   return (
-    <div className="space-y-3">
-      {issues.map((issue) => (
-        <IssueCard
-          key={issue.id}
-          issue={issue}
-          showProject={showProject}
-          projectName={projectName}
-        />
-      ))}
+    <div className="bg-neutral-900 rounded-xl border border-neutral-700/50 overflow-hidden">
+      {/* Header */}
+      <div className="flex items-center gap-3 px-4 py-2 border-b border-neutral-700/50 bg-neutral-800/50">
+        <div className="w-6" /> {/* Status column */}
+        <div className="flex-1 text-xs font-medium text-neutral-400 uppercase tracking-wider">
+          Issue
+        </div>
+        <div className="hidden md:block w-24 text-xs font-medium text-neutral-400 uppercase tracking-wider text-center">
+          Labels
+        </div>
+        <div className="hidden sm:block w-20 text-xs font-medium text-neutral-400 uppercase tracking-wider text-center">
+          Due
+        </div>
+        <div className="w-6 text-xs font-medium text-neutral-400 uppercase tracking-wider text-center">
+          Pri
+        </div>
+        <div className="w-8 text-xs font-medium text-neutral-400 uppercase tracking-wider text-center">
+          
+        </div>
+        <div className="w-6" /> {/* More options */}
+      </div>
+
+      {/* Issue rows */}
+      <div>
+        {issues.map((issue) => (
+          <IssueRow
+            key={issue.id}
+            issue={issue}
+            teamMembers={teamMembers}
+            showProject={showProject}
+            projectName={projectName}
+            onStatusChange={onStatusChange}
+            onPriorityChange={onPriorityChange}
+            onAssigneeChange={onAssigneeChange}
+          />
+        ))}
+      </div>
     </div>
   );
 }

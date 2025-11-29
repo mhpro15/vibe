@@ -4,9 +4,14 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import { Avatar } from "@/components/ui/Avatar";
 import { Button } from "@/components/ui/Button";
-import { ProjectSettings, KanbanBoard } from "@/components/project";
+import {
+  ProjectSettings,
+  KanbanBoard,
+  ProjectDashboard,
+} from "@/components/project";
 import { IssueList } from "@/components/issue";
 import { toggleFavoriteProjectAction } from "@/lib/actions/project";
+import { changeStatusAction, assignIssueAction } from "@/lib/actions/issue";
 import {
   Star,
   Plus,
@@ -14,6 +19,7 @@ import {
   LayoutGrid,
   Settings,
   Archive,
+  BarChart3,
 } from "lucide-react";
 
 interface Label {
@@ -25,6 +31,12 @@ interface Label {
 interface Subtask {
   id: string;
   isCompleted: boolean;
+}
+
+interface TeamMember {
+  id: string;
+  name: string;
+  image?: string | null;
 }
 
 interface KanbanIssue {
@@ -78,17 +90,20 @@ interface ProjectDetailClientProps {
   project: Project;
   canEdit: boolean;
   issues: KanbanIssue[];
+  teamMembers?: TeamMember[];
 }
 
 export function ProjectDetailClient({
   project,
   canEdit,
   issues,
+  teamMembers = [],
 }: ProjectDetailClientProps) {
-  const [activeTab, setActiveTab] = useState<"issues" | "board" | "settings">(
-    "issues"
-  );
+  const [activeTab, setActiveTab] = useState<
+    "dashboard" | "issues" | "board" | "settings"
+  >("dashboard");
   const [isFavorite, setIsFavorite] = useState(project.isFavorite);
+  const [localIssues, setLocalIssues] = useState(issues);
   const [, startTransition] = useTransition();
 
   const handleToggleFavorite = () => {
@@ -98,6 +113,41 @@ export function ProjectDetailClient({
       formData.set("projectId", project.id);
       await toggleFavoriteProjectAction({ success: false }, formData);
     });
+  };
+
+  const handleStatusChange = async (issueId: string, status: string) => {
+    // Optimistic update
+    setLocalIssues((prev) =>
+      prev.map((issue) =>
+        issue.id === issueId ? { ...issue, status } : issue
+      )
+    );
+
+    const formData = new FormData();
+    formData.set("issueId", issueId);
+    formData.set("status", status);
+    await changeStatusAction({ success: false }, formData);
+  };
+
+  const handleAssigneeChange = async (issueId: string, assigneeId: string | null) => {
+    // Find the new assignee from team members
+    const newAssignee = assigneeId
+      ? teamMembers.find((m) => m.id === assigneeId) || null
+      : null;
+
+    // Optimistic update
+    setLocalIssues((prev) =>
+      prev.map((issue) =>
+        issue.id === issueId
+          ? { ...issue, assignee: newAssignee }
+          : issue
+      )
+    );
+
+    const formData = new FormData();
+    formData.set("issueId", issueId);
+    formData.set("assigneeId", assigneeId || "");
+    await assignIssueAction({ success: false }, formData);
   };
 
   return (
@@ -161,11 +211,22 @@ export function ProjectDetailClient({
       </div>
 
       {project.description && (
-        <p className="text-neutral-400 mb-6 max-w-3xl">{project.description}</p>
+        <p className="text-neutral-400 mb-6 max-w-3xl whitespace-pre-wrap">{project.description}</p>
       )}
 
       {/* Tabs */}
       <div className="flex gap-4 mb-6 border-b border-neutral-700/50">
+        <button
+          onClick={() => setActiveTab("dashboard")}
+          className={`pb-3 px-1 text-sm font-medium transition-colors border-b-2 -mb-px flex items-center gap-2 ${
+            activeTab === "dashboard"
+              ? "border-white text-white"
+              : "border-transparent text-neutral-500 hover:text-neutral-300"
+          }`}
+        >
+          <BarChart3 className="w-4 h-4" />
+          Dashboard
+        </button>
         <button
           onClick={() => setActiveTab("issues")}
           className={`pb-3 px-1 text-sm font-medium transition-colors border-b-2 -mb-px flex items-center gap-2 ${
@@ -204,12 +265,14 @@ export function ProjectDetailClient({
       </div>
 
       {/* Tab Content */}
+      {activeTab === "dashboard" && <ProjectDashboard projectId={project.id} />}
+
       {activeTab === "issues" && (
         <div className="space-y-4">
           {/* Header with Create button */}
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold text-white">
-              Issues ({issues.length})
+              Issues ({localIssues.length})
             </h2>
             <Link href={`/projects/${project.id}/issues/new`}>
               <Button>
@@ -220,8 +283,8 @@ export function ProjectDetailClient({
           </div>
 
           {/* Issues List */}
-          <div className="bg-neutral-900 rounded-xl border border-neutral-700/50 p-6">
-            {issues.length === 0 ? (
+          {localIssues.length === 0 ? (
+            <div className="bg-neutral-900 rounded-xl border border-neutral-700/50 p-6">
               <div className="text-center py-8">
                 <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-neutral-800 border border-neutral-700/50 flex items-center justify-center">
                   <ClipboardList className="w-8 h-8 text-neutral-500" />
@@ -233,17 +296,22 @@ export function ProjectDetailClient({
                   Create your first issue to get started
                 </p>
               </div>
-            ) : (
-              <IssueList issues={issues} />
-            )}
-          </div>
+            </div>
+          ) : (
+            <IssueList
+              issues={localIssues}
+              teamMembers={teamMembers}
+              onStatusChange={handleStatusChange}
+              onAssigneeChange={handleAssigneeChange}
+            />
+          )}
         </div>
       )}
 
       {activeTab === "board" && (
         <KanbanBoard
           projectId={project.id}
-          issues={issues}
+          issues={localIssues}
           customStatuses={project.customStatuses}
         />
       )}

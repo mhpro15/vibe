@@ -60,7 +60,7 @@ export async function addCommentAction(
     const usersToNotify: string[] = [];
     if (issue.creatorId) usersToNotify.push(issue.creatorId);
     if (issue.assigneeId) usersToNotify.push(issue.assigneeId);
-    
+
     if (usersToNotify.length > 0) {
       await notifyCommentAdded(
         usersToNotify,

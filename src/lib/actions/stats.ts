@@ -194,7 +194,7 @@ export async function getPersonalStats() {
 
   // Get my recent comments (max 5)
   const recentComments = await prisma.comment.findMany({
-    where: { userId },
+    where: { authorId: userId, deletedAt: null },
     orderBy: { createdAt: "desc" },
     take: 5,
     select: {
@@ -385,7 +385,7 @@ async function getIssueTrendByDay(
   dateField: "createdAt" | "updatedAt"
 ) {
   const result: { date: string; count: number }[] = [];
-  
+
   for (let i = 0; i < days; i++) {
     const dayStart = new Date(startDate);
     dayStart.setDate(dayStart.getDate() + i);

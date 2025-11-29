@@ -47,13 +47,12 @@ export function MemberBarChart({ data }: MemberBarChartProps) {
         data={chartData}
         margin={{ top: 10, right: 10, left: -10, bottom: 0 }}
       >
-        <CartesianGrid strokeDasharray="3 3" stroke="#404040" vertical={false} />
-        <XAxis
-          dataKey="name"
-          stroke="#737373"
-          fontSize={12}
-          tickLine={false}
+        <CartesianGrid
+          strokeDasharray="3 3"
+          stroke="#404040"
+          vertical={false}
         />
+        <XAxis dataKey="name" stroke="#737373" fontSize={12} tickLine={false} />
         <YAxis stroke="#737373" fontSize={12} tickLine={false} />
         <Tooltip
           contentStyle={{
@@ -117,13 +116,11 @@ export function MemberStatsList({ data }: MemberBarChartProps) {
             key={member.userId}
             className="flex items-center gap-3 p-3 rounded-lg bg-neutral-800/50 hover:bg-neutral-800 transition-colors"
           >
-            <Avatar
-              src={member.userImage}
-              name={member.userName}
-              size="sm"
-            />
+            <Avatar src={member.userImage} name={member.userName} size="sm" />
             <div className="flex-1 min-w-0">
-              <div className="text-sm text-white truncate">{member.userName}</div>
+              <div className="text-sm text-white truncate">
+                {member.userName}
+              </div>
               <div className="flex items-center gap-3 text-xs text-neutral-500">
                 <span>{member.assignedCount} assigned</span>
                 <span>•</span>

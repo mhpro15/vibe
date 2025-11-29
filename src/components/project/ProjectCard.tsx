@@ -82,7 +82,7 @@ export function ProjectCard({
       </div>
 
       {project.description && (
-        <p className="mt-3 text-sm text-neutral-400 line-clamp-2">
+        <p className="mt-3 text-sm text-neutral-400 line-clamp-2 whitespace-pre-wrap">
           {project.description}
         </p>
       )}

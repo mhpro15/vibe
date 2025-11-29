@@ -35,7 +35,8 @@ export function PriorityBarChart({ data }: PriorityBarChartProps) {
   // Sort by priority order
   const priorityOrder = ["URGENT", "HIGH", "MEDIUM", "LOW"];
   const sortedData = [...data].sort(
-    (a, b) => priorityOrder.indexOf(a.priority) - priorityOrder.indexOf(b.priority)
+    (a, b) =>
+      priorityOrder.indexOf(a.priority) - priorityOrder.indexOf(b.priority)
   );
 
   return (
@@ -45,7 +46,11 @@ export function PriorityBarChart({ data }: PriorityBarChartProps) {
         margin={{ top: 10, right: 10, left: -10, bottom: 0 }}
         layout="vertical"
       >
-        <CartesianGrid strokeDasharray="3 3" stroke="#404040" horizontal={false} />
+        <CartesianGrid
+          strokeDasharray="3 3"
+          stroke="#404040"
+          horizontal={false}
+        />
         <XAxis type="number" stroke="#737373" fontSize={12} />
         <YAxis
           type="category"

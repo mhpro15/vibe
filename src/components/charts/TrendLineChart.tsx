@@ -42,12 +42,7 @@ export function TrendLineChart({
         margin={{ top: 10, right: 10, left: -10, bottom: 0 }}
       >
         <CartesianGrid strokeDasharray="3 3" stroke="#404040" />
-        <XAxis
-          dataKey="date"
-          stroke="#737373"
-          fontSize={12}
-          tickLine={false}
-        />
+        <XAxis dataKey="date" stroke="#737373" fontSize={12} tickLine={false} />
         <YAxis stroke="#737373" fontSize={12} tickLine={false} />
         <Tooltip
           contentStyle={{

@@ -8,7 +8,10 @@ import {
   hasAdminPrivileges,
   checkTeamMembership,
 } from "./helpers";
-import { notifyTeamInvite, notifyRoleChanged } from "@/lib/actions/notification";
+import {
+  notifyTeamInvite,
+  notifyRoleChanged,
+} from "@/lib/actions/notification";
 
 // FR-013: Invite Team Member
 export async function inviteMemberAction(

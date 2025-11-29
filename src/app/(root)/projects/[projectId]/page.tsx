@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getSession } from "@/lib/actions/auth";
 import { getProjectById } from "@/lib/actions/project";
 import { getProjectIssues } from "@/lib/actions/issue";
+import { prisma } from "@/lib/prisma";
 import { ProjectDetailClient } from "./ProjectDetailClient";
 
 interface ProjectPageProps {
@@ -27,6 +28,22 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
   if (!project) {
     notFound();
   }
+
+  // Fetch team members
+  const teamMembers = await prisma.teamMember.findMany({
+    where: { teamId: project.team.id },
+    include: {
+      user: {
+        select: { id: true, name: true, image: true },
+      },
+    },
+  });
+
+  const teamMembersList = teamMembers.map((m) => ({
+    id: m.user.id,
+    name: m.user.name,
+    image: m.user.image,
+  }));
 
   // Check if user is owner or admin
   const canEdit = project.ownerId === session.user.id;
@@ -83,6 +100,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
         project={project}
         canEdit={canEdit}
         issues={kanbanIssues}
+        teamMembers={teamMembersList}
       />
     </div>
   );
