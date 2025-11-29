@@ -56,6 +56,38 @@ export default async function TeamDetailPage({ params }: TeamPageProps) {
     notFound();
   }
 
+  // Fetch pending invites if user is owner or admin
+  let pendingInvites: Array<{
+    id: string;
+    email: string;
+    role: string;
+    createdAt: Date;
+    expiresAt: Date;
+    sender: {
+      id: string;
+      name: string | null;
+      email: string | null;
+      image: string | null;
+    };
+  }> = [];
+
+  if (membership.role === "OWNER" || membership.role === "ADMIN") {
+    const invites = await prisma.teamInvite.findMany({
+      where: {
+        teamId,
+        status: "PENDING",
+        expiresAt: { gt: new Date() },
+      },
+      include: {
+        sender: {
+          select: { id: true, name: true, email: true, image: true },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+    pendingInvites = invites;
+  }
+
   // Transform data for client component
   const teamData = {
     id: team.id,
@@ -78,6 +110,7 @@ export default async function TeamDetailPage({ params }: TeamPageProps) {
       team={teamData}
       currentUserId={session.user.id}
       currentUserRole={membership.role}
+      pendingInvites={pendingInvites}
     />
   );
 }

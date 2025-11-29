@@ -209,6 +209,71 @@ export async function respondToInviteAction(
   }
 }
 
+// Cancel/Revoke a pending team invite (for owners/admins)
+export async function cancelInviteAction(
+  _prevState: TeamActionResult,
+  formData: FormData
+): Promise<TeamActionResult> {
+  const session = await getSession();
+  if (!session?.user?.id) {
+    return { success: false, error: "You must be logged in" };
+  }
+
+  const inviteId = formData.get("inviteId") as string;
+
+  if (!inviteId) {
+    return { success: false, error: "Invite ID is required" };
+  }
+
+  try {
+    const invite = await prisma.teamInvite.findUnique({
+      where: { id: inviteId },
+      include: { team: { select: { id: true, name: true } } },
+    });
+
+    if (!invite) {
+      return { success: false, error: "Invitation not found" };
+    }
+
+    // Check if user has permission to cancel this invite
+    if (!(await hasAdminPrivileges(session.user.id, invite.teamId))) {
+      return {
+        success: false,
+        error: "You don't have permission to cancel invitations",
+      };
+    }
+
+    if (invite.status !== "PENDING") {
+      return {
+        success: false,
+        error: "This invitation has already been processed",
+      };
+    }
+
+    // Update invite status to cancelled
+    await prisma.teamInvite.update({
+      where: { id: inviteId },
+      data: { status: "CANCELLED" },
+    });
+
+    // Log activity
+    await prisma.teamActivityLog.create({
+      data: {
+        teamId: invite.teamId,
+        userId: session.user.id,
+        action: "INVITE_CANCELLED",
+        details: { cancelledEmail: invite.email },
+      },
+    });
+
+    revalidatePath(`/teams/${invite.teamId}`);
+    return { success: true };
+  } catch (error) {
+    console.error("Cancel invite error:", error);
+    return { success: false, error: "Failed to cancel invitation" };
+  }
+}
+
 // FR-015: Kick Team Member
 export async function kickMemberAction(
   _prevState: TeamActionResult,

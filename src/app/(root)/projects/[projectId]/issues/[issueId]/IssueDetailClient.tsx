@@ -415,7 +415,7 @@ export function IssueDetailClient({
         </div>
 
         {/* Subtasks */}
-        {/* <SubtasksList issueId={issue.id} initialSubtasks={subtasks} /> */}
+        <SubtasksList issueId={issue.id} subtasks={subtasks} />
 
         {/* Comments */}
         <div className="bg-neutral-900 rounded-xl border border-neutral-700/50 p-6">

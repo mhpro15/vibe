@@ -132,6 +132,43 @@ export async function getMyInvites() {
 }
 
 /**
+ * Get pending invites for a team (for owners/admins to manage)
+ */
+export async function getTeamPendingInvites(teamId: string) {
+  const session = await getSession();
+  if (!session?.user?.id) {
+    return [];
+  }
+
+  try {
+    // Verify membership and check if user has admin privileges
+    const member = await checkTeamMembership(session.user.id, teamId);
+    if (!member || (member.role !== "OWNER" && member.role !== "ADMIN")) {
+      return [];
+    }
+
+    const invites = await prisma.teamInvite.findMany({
+      where: {
+        teamId,
+        status: "PENDING",
+        expiresAt: { gt: new Date() },
+      },
+      include: {
+        sender: {
+          select: { id: true, name: true, email: true, image: true },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    return invites;
+  } catch (error) {
+    console.error("Get team pending invites error:", error);
+    return [];
+  }
+}
+
+/**
  * Get team by ID with details
  */
 export async function getTeamById(teamId: string) {

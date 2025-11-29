@@ -17,6 +17,7 @@ import {
   Shield,
   User,
   BarChart3,
+  Mail,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Card, CardHeader, CardContent } from "@/components/ui/Card";
@@ -25,6 +26,7 @@ import {
   TeamMembersList,
   InviteMemberModal,
   TeamStatistics,
+  ManageInvitations,
 } from "@/components/team";
 import { CreateProjectModal } from "@/components/project";
 import {
@@ -43,6 +45,20 @@ interface TeamMember {
     name: string;
     email: string;
     image?: string | null;
+  };
+}
+
+interface PendingInvite {
+  id: string;
+  email: string;
+  role: string;
+  createdAt: Date;
+  expiresAt: Date;
+  sender: {
+    id: string;
+    name: string | null;
+    email: string | null;
+    image: string | null;
   };
 }
 
@@ -65,12 +81,14 @@ interface TeamDetailClientProps {
   team: TeamData;
   currentUserId: string;
   currentUserRole: "OWNER" | "ADMIN" | "MEMBER";
+  pendingInvites: PendingInvite[];
 }
 
 export function TeamDetailClient({
   team,
   currentUserId,
   currentUserRole,
+  pendingInvites,
 }: TeamDetailClientProps) {
   const router = useRouter();
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
@@ -81,7 +99,7 @@ export function TeamDetailClient({
   const [isUpdating, setIsUpdating] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isLeaving, setIsLeaving] = useState(false);
-  const [activeTab, setActiveTab] = useState<"members" | "statistics">(
+  const [activeTab, setActiveTab] = useState<"members" | "statistics" | "invitations">(
     "members"
   );
 
@@ -285,6 +303,22 @@ export function TeamDetailClient({
           <BarChart3 className="w-4 h-4" />
           Statistics
         </button>
+        {canInvite && pendingInvites.length > 0 && (
+          <button
+            onClick={() => setActiveTab("invitations")}
+            className={`pb-3 px-1 text-sm font-medium transition-colors border-b-2 -mb-px flex items-center gap-2 ${
+              activeTab === "invitations"
+                ? "border-white text-white"
+                : "border-transparent text-neutral-500 hover:text-neutral-300"
+            }`}
+          >
+            <Mail className="w-4 h-4" />
+            Pending Invites
+            <Badge variant="default" className="ml-1 text-xs">
+              {pendingInvites.length}
+            </Badge>
+          </button>
+        )}
       </div>
 
       {/* Tab Content */}
@@ -411,6 +445,14 @@ export function TeamDetailClient({
       )}
 
       {activeTab === "statistics" && <TeamStatistics teamId={team.id} />}
+
+      {activeTab === "invitations" && canInvite && (
+        <ManageInvitations
+          invitations={pendingInvites}
+          teamId={team.id}
+          onInviteCancelled={() => router.refresh()}
+        />
+      )}
 
       <InviteMemberModal
         isOpen={isInviteModalOpen}

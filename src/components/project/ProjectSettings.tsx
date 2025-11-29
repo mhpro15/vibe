@@ -13,6 +13,7 @@ import {
   deleteLabelAction,
   createCustomStatusAction,
   deleteCustomStatusAction,
+  setWipLimitAction,
   ProjectActionResult,
 } from "@/lib/actions/project";
 
@@ -27,6 +28,7 @@ interface CustomStatus {
   name: string;
   color: string | null;
   position: number;
+  wipLimit?: number | null;
 }
 
 interface ProjectSettingsProps {
@@ -247,31 +249,12 @@ export function ProjectSettings({ project, canEdit }: ProjectSettingsProps) {
 
           {/* Custom statuses */}
           {project.customStatuses.map((status) => (
-            <div
+            <CustomStatusItem
               key={status.id}
-              className="flex items-center justify-between p-3 bg-neutral-800 rounded-lg"
-            >
-              <div className="flex items-center gap-3">
-                <span
-                  className="w-3 h-3 rounded-full"
-                  style={{ backgroundColor: status.color ?? "#6b7280" }}
-                />
-                <span className="text-sm font-medium text-neutral-300">
-                  {status.name}
-                </span>
-              </div>
-              {canEdit && (
-                <form action={deleteStatusFormAction}>
-                  <input type="hidden" name="statusId" value={status.id} />
-                  <button
-                    type="submit"
-                    className="text-neutral-500 hover:text-red-400 transition-colors"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </form>
-              )}
-            </div>
+              status={status}
+              canEdit={canEdit}
+              deleteAction={deleteStatusFormAction}
+            />
           ))}
         </div>
       </section>
@@ -473,6 +456,103 @@ export function ProjectSettings({ project, canEdit }: ProjectSettingsProps) {
           </div>
         </form>
       </Modal>
+    </div>
+  );
+}
+
+// FR-054: Custom status item with WIP limit editing
+function CustomStatusItem({
+  status,
+  canEdit,
+  deleteAction,
+}: {
+  status: CustomStatus;
+  canEdit: boolean;
+  deleteAction: (formData: FormData) => void;
+}) {
+  const [isEditingWip, setIsEditingWip] = useState(false);
+  const [wipValue, setWipValue] = useState(
+    status.wipLimit?.toString() ?? ""
+  );
+  const [_wipState, wipAction, isSettingWip] = useActionState(
+    setWipLimitAction,
+    { success: false }
+  );
+
+  const handleWipSubmit = (formData: FormData) => {
+    wipAction(formData);
+    setIsEditingWip(false);
+  };
+
+  return (
+    <div className="flex items-center justify-between p-3 bg-neutral-800 rounded-lg">
+      <div className="flex items-center gap-3">
+        <span
+          className="w-3 h-3 rounded-full"
+          style={{ backgroundColor: status.color ?? "#6b7280" }}
+        />
+        <span className="text-sm font-medium text-neutral-300">
+          {status.name}
+        </span>
+      </div>
+      <div className="flex items-center gap-2">
+        {/* WIP Limit */}
+        {canEdit && (
+          <>
+            {isEditingWip ? (
+              <form action={handleWipSubmit} className="flex items-center gap-1">
+                <input type="hidden" name="statusId" value={status.id} />
+                <input
+                  type="number"
+                  name="wipLimit"
+                  min={0}
+                  max={50}
+                  placeholder="∞"
+                  value={wipValue}
+                  onChange={(e) => setWipValue(e.target.value)}
+                  className="w-14 px-2 py-1 text-xs bg-neutral-700 border border-neutral-600 rounded text-white text-center focus:outline-none focus:ring-1 focus:ring-violet-500"
+                  autoFocus
+                  onKeyDown={(e) => {
+                    if (e.key === "Escape") {
+                      setIsEditingWip(false);
+                      setWipValue(status.wipLimit?.toString() ?? "");
+                    }
+                  }}
+                />
+                <Button type="submit" size="sm" disabled={isSettingWip}>
+                  {isSettingWip ? "..." : "Set"}
+                </Button>
+              </form>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setIsEditingWip(true)}
+                className="text-xs px-2 py-1 bg-neutral-700 hover:bg-neutral-600 rounded text-neutral-400 hover:text-neutral-300 transition-colors"
+                title="Set WIP limit"
+              >
+                WIP: {status.wipLimit ?? "∞"}
+              </button>
+            )}
+          </>
+        )}
+        {!canEdit && status.wipLimit && (
+          <span className="text-xs px-2 py-1 bg-neutral-700 rounded text-neutral-400">
+            WIP: {status.wipLimit}
+          </span>
+        )}
+        {/* Delete button */}
+        {canEdit && (
+          <form action={deleteAction}>
+            <input type="hidden" name="statusId" value={status.id} />
+            <button
+              type="submit"
+              className="text-neutral-500 hover:text-red-400 transition-colors"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          </form>
+        )}
+      </div>
     </div>
   );
 }

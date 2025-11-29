@@ -55,5 +55,6 @@ export type ProjectActionResult = {
     customStatusId?: string;
     isArchived?: boolean;
     isFavorite?: boolean;
+    wipLimit?: number | null;
   };
 };

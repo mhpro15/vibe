@@ -7,7 +7,7 @@
  * - FR-013: Team invitation emails
  */
 
-const APP_NAME = "Vibe";
+const APP_NAME = "VIBE";
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
 interface EmailOptions {
@@ -57,7 +57,7 @@ async function sendEmail(options: EmailOptions): Promise<boolean> {
 }
 
 /**
- * Email template wrapper with consistent styling
+ * Email template wrapper - clean minimal design matching app style
  */
 function wrapInTemplate(content: string): string {
   return `
@@ -67,27 +67,37 @@ function wrapInTemplate(content: string): string {
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
       </head>
-      <body style="margin: 0; padding: 0; background-color: #0a0a0a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
-        <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #0a0a0a; padding: 40px 20px;">
+      <body style="margin: 0; padding: 0; background-color: #0a0a0a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #0a0a0a; padding: 48px 20px;">
           <tr>
             <td align="center">
-              <table width="100%" style="max-width: 500px; background-color: #171717; border-radius: 12px; border: 1px solid #374151;">
+              <table width="100%" style="max-width: 480px;">
+                <!-- Logo Header -->
                 <tr>
-                  <td style="padding: 32px;">
-                    <!-- Logo -->
-                    <div style="text-align: center; margin-bottom: 24px;">
-                      <span style="font-size: 24px; font-weight: bold; color: #a78bfa;">✦ ${APP_NAME}</span>
-                    </div>
-                    
-                    <!-- Content -->
-                    ${content}
-                    
-                    <!-- Footer -->
-                    <div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid #374151; text-align: center;">
-                      <p style="color: #6b7280; font-size: 12px; margin: 0;">
-                        © ${new Date().getFullYear()} ${APP_NAME}. All rights reserved.
-                      </p>
-                    </div>
+                  <td style="padding-bottom: 32px; text-align: center;">
+                    <span style="font-size: 24px; font-weight: 300; color: #ffffff; letter-spacing: 0.25em; text-transform: uppercase;">${APP_NAME}</span>
+                  </td>
+                </tr>
+                
+                <!-- Main Card -->
+                <tr>
+                  <td>
+                    <table width="100%" style="background-color: #171717; border-radius: 12px; border: 1px solid #262626;">
+                      <tr>
+                        <td style="padding: 32px;">
+                          ${content}
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+                
+                <!-- Footer -->
+                <tr>
+                  <td style="padding-top: 24px; text-align: center;">
+                    <p style="color: #525252; font-size: 12px; margin: 0;">
+                      © ${new Date().getFullYear()} Vibe. All rights reserved.
+                    </p>
                   </td>
                 </tr>
               </table>
@@ -96,6 +106,18 @@ function wrapInTemplate(content: string): string {
         </table>
       </body>
     </html>
+  `;
+}
+
+/**
+ * Button component - simple and clean
+ */
+function createButton(text: string, url: string): string {
+  return `
+    <a href="${url}" 
+       style="display: inline-block; padding: 12px 24px; background-color: #60a5fa; color: #0a0a0a; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 14px;">
+      ${text}
+    </a>
   `;
 }
 
@@ -109,31 +131,26 @@ export async function sendTeamInviteEmail(
   role: string
 ): Promise<boolean> {
   const content = `
-    <h1 style="color: #f5f5f5; font-size: 20px; font-weight: 600; margin: 0 0 16px 0; text-align: center;">
-      You're Invited!
+    <h1 style="color: #ffffff; font-size: 20px; font-weight: 600; margin: 0 0 16px 0;">
+      You're invited to join a team
     </h1>
     
-    <p style="color: #d4d4d4; font-size: 15px; line-height: 1.6; margin: 0 0 24px 0; text-align: center;">
-      <strong style="color: #a78bfa;">${inviterName}</strong> has invited you to join 
-      <strong style="color: #60a5fa;">${teamName}</strong> as a <strong>${role}</strong>.
+    <p style="color: #a3a3a3; font-size: 14px; line-height: 1.6; margin: 0 0 24px 0;">
+      <span style="color: #ffffff;">${inviterName}</span> has invited you to join <span style="color: #ffffff;">${teamName}</span> as a <span style="color: #60a5fa;">${role}</span>.
     </p>
     
-    <div style="text-align: center; margin: 24px 0;">
-      <a href="${APP_URL}/teams" 
-         style="display: inline-block; padding: 12px 32px; background-color: #7c3aed; color: white; text-decoration: none; border-radius: 8px; font-weight: 500; font-size: 14px;">
-        View Invitation
-      </a>
+    <div style="margin-bottom: 24px;">
+      ${createButton("Accept Invitation", `${APP_URL}/teams`)}
     </div>
     
-    <p style="color: #9ca3af; font-size: 13px; line-height: 1.5; margin: 24px 0 0 0; text-align: center;">
-      This invitation will expire in 7 days.<br>
-      If you don't have an account, you'll need to sign up first.
+    <p style="color: #525252; font-size: 12px; line-height: 1.5; margin: 0;">
+      This invitation expires in 7 days. If you don't have an account, you'll need to sign up first.
     </p>
   `;
 
   return sendEmail({
     to,
-    subject: `${inviterName} invited you to join ${teamName} - ${APP_NAME}`,
+    subject: `${inviterName} invited you to join ${teamName}`,
     html: wrapInTemplate(content),
   });
 }
@@ -149,32 +166,26 @@ export async function sendIssueAssignedEmail(
   issueUrl: string
 ): Promise<boolean> {
   const content = `
-    <h1 style="color: #f5f5f5; font-size: 20px; font-weight: 600; margin: 0 0 16px 0; text-align: center;">
-      Issue Assigned to You
+    <h1 style="color: #ffffff; font-size: 20px; font-weight: 600; margin: 0 0 16px 0;">
+      New issue assigned to you
     </h1>
     
-    <p style="color: #d4d4d4; font-size: 15px; line-height: 1.6; margin: 0 0 16px 0; text-align: center;">
-      <strong style="color: #a78bfa;">${assignerName}</strong> assigned you an issue in 
-      <strong style="color: #60a5fa;">${projectName}</strong>
+    <p style="color: #a3a3a3; font-size: 14px; line-height: 1.6; margin: 0 0 8px 0;">
+      <span style="color: #ffffff;">${assignerName}</span> assigned you an issue in <span style="color: #ffffff;">${projectName}</span>
     </p>
     
-    <div style="background-color: #262626; border-radius: 8px; padding: 16px; margin: 16px 0;">
-      <p style="color: #f5f5f5; font-size: 16px; font-weight: 500; margin: 0;">
-        ${issueTitle}
-      </p>
-    </div>
+    <p style="color: #ffffff; font-size: 16px; font-weight: 500; margin: 0 0 24px 0;">
+      ${issueTitle}
+    </p>
     
-    <div style="text-align: center; margin: 24px 0;">
-      <a href="${issueUrl}" 
-         style="display: inline-block; padding: 12px 32px; background-color: #3b82f6; color: white; text-decoration: none; border-radius: 8px; font-weight: 500; font-size: 14px;">
-        View Issue
-      </a>
+    <div>
+      ${createButton("View Issue", issueUrl)}
     </div>
   `;
 
   return sendEmail({
     to,
-    subject: `Issue assigned: ${issueTitle} - ${APP_NAME}`,
+    subject: `Assigned: ${issueTitle}`,
     html: wrapInTemplate(content),
   });
 }
@@ -190,36 +201,28 @@ export async function sendMentionEmail(
   issueUrl: string
 ): Promise<boolean> {
   const content = `
-    <h1 style="color: #f5f5f5; font-size: 20px; font-weight: 600; margin: 0 0 16px 0; text-align: center;">
-      You Were Mentioned
+    <h1 style="color: #ffffff; font-size: 20px; font-weight: 600; margin: 0 0 16px 0;">
+      You were mentioned in a comment
     </h1>
     
-    <p style="color: #d4d4d4; font-size: 15px; line-height: 1.6; margin: 0 0 16px 0; text-align: center;">
-      <strong style="color: #a78bfa;">${mentionerName}</strong> mentioned you in a comment on
+    <p style="color: #a3a3a3; font-size: 14px; line-height: 1.6; margin: 0 0 16px 0;">
+      <span style="color: #ffffff;">${mentionerName}</span> mentioned you in <span style="color: #ffffff;">${issueTitle}</span>
     </p>
     
-    <div style="background-color: #262626; border-radius: 8px; padding: 16px; margin: 16px 0;">
-      <p style="color: #60a5fa; font-size: 14px; font-weight: 500; margin: 0 0 8px 0;">
-        ${issueTitle}
-      </p>
-      <p style="color: #9ca3af; font-size: 13px; margin: 0; font-style: italic;">
-        "${commentPreview.substring(0, 100)}${
-    commentPreview.length > 100 ? "..." : ""
-  }"
+    <div style="border-left: 2px solid #404040; padding-left: 16px; margin-bottom: 24px;">
+      <p style="color: #a3a3a3; font-size: 14px; margin: 0; font-style: italic; line-height: 1.5;">
+        "${commentPreview.substring(0, 150)}${commentPreview.length > 150 ? "..." : ""}"
       </p>
     </div>
     
-    <div style="text-align: center; margin: 24px 0;">
-      <a href="${issueUrl}" 
-         style="display: inline-block; padding: 12px 32px; background-color: #3b82f6; color: white; text-decoration: none; border-radius: 8px; font-weight: 500; font-size: 14px;">
-        View Comment
-      </a>
+    <div>
+      ${createButton("View Comment", issueUrl)}
     </div>
   `;
 
   return sendEmail({
     to,
-    subject: `${mentionerName} mentioned you in ${issueTitle} - ${APP_NAME}`,
+    subject: `${mentionerName} mentioned you in ${issueTitle}`,
     html: wrapInTemplate(content),
   });
 }
@@ -241,37 +244,30 @@ export async function sendDueSoonEmail(
   });
 
   const content = `
-    <h1 style="color: #f5f5f5; font-size: 20px; font-weight: 600; margin: 0 0 16px 0; text-align: center;">
-      ⏰ Issue Due Soon
+    <h1 style="color: #ffffff; font-size: 20px; font-weight: 600; margin: 0 0 16px 0;">
+      Issue due soon
     </h1>
     
-    <p style="color: #d4d4d4; font-size: 15px; line-height: 1.6; margin: 0 0 16px 0; text-align: center;">
-      An issue assigned to you is due soon
+    <p style="color: #a3a3a3; font-size: 14px; line-height: 1.6; margin: 0 0 8px 0;">
+      An issue in <span style="color: #ffffff;">${projectName}</span> is due soon
     </p>
     
-    <div style="background-color: #262626; border-radius: 8px; padding: 16px; margin: 16px 0;">
-      <p style="color: #f5f5f5; font-size: 16px; font-weight: 500; margin: 0 0 8px 0;">
-        ${issueTitle}
-      </p>
-      <p style="color: #60a5fa; font-size: 13px; margin: 0 0 8px 0;">
-        ${projectName}
-      </p>
-      <p style="color: #fbbf24; font-size: 14px; font-weight: 500; margin: 0;">
-        Due: ${formattedDate}
-      </p>
-    </div>
+    <p style="color: #ffffff; font-size: 16px; font-weight: 500; margin: 0 0 12px 0;">
+      ${issueTitle}
+    </p>
     
-    <div style="text-align: center; margin: 24px 0;">
-      <a href="${issueUrl}" 
-         style="display: inline-block; padding: 12px 32px; background-color: #f59e0b; color: #171717; text-decoration: none; border-radius: 8px; font-weight: 500; font-size: 14px;">
-        View Issue
-      </a>
+    <p style="color: #f59e0b; font-size: 14px; font-weight: 500; margin: 0 0 24px 0;">
+      Due: ${formattedDate}
+    </p>
+    
+    <div>
+      ${createButton("View Issue", issueUrl)}
     </div>
   `;
 
   return sendEmail({
     to,
-    subject: `Due soon: ${issueTitle} - ${APP_NAME}`,
+    subject: `Due soon: ${issueTitle}`,
     html: wrapInTemplate(content),
   });
 }

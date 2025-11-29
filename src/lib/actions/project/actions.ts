@@ -288,3 +288,64 @@ export async function toggleFavoriteProjectAction(
     return { success: false, error: "Failed to toggle favorite" };
   }
 }
+
+// FR-054: Set WIP Limit for Custom Status
+export async function setWipLimitAction(
+  _prevState: ProjectActionResult,
+  formData: FormData
+): Promise<ProjectActionResult> {
+  const session = await getSession();
+  if (!session?.user?.id) {
+    return { success: false, error: "Authentication required" };
+  }
+
+  const statusId = formData.get("statusId") as string;
+  const wipLimitStr = formData.get("wipLimit") as string;
+
+  // Parse wipLimit: empty or "0" means unlimited (null)
+  let wipLimit: number | null = null;
+  if (wipLimitStr && wipLimitStr !== "0") {
+    wipLimit = parseInt(wipLimitStr, 10);
+    if (isNaN(wipLimit) || wipLimit < 1 || wipLimit > 50) {
+      return {
+        success: false,
+        error: "WIP limit must be between 1 and 50, or empty for unlimited",
+      };
+    }
+  }
+
+  // Get custom status and verify ownership
+  const customStatus = await prisma.customStatus.findUnique({
+    where: { id: statusId },
+    include: { project: { select: { teamId: true, id: true, ownerId: true } } },
+  });
+
+  if (!customStatus) {
+    return { success: false, error: "Status not found" };
+  }
+
+  // Check if user is project owner or team admin
+  const isOwner = customStatus.project.ownerId === session.user.id;
+  const isAdmin = await isTeamAdmin(session.user.id, customStatus.project.teamId);
+
+  if (!isOwner && !isAdmin) {
+    return {
+      success: false,
+      error: "You don't have permission to change WIP limits",
+    };
+  }
+
+  try {
+    await prisma.customStatus.update({
+      where: { id: statusId },
+      data: { wipLimit },
+    });
+
+    revalidatePath(`/projects/${customStatus.project.id}`);
+
+    return { success: true, data: { wipLimit } };
+  } catch (error) {
+    console.error("Set WIP limit error:", error);
+    return { success: false, error: "Failed to set WIP limit" };
+  }
+}
