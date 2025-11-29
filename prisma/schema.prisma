@@ -1,4 +1,4 @@
-// Prisma schema for Jira Lite MVP
+// Prisma schema for Vibe MVP
 // Includes Better Auth tables + Application models
 
 generator client {

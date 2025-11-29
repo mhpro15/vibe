@@ -27,7 +27,7 @@ export const auth = betterAuth({
             body: JSON.stringify({
               from: process.env.EMAIL_FROM || "noreply@manhhung.app",
               to: user.email,
-              subject: "Reset Your Password - Jira Lite",
+              subject: "Reset Your Password - Vibe",
               html: `
                 <h1>Password Reset Request</h1>
                 <p>Hello ${user.name || "there"},</p>

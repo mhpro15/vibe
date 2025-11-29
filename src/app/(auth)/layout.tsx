@@ -24,7 +24,7 @@ export default function AuthLayout({
           </svg>
         </div>
         <span className="text-xl font-bold text-gray-900 dark:text-white">
-          Jira Lite
+          Vibe
         </span>
       </Link>
       {children}

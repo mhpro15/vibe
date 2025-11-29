@@ -24,7 +24,7 @@ export function SignUpForm() {
             Create an account
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mt-2">
-            Get started with Jira Lite
+            Get started with Vibe
           </p>
         </div>
 

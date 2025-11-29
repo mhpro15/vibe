@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Jira Lite - AI-Powered Issue Tracking",
+  title: "Vibe - AI-Powered Issue Tracking",
   description: "A modern, AI-powered issue tracking web application for teams",
 };
 
