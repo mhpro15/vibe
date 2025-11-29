@@ -96,26 +96,11 @@ export function Sidebar({ user }: SidebarProps) {
   const pathname = usePathname();
 
   return (
-    <aside className="w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col">
+    <aside className="w-64 bg-neutral-900 border-r border-neutral-700/50 flex flex-col">
       {/* Logo */}
-      <div className="h-16 flex items-center px-6 border-b border-gray-200 dark:border-gray-700">
-        <Link href="/dashboard" className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-linear-to-br from-blue-600 to-purple-600 flex items-center justify-center">
-            <svg
-              className="w-5 h-5 text-white"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M13 10V3L4 14h7v7l9-11h-7z"
-              />
-            </svg>
-          </div>
-          <span className="text-xl font-bold text-gray-900 dark:text-white">
+      <div className="h-16 flex items-center px-6 border-b border-neutral-700/50">
+        <Link href="/dashboard" className="group">
+          <span className="text-xl font-light text-white tracking-widest uppercase hover:tracking-[0.2em] transition-all duration-300">
             Vibe
           </span>
         </Link>
@@ -131,11 +116,11 @@ export function Sidebar({ user }: SidebarProps) {
               key={item.name}
               href={item.href}
               className={`
-                flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors
+                flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200
                 ${
                   isActive
-                    ? "bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400"
-                    : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+                    ? "bg-white text-neutral-900"
+                    : "text-neutral-400 hover:bg-neutral-800 hover:text-white"
                 }
               `}
             >
@@ -147,17 +132,17 @@ export function Sidebar({ user }: SidebarProps) {
       </nav>
 
       {/* User Section */}
-      <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+      <div className="p-4 border-t border-neutral-700/50">
         <Link
           href="/profile"
-          className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+          className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-neutral-800 transition-all duration-200"
         >
           <Avatar src={user.image} name={user.name} size="md" />
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+            <p className="text-sm font-medium text-white truncate">
               {user.name}
             </p>
-            <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+            <p className="text-xs text-neutral-500 truncate">
               {user.email}
             </p>
           </div>

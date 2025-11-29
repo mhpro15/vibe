@@ -15,11 +15,11 @@ export default async function RootLayout({
   }
 
   return (
-    <div className="flex h-screen">
+    <div className="flex h-screen bg-neutral-950">
       <Sidebar user={session.user} />
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header user={session.user} />
-        <main className="flex-1 overflow-y-auto p-6">{children}</main>
+        <main className="flex-1 overflow-y-auto p-6 bg-neutral-950">{children}</main>
       </div>
     </div>
   );

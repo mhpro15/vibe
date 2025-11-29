@@ -6,6 +6,7 @@ interface BadgeProps {
   children: ReactNode;
   variant?: "default" | "primary" | "success" | "warning" | "danger" | "info";
   size?: "sm" | "md";
+  color?: string; // Custom hex color
   className?: string;
 }
 
@@ -13,23 +14,39 @@ export function Badge({
   children,
   variant = "default",
   size = "md",
+  color,
   className = "",
 }: BadgeProps) {
   const variants = {
-    default: "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300",
-    primary: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300",
+    default: "bg-neutral-700/50 text-neutral-200 border border-neutral-600",
+    primary: "bg-white/15 text-white border border-white/30",
     success:
-      "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
+      "bg-emerald-500/15 text-emerald-300 border border-emerald-500/30",
     warning:
-      "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300",
-    danger: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300",
-    info: "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300",
+      "bg-amber-500/15 text-amber-300 border border-amber-500/30",
+    danger: "bg-red-500/15 text-red-300 border border-red-500/30",
+    info: "bg-violet-500/15 text-violet-300 border border-violet-500/30",
   };
 
   const sizes = {
     sm: "px-2 py-0.5 text-xs",
     md: "px-2.5 py-1 text-sm",
   };
+
+  // If custom color is provided, use it
+  if (color) {
+    return (
+      <span
+        className={`inline-flex items-center font-medium rounded-full ${sizes[size]} ${className}`}
+        style={{
+          backgroundColor: `${color}20`,
+          color: color,
+        }}
+      >
+        {children}
+      </span>
+    );
+  }
 
   return (
     <span

@@ -41,7 +41,7 @@ export function CreateTeamModal({
         />
 
         {state.error && (
-          <div className="p-3 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm">
+          <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
             {state.error}
           </div>
         )}

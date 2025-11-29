@@ -19,10 +19,10 @@ export function Card({
     <div
       onClick={onClick}
       className={`
-        bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 
+        bg-neutral-900 rounded-2xl border border-neutral-700/50 shadow-lg shadow-black/20
         ${
           hover
-            ? "hover:shadow-lg hover:border-gray-300 dark:hover:border-gray-600 cursor-pointer transition-all"
+            ? "hover:bg-neutral-800 hover:border-neutral-600 cursor-pointer transition-all duration-200"
             : ""
         }
         ${onClick ? "cursor-pointer" : ""}
@@ -43,7 +43,7 @@ export function CardHeader({
 }) {
   return (
     <div
-      className={`px-6 py-4 border-b border-gray-200 dark:border-gray-700 ${className}`}
+      className={`px-6 py-4 border-b border-neutral-700/50 ${className}`}
     >
       {children}
     </div>
@@ -69,7 +69,7 @@ export function CardFooter({
 }) {
   return (
     <div
-      className={`px-6 py-4 border-t border-gray-200 dark:border-gray-700 ${className}`}
+      className={`px-6 py-4 border-t border-neutral-700/50 ${className}`}
     >
       {children}
     </div>
