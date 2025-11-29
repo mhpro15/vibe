@@ -224,9 +224,11 @@ enum IssuePriority {
 
 enum IssueStatus {
   BACKLOG
+  TODO
   IN_PROGRESS
+  IN_REVIEW
   DONE
-  CLOSED
+  CANCELLED
 }
 
 model Issue {

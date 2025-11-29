@@ -1,7 +1,7 @@
 "use client";
 
 import { ProjectCard } from "./ProjectCard";
-import { FolderKanban } from "lucide-react";
+import { Layers } from "lucide-react";
 
 interface Project {
   id: string;
@@ -40,7 +40,7 @@ export function ProjectList({
     return (
       <div className="text-center py-12">
         <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-neutral-800 border border-neutral-700/50 flex items-center justify-center">
-          <FolderKanban className="w-8 h-8 text-neutral-500" />
+          <Layers className="w-8 h-8 text-neutral-500" />
         </div>
         <h3 className="text-lg font-medium text-white mb-1">
           {emptyMessage}

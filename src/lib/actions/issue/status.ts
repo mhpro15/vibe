@@ -123,12 +123,20 @@ export async function changeStatusAction(
   }
 
   const issueId = formData.get("issueId") as string;
-  const status = formData.get("status") as IssueStatus;
-  const customStatusId = formData.get("customStatusId") as string | null;
+  const statusInput = formData.get("status") as string;
+  const positionStr = formData.get("position") as string | null;
+  const position = positionStr ? parseInt(positionStr, 10) : null;
+
+  // Check if it's a built-in status or custom status
+  const validStatuses = ["BACKLOG", "TODO", "IN_PROGRESS", "IN_REVIEW", "DONE", "CANCELLED"];
+  const isBuiltInStatus = validStatuses.includes(statusInput);
+  
+  const status = isBuiltInStatus ? (statusInput as IssueStatus) : null;
+  const customStatusId = isBuiltInStatus ? null : statusInput;
 
   const issue = await prisma.issue.findUnique({
     where: { id: issueId, deletedAt: null },
-    include: { project: { select: { teamId: true } } },
+    include: { project: { select: { teamId: true, id: true } } },
   });
 
   if (!issue) {
@@ -139,18 +147,75 @@ export async function changeStatusAction(
     return { success: false, error: "You don't have access to this issue" };
   }
 
-  try {
-    const oldStatus = issue.status;
-
-    await prisma.issue.update({
-      where: { id: issueId },
-      data: {
-        status,
-        customStatusId: customStatusId || null,
-      },
+  // Validate custom status if provided
+  if (customStatusId) {
+    const customStatus = await prisma.customStatus.findUnique({
+      where: { id: customStatusId },
     });
+    if (!customStatus || customStatus.projectId !== issue.projectId) {
+      return { success: false, error: "Invalid custom status" };
+    }
+  }
 
-    await logIssueChange(issueId, session.user.id, "status", oldStatus, status);
+  try {
+    const oldStatus = issue.customStatusId || issue.status;
+    const newStatus = customStatusId || status;
+    const statusChanged = oldStatus !== newStatus;
+
+    // Determine what to query for position updates
+    const statusCondition = customStatusId 
+      ? { customStatusId: customStatusId }
+      : { status: status!, customStatusId: null };
+
+    // FR-052: Handle position updates for reordering within same column
+    if (position !== null) {
+      // Get all issues in the target status column
+      const targetColumnIssues = await prisma.issue.findMany({
+        where: {
+          projectId: issue.project.id,
+          deletedAt: null,
+          ...statusCondition,
+          id: { not: issueId },
+        },
+        orderBy: { position: "asc" },
+        select: { id: true, position: true },
+      });
+
+      // Reorder issues in the target column
+      const updates = targetColumnIssues.map((i, idx) => {
+        const newPos = idx >= position ? idx + 1 : idx;
+        return prisma.issue.update({
+          where: { id: i.id },
+          data: { position: newPos },
+        });
+      });
+
+      // Update the moved issue with status and position
+      await prisma.$transaction([
+        ...updates,
+        prisma.issue.update({
+          where: { id: issueId },
+          data: {
+            status: status || "BACKLOG",
+            customStatusId: customStatusId,
+            position,
+          },
+        }),
+      ]);
+    } else {
+      // Just update status without position change
+      await prisma.issue.update({
+        where: { id: issueId },
+        data: {
+          status: status || "BACKLOG",
+          customStatusId: customStatusId,
+        },
+      });
+    }
+
+    if (statusChanged) {
+      await logIssueChange(issueId, session.user.id, "status", String(oldStatus), String(newStatus));
+    }
 
     revalidatePath(`/projects/${issue.projectId}`);
     revalidatePath(`/projects/${issue.projectId}/issues/${issueId}`);

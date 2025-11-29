@@ -91,6 +91,7 @@ interface ProjectDetailClientProps {
   canEdit: boolean;
   issues: KanbanIssue[];
   teamMembers?: TeamMember[];
+  currentUserId?: string;
   initialTab?: "dashboard" | "issues" | "board" | "settings";
 }
 
@@ -99,6 +100,7 @@ export function ProjectDetailClient({
   canEdit,
   issues,
   teamMembers = [],
+  currentUserId,
   initialTab = "dashboard",
 }: ProjectDetailClientProps) {
   const [activeTab, setActiveTab] = useState<
@@ -120,9 +122,7 @@ export function ProjectDetailClient({
   const handleStatusChange = async (issueId: string, status: string) => {
     // Optimistic update
     setLocalIssues((prev) =>
-      prev.map((issue) =>
-        issue.id === issueId ? { ...issue, status } : issue
-      )
+      prev.map((issue) => (issue.id === issueId ? { ...issue, status } : issue))
     );
 
     const formData = new FormData();
@@ -131,7 +131,10 @@ export function ProjectDetailClient({
     await changeStatusAction({ success: false }, formData);
   };
 
-  const handleAssigneeChange = async (issueId: string, assigneeId: string | null) => {
+  const handleAssigneeChange = async (
+    issueId: string,
+    assigneeId: string | null
+  ) => {
     // Find the new assignee from team members
     const newAssignee = assigneeId
       ? teamMembers.find((m) => m.id === assigneeId) || null
@@ -140,9 +143,7 @@ export function ProjectDetailClient({
     // Optimistic update
     setLocalIssues((prev) =>
       prev.map((issue) =>
-        issue.id === issueId
-          ? { ...issue, assignee: newAssignee }
-          : issue
+        issue.id === issueId ? { ...issue, assignee: newAssignee } : issue
       )
     );
 
@@ -213,7 +214,9 @@ export function ProjectDetailClient({
       </div>
 
       {project.description && (
-        <p className="text-neutral-400 mb-6 max-w-3xl whitespace-pre-wrap">{project.description}</p>
+        <p className="text-neutral-400 mb-6 max-w-3xl whitespace-pre-wrap">
+          {project.description}
+        </p>
       )}
 
       {/* Tabs */}
@@ -303,6 +306,19 @@ export function ProjectDetailClient({
             <IssueList
               issues={localIssues}
               teamMembers={teamMembers}
+              currentUserId={currentUserId}
+              statusOptions={
+                project.customStatuses.length > 0
+                  ? project.customStatuses.map((s) => s.name)
+                  : [
+                      "BACKLOG",
+                      "TODO",
+                      "IN_PROGRESS",
+                      "IN_REVIEW",
+                      "DONE",
+                      "CANCELLED",
+                    ]
+              }
               onStatusChange={handleStatusChange}
               onAssigneeChange={handleAssigneeChange}
             />

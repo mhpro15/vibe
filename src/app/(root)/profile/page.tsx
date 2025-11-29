@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/actions/auth";
-import { ProfileForm, ChangePasswordForm } from "@/components/profile";
+import { ProfileForm, ChangePasswordForm, DeleteAccountForm } from "@/components/profile";
 
 export default async function ProfilePage() {
   const session = await getSession();
@@ -23,26 +23,7 @@ export default async function ProfilePage() {
       <div className="space-y-6">
         <ProfileForm />
         <ChangePasswordForm />
-
-        {/* Danger Zone */}
-        <section className="bg-neutral-900/50 border border-red-900/30 rounded-xl p-5">
-          <h2 className="text-sm font-medium text-red-400 uppercase tracking-wider mb-4">
-            Danger Zone
-          </h2>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-medium text-white text-sm">
-                Delete Account
-              </p>
-              <p className="text-xs text-neutral-500 mt-0.5">
-                Permanently delete your account and all associated data
-              </p>
-            </div>
-            <button className="px-4 py-2 text-sm font-medium text-red-400 border border-red-900/50 rounded-lg hover:bg-red-900/20 transition-colors">
-              Delete Account
-            </button>
-          </div>
-        </section>
+        <DeleteAccountForm />
       </div>
     </div>
   );

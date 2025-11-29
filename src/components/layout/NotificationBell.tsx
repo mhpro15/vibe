@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useTransition } from "react";
+import { usePathname } from "next/navigation";
 import Link from "next/link";
 import {
   getNotificationsAction,
@@ -30,6 +31,7 @@ const notificationIcons: Record<NotificationType, string> = {
 };
 
 export function NotificationBell() {
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -70,6 +72,11 @@ export function NotificationBell() {
     const interval = setInterval(fetchUnreadCount, 60000); // Every minute
     return () => clearInterval(interval);
   }, []);
+
+  // Refetch notifications on page/route change to mimic live updates
+  useEffect(() => {
+    fetchUnreadCount();
+  }, [pathname]);
 
   async function fetchNotifications() {
     setIsLoading(true);

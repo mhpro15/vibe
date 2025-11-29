@@ -2,7 +2,23 @@
 
 import Link from "next/link";
 import { Avatar } from "@/components/ui/Avatar";
-import { Star, ClipboardList, Archive } from "lucide-react";
+import { Star, ClipboardList, Archive, Hexagon } from "lucide-react";
+
+// Generate a consistent color based on project name
+function getProjectColor(name: string): string {
+  const colors = [
+    "from-violet-500 to-purple-600",
+    "from-blue-500 to-cyan-600", 
+    "from-emerald-500 to-teal-600",
+    "from-amber-500 to-orange-600",
+    "from-rose-500 to-pink-600",
+    "from-indigo-500 to-blue-600",
+    "from-fuchsia-500 to-purple-600",
+    "from-sky-500 to-blue-600",
+  ];
+  const index = name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % colors.length;
+  return colors[index];
+}
 
 interface ProjectCardProps {
   project: {
@@ -38,8 +54,8 @@ export function ProjectCard({
       <div className="flex items-start justify-between">
         <Link href={`/projects/${project.id}`} className="flex-1 min-w-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-linear-to-br from-neutral-700 to-neutral-800 border border-neutral-600/50 flex items-center justify-center text-white font-semibold text-lg shadow-lg">
-              {project.name.charAt(0).toUpperCase()}
+            <div className={`w-10 h-10 rounded-xl bg-linear-to-br ${getProjectColor(project.name)} flex items-center justify-center shadow-lg`}>
+              <Hexagon className="w-5 h-5 text-white/90" />
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">

@@ -7,7 +7,7 @@ import { motion } from "motion/react";
 import {
   LayoutDashboard,
   Users,
-  FolderKanban,
+  Layers,
 } from "lucide-react";
 
 interface SidebarProps {
@@ -33,7 +33,7 @@ const navigation = [
   {
     name: "Projects",
     href: "/projects",
-    icon: FolderKanban,
+    icon: Layers,
   },
 ];
 

@@ -214,3 +214,46 @@ export async function getKanbanBoard(projectId: string) {
 
   return { columns, customStatuses };
 }
+
+/**
+ * Get paginated comments for an issue
+ */
+export async function getIssueComments(
+  issueId: string,
+  cursor?: string,
+  limit = 10
+) {
+  const session = await getSession();
+  if (!session?.user?.id) {
+    return { comments: [], nextCursor: null };
+  }
+
+  const issue = await prisma.issue.findUnique({
+    where: { id: issueId },
+    include: { project: { select: { teamId: true } } },
+  });
+
+  if (!issue || !(await isTeamMember(session.user.id, issue.project.teamId))) {
+    return { comments: [], nextCursor: null };
+  }
+
+  const comments = await prisma.comment.findMany({
+    where: { issueId, deletedAt: null },
+    include: {
+      author: {
+        select: { id: true, name: true, image: true },
+      },
+    },
+    orderBy: { createdAt: "asc" },
+    take: limit + 1,
+    ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
+  });
+
+  let nextCursor: string | null = null;
+  if (comments.length > limit) {
+    const nextItem = comments.pop();
+    nextCursor = nextItem?.id ?? null;
+  }
+
+  return { comments, nextCursor };
+}

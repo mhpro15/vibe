@@ -15,7 +15,10 @@ interface ProjectPageProps {
   }>;
 }
 
-export default async function ProjectPage({ params, searchParams }: ProjectPageProps) {
+export default async function ProjectPage({
+  params,
+  searchParams,
+}: ProjectPageProps) {
   const session = await getSession();
 
   if (!session) {
@@ -94,9 +97,7 @@ export default async function ProjectPage({ params, searchParams }: ProjectPageP
               d="M9 5l7 7-7 7"
             />
           </svg>
-          <span className="text-white font-medium">
-            {project.name}
-          </span>
+          <span className="text-white font-medium">{project.name}</span>
         </nav>
       </div>
 
@@ -105,7 +106,10 @@ export default async function ProjectPage({ params, searchParams }: ProjectPageP
         canEdit={canEdit}
         issues={kanbanIssues}
         teamMembers={teamMembersList}
-        initialTab={tab as "dashboard" | "issues" | "board" | "settings" | undefined}
+        currentUserId={session.user.id}
+        initialTab={
+          tab as "dashboard" | "issues" | "board" | "settings" | undefined
+        }
       />
     </div>
   );

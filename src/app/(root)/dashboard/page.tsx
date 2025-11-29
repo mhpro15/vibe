@@ -235,10 +235,18 @@ export default async function DashboardPage() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
+      case "BACKLOG":
+        return "bg-neutral-500";
+      case "TODO":
+        return "bg-blue-500";
       case "IN_PROGRESS":
         return "bg-violet-500";
+      case "IN_REVIEW":
+        return "bg-amber-500";
       case "DONE":
         return "bg-emerald-500";
+      case "CANCELLED":
+        return "bg-neutral-600";
       default:
         return "bg-neutral-500";
     }

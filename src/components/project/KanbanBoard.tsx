@@ -54,7 +54,14 @@ interface KanbanBoardProps {
   customStatuses: CustomStatus[];
 }
 
-type ColumnId = "BACKLOG" | "IN_PROGRESS" | "DONE" | string;
+type ColumnId =
+  | "BACKLOG"
+  | "TODO"
+  | "IN_PROGRESS"
+  | "IN_REVIEW"
+  | "DONE"
+  | "CANCELLED"
+  | string;
 
 interface Column {
   id: ColumnId;
@@ -66,13 +73,16 @@ interface Column {
 
 const DEFAULT_COLUMNS: Column[] = [
   { id: "BACKLOG", title: "Backlog", color: "#6b7280", isCustom: false },
+  { id: "TODO", title: "To Do", color: "#3b82f6", isCustom: false },
   {
     id: "IN_PROGRESS",
     title: "In Progress",
     color: "#8b5cf6",
     isCustom: false,
   },
+  { id: "IN_REVIEW", title: "In Review", color: "#f59e0b", isCustom: false },
   { id: "DONE", title: "Done", color: "#22c55e", isCustom: false },
+  { id: "CANCELLED", title: "Cancelled", color: "#9ca3af", isCustom: false },
 ];
 
 const PRIORITY_COLORS: Record<string, string> = {
@@ -123,23 +133,65 @@ export function KanbanBoard({
     const draggedIssue = issues.find((i) => i.id === draggableId);
     if (!draggedIssue) return;
 
-    // Optimistically update UI
-    const newIssues = issues.map((issue) =>
-      issue.id === draggableId
-        ? {
-            ...issue,
-            status: destination.droppableId,
-            position: destination.index,
-          }
-        : issue
+    // Calculate new positions for all affected issues
+    const sourceColumnIssues = getIssuesByStatus(
+      source.droppableId as ColumnId
     );
-    setIssues(newIssues);
+    const destColumnIssues =
+      source.droppableId === destination.droppableId
+        ? sourceColumnIssues
+        : getIssuesByStatus(destination.droppableId as ColumnId);
+
+    // Remove from source
+    const sourceFiltered = sourceColumnIssues.filter(
+      (i) => i.id !== draggableId
+    );
+
+    // Insert at destination
+    const destWithInsert =
+      source.droppableId === destination.droppableId
+        ? [
+            ...sourceFiltered.slice(0, destination.index),
+            draggedIssue,
+            ...sourceFiltered.slice(destination.index),
+          ]
+        : [
+            ...destColumnIssues.slice(0, destination.index),
+            draggedIssue,
+            ...destColumnIssues.slice(destination.index),
+          ];
+
+    // Optimistically update UI with new positions
+    const updatedIssues = issues.map((issue) => {
+      if (issue.id === draggableId) {
+        return {
+          ...issue,
+          status: destination.droppableId,
+          position: destination.index,
+        };
+      }
+      // Update positions for issues in destination column
+      const destIdx = destWithInsert.findIndex((i) => i.id === issue.id);
+      if (destIdx !== -1) {
+        return { ...issue, position: destIdx };
+      }
+      // Update positions for issues in source column (if different from dest)
+      if (source.droppableId !== destination.droppableId) {
+        const srcIdx = sourceFiltered.findIndex((i) => i.id === issue.id);
+        if (srcIdx !== -1) {
+          return { ...issue, position: srcIdx };
+        }
+      }
+      return issue;
+    });
+    setIssues(updatedIssues);
 
     // Update on server
     startTransition(async () => {
       const formData = new FormData();
       formData.append("issueId", draggableId);
       formData.append("status", destination.droppableId);
+      formData.append("position", destination.index.toString());
 
       const result = await changeStatusAction({ success: false }, formData);
 
@@ -273,9 +325,7 @@ function IssueCard({ issue, projectId, isDragging }: IssueCardProps) {
     >
       {/* Priority indicator and open button */}
       <div className="flex items-start justify-between gap-2 mb-2">
-        <span
-          className="text-sm font-medium text-white line-clamp-2 flex-1"
-        >
+        <span className="text-sm font-medium text-white line-clamp-2 flex-1">
           {issue.title}
         </span>
         <div className="flex items-center gap-1.5 shrink-0">

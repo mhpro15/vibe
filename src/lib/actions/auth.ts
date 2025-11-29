@@ -362,3 +362,57 @@ export async function requireAuth() {
   }
   return session;
 }
+
+// FR-007: Delete Account
+export async function deleteAccountAction(
+  _prevState: AuthActionResult,
+  formData: FormData
+): Promise<AuthActionResult> {
+  const session = await getSession();
+  if (!session?.user?.id) {
+    return { success: false, error: "Not authenticated" };
+  }
+
+  const confirmText = formData.get("confirmText") as string;
+
+  // Must type "DELETE" to confirm
+  if (confirmText !== "DELETE") {
+    return { success: false, error: "Please type DELETE to confirm" };
+  }
+
+  const { prisma } = await import("@/lib/prisma");
+
+  try {
+    // Check if user owns any teams
+    const ownedTeams = await prisma.team.findMany({
+      where: {
+        ownerId: session.user.id,
+        deletedAt: null,
+      },
+      select: { id: true, name: true },
+    });
+
+    if (ownedTeams.length > 0) {
+      return {
+        success: false,
+        error: `You own ${ownedTeams.length} team(s). Please delete them or transfer ownership first.`,
+      };
+    }
+
+    // Soft delete the user account
+    await prisma.user.update({
+      where: { id: session.user.id },
+      data: { deletedAt: new Date() },
+    });
+
+    // Sign out the user
+    await auth.api.signOut({
+      headers: await headers(),
+    });
+
+    return { success: true, redirectTo: "/signin" };
+  } catch (error) {
+    console.error("Delete account error:", error);
+    return { success: false, error: "Failed to delete account" };
+  }
+}

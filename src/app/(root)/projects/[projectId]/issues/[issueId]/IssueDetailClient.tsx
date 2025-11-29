@@ -96,15 +96,46 @@ const initialState: IssueActionResult = {
 
 const statusOptions = [
   { value: "BACKLOG", label: "Backlog", color: "bg-neutral-500" },
+  { value: "TODO", label: "To Do", color: "bg-blue-500" },
   { value: "IN_PROGRESS", label: "In Progress", color: "bg-violet-500" },
+  { value: "IN_REVIEW", label: "In Review", color: "bg-amber-500" },
   { value: "DONE", label: "Done", color: "bg-emerald-500" },
+  { value: "CANCELLED", label: "Cancelled", color: "bg-neutral-600" },
 ];
 
 const priorityOptions = [
-  { value: "LOW", label: "Low", color: "bg-emerald-500" },
-  { value: "MEDIUM", label: "Medium", color: "bg-amber-500" },
-  { value: "HIGH", label: "High", color: "bg-orange-500" },
-  { value: "URGENT", label: "Urgent", color: "bg-red-500" },
+  {
+    value: "LOW",
+    label: "Low",
+    color: "bg-emerald-500/20",
+    textColor: "text-emerald-400",
+    borderColor: "border-emerald-500/30",
+    dotColor: "bg-emerald-500",
+  },
+  {
+    value: "MEDIUM",
+    label: "Medium",
+    color: "bg-amber-500/20",
+    textColor: "text-amber-400",
+    borderColor: "border-amber-500/30",
+    dotColor: "bg-amber-500",
+  },
+  {
+    value: "HIGH",
+    label: "High",
+    color: "bg-orange-500/20",
+    textColor: "text-orange-400",
+    borderColor: "border-orange-500/30",
+    dotColor: "bg-orange-500",
+  },
+  {
+    value: "URGENT",
+    label: "Urgent",
+    color: "bg-red-500/20",
+    textColor: "text-red-400",
+    borderColor: "border-red-500/30",
+    dotColor: "bg-red-500",
+  },
 ];
 
 export function IssueDetailClient({
@@ -248,14 +279,18 @@ export function IssueDetailClient({
                 >
                   {statusOptions.find((s) => s.value === issue.status)?.label}
                 </span>
-                <span
-                  className={`text-sm font-medium ${
-                    priorityOptions.find((p) => p.value === issue.priority)
-                      ?.color
-                  }`}
-                >
-                  {issue.priority} Priority
-                </span>
+                {(() => {
+                  const priorityOption = priorityOptions.find(
+                    (p) => p.value === issue.priority
+                  );
+                  return (
+                    <span
+                      className={`px-2 py-1 rounded text-xs font-medium border ${priorityOption?.color} ${priorityOption?.textColor} ${priorityOption?.borderColor}`}
+                    >
+                      {priorityOption?.label} Priority
+                    </span>
+                  );
+                })()}
               </div>
 
               {/* Editable Title */}
@@ -531,7 +566,7 @@ export function IssueDetailClient({
                   <span
                     className={`w-2 h-2 rounded-full ${
                       priorityOptions.find((p) => p.value === issue.priority)
-                        ?.color || "bg-neutral-500"
+                        ?.dotColor || "bg-neutral-500"
                     }`}
                   />
                   <span className="text-sm text-white">
@@ -559,7 +594,7 @@ export function IssueDetailClient({
                       }`}
                     >
                       <span
-                        className={`w-2 h-2 rounded-full ${priority.color}`}
+                        className={`w-2 h-2 rounded-full ${priority.dotColor}`}
                       />
                       <span className="text-sm text-white">
                         {priority.label}

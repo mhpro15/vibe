@@ -146,7 +146,10 @@ function CommentItem({
   );
 }
 
-export function CommentList({ comments, currentUserId }: CommentListProps) {
+export function CommentList({ 
+  comments, 
+  currentUserId 
+}: CommentListProps) {
   if (comments.length === 0) {
     return (
       <div className="text-center py-8 text-neutral-500">

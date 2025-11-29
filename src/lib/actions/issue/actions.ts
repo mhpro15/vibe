@@ -143,10 +143,11 @@ export async function updateIssueAction(
   const priority = formData.get("priority") as IssuePriority;
   const dueDateStr = formData.get("dueDate") as string | null;
   const assigneeIdStr = formData.get("assigneeId") as string | null;
-  
+
   // Handle empty strings as null
   const dueDate = dueDateStr && dueDateStr.trim() !== "" ? dueDateStr : null;
-  const assigneeId = assigneeIdStr && assigneeIdStr.trim() !== "" ? assigneeIdStr : null;
+  const assigneeId =
+    assigneeIdStr && assigneeIdStr.trim() !== "" ? assigneeIdStr : null;
 
   // Validate
   if (!title || title.length < 1 || title.length > 200) {
@@ -180,7 +181,13 @@ export async function updateIssueAction(
   try {
     const oldIssue = await prisma.issue.findUnique({
       where: { id: issueId },
-      select: { title: true, description: true, priority: true, dueDate: true, assigneeId: true },
+      select: {
+        title: true,
+        description: true,
+        priority: true,
+        dueDate: true,
+        assigneeId: true,
+      },
     });
 
     await prisma.issue.update({
@@ -230,6 +237,40 @@ export async function updateIssueAction(
         oldIssue?.assigneeId || null,
         assigneeId || null
       );
+
+      // Notify new assignee if they're different from the person editing
+      if (assigneeId && assigneeId !== session.user.id) {
+        // In-app notification
+        await notifyIssueAssigned(
+          assigneeId,
+          issueId,
+          title,
+          issue.projectId,
+          session.user.name || "Someone"
+        );
+
+        // Email notification
+        const assignee = await prisma.user.findUnique({
+          where: { id: assigneeId },
+          select: { email: true },
+        });
+        const project = await prisma.project.findUnique({
+          where: { id: issue.projectId },
+          select: { name: true },
+        });
+        if (assignee?.email) {
+          const issueUrl = `${
+            process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
+          }/projects/${issue.projectId}/issues/${issueId}`;
+          await sendIssueAssignedEmail(
+            assignee.email,
+            session.user.name || "Someone",
+            title,
+            project?.name || "a project",
+            issueUrl
+          );
+        }
+      }
     }
 
     revalidatePath(`/projects/${issue.projectId}`);

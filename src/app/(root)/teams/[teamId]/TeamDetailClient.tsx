@@ -10,7 +10,7 @@ import {
   UserPlus,
   LogOut,
   Trash2,
-  FolderKanban,
+  Layers,
   Users,
   Calendar,
   Crown,
@@ -228,7 +228,7 @@ export function TeamDetailClient({
               </span>
               <span className="text-neutral-600">•</span>
               <span className="flex items-center gap-1.5">
-                <FolderKanban className="w-4 h-4" />
+                <Layers className="w-4 h-4" />
                 {team.projectCount} projects
               </span>
               <span className="text-neutral-600">•</span>
@@ -362,7 +362,7 @@ export function TeamDetailClient({
                   className="flex items-center gap-3 p-3 rounded-xl hover:bg-neutral-800/50 border border-transparent hover:border-neutral-700/50 transition-all group"
                 >
                   <div className="w-10 h-10 rounded-xl bg-neutral-800 border border-neutral-700/50 flex items-center justify-center group-hover:border-neutral-600 transition-colors">
-                    <FolderKanban className="w-5 h-5 text-neutral-400 group-hover:text-white transition-colors" />
+                    <Layers className="w-5 h-5 text-neutral-400 group-hover:text-white transition-colors" />
                   </div>
                   <div>
                     <p className="font-medium text-white">View Projects</p>

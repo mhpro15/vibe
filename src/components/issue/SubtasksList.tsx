@@ -77,9 +77,7 @@ export function SubtasksList({
         // Update with real ID from server
         setSubtasks((prev) =>
           prev.map((s) =>
-            s.id === tempId
-              ? { ...s, id: result.data!.subtaskId! }
-              : s
+            s.id === tempId ? { ...s, id: result.data!.subtaskId! } : s
           )
         );
       }
@@ -230,11 +228,7 @@ export function SubtasksList({
             size="sm"
             disabled={isPending || !newTitle.trim()}
           >
-            {isPending ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              "Add"
-            )}
+            {isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Add"}
           </Button>
           <Button
             type="button"
@@ -258,13 +252,13 @@ export function SubtasksList({
       )}
 
       {/* Error display */}
-      {error && (
-        <p className="text-xs text-red-400 mt-2">{error}</p>
-      )}
+      {error && <p className="text-xs text-red-400 mt-2">{error}</p>}
 
       {/* Limit warning */}
       {totalCount >= 20 && (
-        <p className="text-xs text-amber-500 mt-2">Maximum 20 subtasks reached</p>
+        <p className="text-xs text-amber-500 mt-2">
+          Maximum 20 subtasks reached
+        </p>
       )}
     </div>
   );
