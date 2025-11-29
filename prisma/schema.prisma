@@ -1,0 +1,384 @@
+// Prisma schema for Jira Lite MVP
+// Includes Better Auth tables + Application models
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ============================================
+// BETTER AUTH TABLES
+// ============================================
+
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  emailVerified Boolean   @default(false)
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime? // Soft delete (FR-071)
+
+  // Relations - Better Auth
+  sessions Session[]
+  accounts Account[]
+
+  // Relations - Application
+  ownedTeams      Team[]            @relation("TeamOwner")
+  teamMemberships TeamMember[]
+  ownedProjects   Project[]         @relation("ProjectOwner")
+  assignedIssues  Issue[]           @relation("IssueAssignee")
+  createdIssues   Issue[]           @relation("IssueCreator")
+  comments        Comment[]
+  notifications   Notification[]
+  favoriteProjects UserFavoriteProject[]
+  teamInvitesSent  TeamInvite[]     @relation("InviteSender")
+  teamInvitesReceived TeamInvite[]  @relation("InviteRecipient")
+  issueChanges    IssueChange[]
+  teamActivityLogs TeamActivityLog[]
+
+  @@map("user")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id @default(cuid())
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("verification")
+}
+
+// ============================================
+// TEAM MANAGEMENT (FR-010 to FR-019)
+// ============================================
+
+enum TeamRole {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+model Team {
+  id        String    @id @default(cuid())
+  name      String    // 1-50 characters
+  ownerId   String
+  owner     User      @relation("TeamOwner", fields: [ownerId], references: [id])
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime? // Soft delete (FR-071)
+
+  // Relations
+  members      TeamMember[]
+  projects     Project[]
+  invites      TeamInvite[]
+  activityLogs TeamActivityLog[]
+
+  @@map("team")
+}
+
+model TeamMember {
+  id        String   @id @default(cuid())
+  teamId    String
+  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      TeamRole @default(MEMBER)
+  joinedAt  DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([teamId, userId])
+  @@map("team_member")
+}
+
+model TeamInvite {
+  id          String   @id @default(cuid())
+  teamId      String
+  team        Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  email       String
+  senderId    String
+  sender      User     @relation("InviteSender", fields: [senderId], references: [id])
+  recipientId String?
+  recipient   User?    @relation("InviteRecipient", fields: [recipientId], references: [id])
+  expiresAt   DateTime // 7 days expiration (FR-013)
+  acceptedAt  DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("team_invite")
+}
+
+model TeamActivityLog {
+  id          String   @id @default(cuid())
+  teamId      String
+  team        Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  actorId     String
+  actor       User     @relation(fields: [actorId], references: [id])
+  action      String   // e.g., "MEMBER_JOINED", "ROLE_CHANGED", etc.
+  targetType  String?  // e.g., "USER", "PROJECT"
+  targetId    String?
+  details     Json?    // Additional context
+  createdAt   DateTime @default(now())
+
+  @@map("team_activity_log")
+}
+
+// ============================================
+// PROJECT MANAGEMENT (FR-020 to FR-027)
+// ============================================
+
+model Project {
+  id          String    @id @default(cuid())
+  name        String    // 1-100 characters
+  description String?   @db.Text // Max 2000 characters
+  teamId      String
+  team        Team      @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  ownerId     String
+  owner       User      @relation("ProjectOwner", fields: [ownerId], references: [id])
+  isArchived  Boolean   @default(false) // FR-026
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime? // Soft delete (FR-071)
+
+  // Relations
+  issues         Issue[]
+  labels         Label[]
+  customStatuses CustomStatus[]
+  favorites      UserFavoriteProject[]
+
+  @@map("project")
+}
+
+model UserFavoriteProject {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, projectId])
+  @@map("user_favorite_project")
+}
+
+// ============================================
+// ISSUE MANAGEMENT (FR-030 to FR-039)
+// ============================================
+
+enum IssuePriority {
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum IssueStatus {
+  BACKLOG
+  IN_PROGRESS
+  DONE
+}
+
+model Issue {
+  id             String        @id @default(cuid())
+  title          String        // 1-200 characters
+  description    String?       @db.Text // Max 5000 characters
+  status         IssueStatus   @default(BACKLOG)
+  customStatusId String?
+  customStatus   CustomStatus? @relation(fields: [customStatusId], references: [id])
+  priority       IssuePriority @default(MEDIUM)
+  dueDate        DateTime?
+  position       Int           @default(0) // For ordering within column (FR-052)
+  projectId      String
+  project        Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  creatorId      String
+  creator        User          @relation("IssueCreator", fields: [creatorId], references: [id])
+  assigneeId     String?
+  assignee       User?         @relation("IssueAssignee", fields: [assigneeId], references: [id])
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  deletedAt      DateTime?     // Soft delete (FR-071)
+
+  // AI Cache (FR-040, FR-041)
+  aiSummary           String?   @db.Text
+  aiSummaryCachedAt   DateTime?
+  aiSuggestion        String?   @db.Text
+  aiSuggestionCachedAt DateTime?
+
+  // Relations
+  labels    IssueLabel[]
+  subtasks  Subtask[]
+  comments  Comment[]
+  changes   IssueChange[]
+
+  @@map("issue")
+}
+
+model Subtask {
+  id          String   @id @default(cuid())
+  title       String   // 1-200 characters
+  isCompleted Boolean  @default(false)
+  position    Int      @default(0)
+  issueId     String
+  issue       Issue    @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("subtask")
+}
+
+model Label {
+  id        String       @id @default(cuid())
+  name      String       // 1-30 characters
+  color     String       // HEX color code
+  projectId String
+  project   Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  issues IssueLabel[]
+
+  @@unique([projectId, name])
+  @@map("label")
+}
+
+model IssueLabel {
+  id       String @id @default(cuid())
+  issueId  String
+  issue    Issue  @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  labelId  String
+  label    Label  @relation(fields: [labelId], references: [id], onDelete: Cascade)
+
+  @@unique([issueId, labelId])
+  @@map("issue_label")
+}
+
+model CustomStatus {
+  id        String   @id @default(cuid())
+  name      String   // 1-30 characters
+  color     String?  // HEX color code
+  position  Int      @default(0)
+  wipLimit  Int?     // 1-50 or null for unlimited (FR-054)
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  issues Issue[]
+
+  @@unique([projectId, name])
+  @@map("custom_status")
+}
+
+model IssueChange {
+  id           String   @id @default(cuid())
+  issueId      String
+  issue        Issue    @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  userId       String
+  user         User     @relation(fields: [userId], references: [id])
+  field        String   // e.g., "status", "assignee", "priority"
+  oldValue     String?
+  newValue     String?
+  createdAt    DateTime @default(now())
+
+  @@map("issue_change")
+}
+
+// ============================================
+// COMMENTS (FR-060 to FR-063)
+// ============================================
+
+model Comment {
+  id        String    @id @default(cuid())
+  content   String    @db.Text // 1-1000 characters
+  issueId   String
+  issue     Issue     @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User      @relation(fields: [authorId], references: [id])
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime? // Soft delete (FR-071)
+
+  @@map("comment")
+}
+
+// ============================================
+// NOTIFICATIONS (FR-090, FR-091)
+// ============================================
+
+enum NotificationType {
+  ISSUE_ASSIGNED
+  COMMENT_ADDED
+  DUE_DATE_APPROACHING
+  DUE_DATE_TODAY
+  TEAM_INVITE
+  ROLE_CHANGED
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      NotificationType
+  title     String
+  message   String
+  link      String?
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  @@map("notification")
+}
+
+// ============================================
+// AI RATE LIMITING (FR-042)
+// ============================================
+
+model AiRateLimit {
+  id           String   @id @default(cuid())
+  userId       String   @unique
+  minuteCount  Int      @default(0)
+  minuteReset  DateTime @default(now())
+  dailyCount   Int      @default(0)
+  dailyReset   DateTime @default(now())
+
+  @@map("ai_rate_limit")
+}
+

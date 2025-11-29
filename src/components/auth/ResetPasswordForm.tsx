@@ -1,0 +1,141 @@
+"use client";
+
+import { useActionState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
+import { resetPasswordAction, type AuthActionResult } from "@/lib/actions/auth";
+import { Button, Input } from "@/components/ui";
+
+const initialState: AuthActionResult = {
+  success: false,
+};
+
+export function ResetPasswordForm() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  
+  const token = searchParams.get("token");
+  const urlError = searchParams.get("error");
+
+  const [state, formAction, isPending] = useActionState(
+    async (_prevState: AuthActionResult, formData: FormData) => {
+      if (!token) {
+        return { success: false, error: "Invalid reset link. Please request a new password reset." };
+      }
+      formData.set("token", token);
+      return resetPasswordAction(_prevState, formData);
+    },
+    initialState
+  );
+
+  // Error from URL
+  const displayError = urlError === "INVALID_TOKEN" 
+    ? "This password reset link is invalid or has expired. Please request a new one." 
+    : state.error;
+
+  useEffect(() => {
+    if (state.success) {
+      // Redirect to sign in after 3 seconds
+      setTimeout(() => {
+        router.push("/signin");
+      }, 3000);
+    }
+  }, [state.success, router]);
+
+  if (!token && !urlError) {
+    return (
+      <div className="w-full max-w-md mx-auto">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 text-center">
+          <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </div>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Invalid Link</h1>
+          <p className="text-gray-600 dark:text-gray-400 mb-6">
+            This password reset link is invalid. Please request a new one.
+          </p>
+          <Link href="/forgot-password">
+            <Button className="w-full">Request New Link</Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  if (state.success) {
+    return (
+      <div className="w-full max-w-md mx-auto">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 text-center">
+          <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Password Reset!</h1>
+          <p className="text-gray-600 dark:text-gray-400 mb-6">
+            Your password has been successfully reset. Redirecting to sign in...
+          </p>
+          <Link href="/signin">
+            <Button variant="outline" className="w-full">
+              Go to Sign In
+            </Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="w-full max-w-md mx-auto">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8">
+        <div className="text-center mb-8">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Reset your password</h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-2">
+            Enter your new password below
+          </p>
+        </div>
+
+        {displayError && (
+          <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+            <p className="text-sm text-red-600 dark:text-red-400">{displayError}</p>
+          </div>
+        )}
+
+        <form action={formAction} className="space-y-5">
+          <Input
+            label="New Password"
+            name="password"
+            type="password"
+            placeholder="••••••••"
+            helperText="Must be at least 6 characters"
+            disabled={isPending}
+            required
+            minLength={6}
+          />
+
+          <Input
+            label="Confirm New Password"
+            name="confirmPassword"
+            type="password"
+            placeholder="••••••••"
+            disabled={isPending}
+            required
+            minLength={6}
+          />
+
+          <Button type="submit" className="w-full" isLoading={isPending}>
+            Reset Password
+          </Button>
+        </form>
+
+        <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
+          Remember your password?{" "}
+          <Link href="/signin" className="font-medium text-blue-600 hover:text-blue-500">
+            Sign in
+          </Link>
+        </p>
+      </div>
+    </div>
+  );
+}
