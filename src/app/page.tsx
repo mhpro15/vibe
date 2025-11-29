@@ -10,6 +10,7 @@ import {
   CheckCircle2,
   Bot,
 } from "lucide-react";
+import { CosmicBackground } from "@/components/ui/CosmicBackground";
 
 export default async function LandingPage() {
   const session = await getSession();
@@ -21,10 +22,13 @@ export default async function LandingPage() {
 
   return (
     <div className="min-h-screen bg-neutral-950 text-white overflow-hidden">
-      {/* Background - matching auth layout */}
+      {/* Background gradients */}
       <div className="fixed inset-0 bg-linear-to-br from-neutral-950 via-neutral-900 to-neutral-950" />
-      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-neutral-800/20 via-transparent to-transparent" />
-      <div className="fixed inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:64px_64px]" />
+      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-violet-900/10 via-transparent to-transparent" />
+      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_bottom_right,var(--tw-gradient-stops))] from-indigo-900/10 via-transparent to-transparent" />
+
+      {/* Cosmic particle background - must be after gradients */}
+      <CosmicBackground />
 
       {/* Navigation */}
       <nav className="relative z-10 flex items-center justify-between px-6 py-6 max-w-6xl mx-auto">
@@ -61,8 +65,8 @@ export default async function LandingPage() {
           </div>
 
           {/* Heading */}
-          <h1 className="text-5xl md:text-7xl font-light tracking-tight max-w-4xl leading-[1.1] mb-8">
-            Project management,
+          <h1 className="text-5xl md:text-7xl font-display font-light tracking-tight max-w-4xl leading-[1.1] mb-8">
+            Project management
             <br />
             <span className="text-neutral-500">reimagined.</span>
           </h1>
@@ -104,7 +108,7 @@ export default async function LandingPage() {
               </div>
               <div className="flex-1 flex justify-center">
                 <div className="px-4 py-1 rounded-full bg-neutral-800 text-xs text-neutral-500">
-                  vibe.app/dashboard
+                  vibe.manhhung.app/dashboard
                 </div>
               </div>
             </div>
@@ -150,7 +154,7 @@ export default async function LandingPage() {
       {/* Features Section */}
       <section className="relative z-10 px-6 py-24 max-w-6xl mx-auto border-t border-neutral-800/50">
         <div className="text-center mb-20">
-          <h2 className="text-3xl md:text-4xl font-light mb-4 tracking-tight">
+          <h2 className="text-3xl md:text-4xl font-display font-light mb-4 tracking-tight">
             Everything you need
           </h2>
           <p className="text-neutral-500 max-w-lg mx-auto font-light">
@@ -208,7 +212,7 @@ export default async function LandingPage() {
       {/* CTA Section */}
       <section className="relative z-10 px-6 py-24 max-w-6xl mx-auto">
         <div className="rounded-2xl border border-neutral-800 bg-neutral-900/50 backdrop-blur-sm p-12 md:p-20 text-center">
-          <h2 className="text-3xl md:text-4xl font-light mb-4 tracking-tight">
+          <h2 className="text-3xl md:text-4xl font-display font-light mb-4 tracking-tight">
             Ready to get started?
           </h2>
           <p className="text-neutral-500 max-w-md mx-auto mb-10 font-light">
@@ -230,9 +234,20 @@ export default async function LandingPage() {
           <span className="text-sm font-light text-white tracking-widest uppercase">
             Vibe
           </span>
-          <p className="text-sm text-neutral-600">
-            © 2025 Vibe. AI-native project management.
-          </p>
+          <div className="text-center md:text-left">
+            <p className="text-sm text-neutral-600">
+              © 2025 Vibe. AI-native project management.
+            </p>
+            <p className="text-xs text-neutral-700 mt-1">
+              Built by{" "}
+              <a
+                href="mailto:nmhp1903@gmail.com"
+                className="text-neutral-500 hover:text-white transition-colors"
+              >
+                Hung Nguyen
+              </a>
+            </p>
+          </div>
           <div className="flex items-center gap-6 text-sm text-neutral-500">
             <Link href="/signin" className="hover:text-white transition-colors">
               Sign In

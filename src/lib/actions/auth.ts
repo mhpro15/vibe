@@ -399,16 +399,37 @@ export async function deleteAccountAction(
       };
     }
 
-    // Remove user from all teams they are a member of
-    await prisma.teamMember.deleteMany({
-      where: { userId: session.user.id },
-    });
-
-    // Soft delete the user account
-    await prisma.user.update({
-      where: { id: session.user.id },
-      data: { deletedAt: new Date() },
-    });
+    // Clean up user data before deletion
+    await prisma.$transaction([
+      // Remove user from all teams
+      prisma.teamMember.deleteMany({
+        where: { userId: session.user.id },
+      }),
+      // Cancel all pending invites sent by user
+      prisma.teamInvite.updateMany({
+        where: { senderId: session.user.id, status: "PENDING" },
+        data: { status: "CANCELLED" },
+      }),
+      // Cancel all pending invites received by user
+      prisma.teamInvite.updateMany({
+        where: { recipientId: session.user.id, status: "PENDING" },
+        data: { status: "CANCELLED" },
+      }),
+      // Remove all project favorites
+      prisma.userFavoriteProject.deleteMany({
+        where: { userId: session.user.id },
+      }),
+      // Unassign user from all issues
+      prisma.issue.updateMany({
+        where: { assigneeId: session.user.id },
+        data: { assigneeId: null },
+      }),
+      // Soft delete the user account
+      prisma.user.update({
+        where: { id: session.user.id },
+        data: { deletedAt: new Date() },
+      }),
+    ]);
 
     // Sign out the user
     await auth.api.signOut({

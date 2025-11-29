@@ -12,18 +12,21 @@ A modern, lightweight issue tracking application built for the Litmers Vibe Codi
 ## ✨ Features
 
 ### Authentication
+
 - Email/password sign up and sign in
 - Google OAuth integration
 - Password reset via email
 - Secure session management with Better Auth
 
 ### Team Management
+
 - Create and manage teams
 - Invite members via email
 - Role-based access (Owner, Admin, Member)
 - Team activity logging
 
 ### Project Management
+
 - Create projects within teams
 - Custom status workflows
 - WIP limits for Kanban columns
@@ -31,6 +34,7 @@ A modern, lightweight issue tracking application built for the Litmers Vibe Codi
 - Archive/restore projects
 
 ### Issue Tracking
+
 - Create, edit, and delete issues
 - Drag-and-drop Kanban board
 - Priority levels (Low, Medium, High, Urgent)
@@ -40,12 +44,14 @@ A modern, lightweight issue tracking application built for the Litmers Vibe Codi
 - Issue labels
 
 ### AI Features
+
 - AI-powered issue summarization
 - Smart suggestions for issue resolution
 - Auto-classification of issues
 - Duplicate issue detection
 
 ### Dashboard & Analytics
+
 - Personal dashboard with task overview
 - Project dashboards with charts
 - Status distribution pie chart
@@ -53,6 +59,7 @@ A modern, lightweight issue tracking application built for the Litmers Vibe Codi
 - Recent activity feed
 
 ### Notifications
+
 - In-app notification center
 - Email notifications for:
   - Issue assignments
@@ -66,7 +73,7 @@ A modern, lightweight issue tracking application built for the Litmers Vibe Codi
 
 ### Prerequisites
 
-- Node.js 18+ 
+- Node.js 18+
 - PostgreSQL database (we use Neon)
 - Google OAuth credentials (optional)
 - SMTP server for emails (optional)
@@ -74,31 +81,34 @@ A modern, lightweight issue tracking application built for the Litmers Vibe Codi
 ### Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone <repository-url>
    cd vibe
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm install
    ```
 
 3. **Set up environment variables**
-   
+
    Create a `.env` file in the root directory:
+
    ```env
    # Database
    DATABASE_URL="postgresql://..."
-   
+
    # Better Auth
    BETTER_AUTH_SECRET="your-secret-key"
    BETTER_AUTH_URL="http://localhost:3000"
-   
+
    # Google OAuth (optional)
    GOOGLE_CLIENT_ID="your-google-client-id"
    GOOGLE_CLIENT_SECRET="your-google-client-secret"
-   
+
    # Email (optional)
    SMTP_HOST="smtp.example.com"
    SMTP_PORT="587"
@@ -108,17 +118,19 @@ A modern, lightweight issue tracking application built for the Litmers Vibe Codi
    ```
 
 4. **Set up the database**
+
    ```bash
    npm run db:migrate
    ```
 
 5. **Start the development server**
+
    ```bash
    npm run dev
    ```
 
 6. **Open your browser**
-   
+
    Navigate to [http://localhost:3000](http://localhost:3000)
 
 ---
@@ -135,16 +147,16 @@ A modern, lightweight issue tracking application built for the Litmers Vibe Codi
 
 ### Navigating the App
 
-| Route | Description |
-|-------|-------------|
-| `/dashboard` | Personal overview with your tasks |
-| `/teams` | List and manage your teams |
-| `/teams/[id]` | Team details, members, and stats |
-| `/projects` | All projects across your teams |
-| `/projects/[id]` | Project dashboard, issues, and board |
-| `/projects/[id]/issues/[id]` | Issue detail view |
-| `/notifications` | Your notification center |
-| `/profile` | Account settings |
+| Route                        | Description                          |
+| ---------------------------- | ------------------------------------ |
+| `/dashboard`                 | Personal overview with your tasks    |
+| `/teams`                     | List and manage your teams           |
+| `/teams/[id]`                | Team details, members, and stats     |
+| `/projects`                  | All projects across your teams       |
+| `/projects/[id]`             | Project dashboard, issues, and board |
+| `/projects/[id]/issues/[id]` | Issue detail view                    |
+| `/notifications`             | Your notification center             |
+| `/profile`                   | Account settings                     |
 
 ### Issue Workflow
 
@@ -165,17 +177,17 @@ A modern, lightweight issue tracking application built for the Litmers Vibe Codi
 
 ## 🛠 Tech Stack
 
-| Category | Technology |
-|----------|------------|
-| Framework | Next.js 16 (App Router) |
-| Language | TypeScript |
-| Database | PostgreSQL + Prisma ORM |
-| Auth | Better Auth |
-| Styling | Tailwind CSS 4 |
-| Charts | Recharts |
-| Drag & Drop | @hello-pangea/dnd |
-| Icons | Lucide React |
-| Animations | Motion |
+| Category    | Technology              |
+| ----------- | ----------------------- |
+| Framework   | Next.js 16 (App Router) |
+| Language    | TypeScript              |
+| Database    | PostgreSQL + Prisma ORM |
+| Auth        | Better Auth             |
+| Styling     | Tailwind CSS 4          |
+| Charts      | Recharts                |
+| Drag & Drop | @hello-pangea/dnd       |
+| Icons       | Lucide React            |
+| Animations  | Motion                  |
 
 ---
 
@@ -244,10 +256,18 @@ npm run lint         # Run ESLint
 ### Environment Variables for Production
 
 Make sure to set:
+
 - `DATABASE_URL` - Your production database URL
 - `BETTER_AUTH_SECRET` - A strong secret key
 - `BETTER_AUTH_URL` - Your production URL
 - Google OAuth and SMTP credentials as needed
+
+---
+
+## 👤 Author
+
+**Hung Nguyen**  
+📧 [nmhp1903@gmail.com](mailto:nmhp1903@gmail.com)
 
 ---
 

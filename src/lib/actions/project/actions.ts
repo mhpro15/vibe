@@ -165,10 +165,22 @@ export async function deleteProjectAction(
   }
 
   try {
-    await prisma.project.update({
-      where: { id: projectId },
-      data: { deletedAt: new Date() },
-    });
+    await prisma.$transaction([
+      // Soft delete the project
+      prisma.project.update({
+        where: { id: projectId },
+        data: { deletedAt: new Date() },
+      }),
+      // Soft delete all issues in the project
+      prisma.issue.updateMany({
+        where: { projectId },
+        data: { deletedAt: new Date() },
+      }),
+      // Remove all favorites for this project
+      prisma.userFavoriteProject.deleteMany({
+        where: { projectId },
+      }),
+    ]);
 
     revalidatePath(`/teams/${project.teamId}`);
     revalidatePath("/projects");

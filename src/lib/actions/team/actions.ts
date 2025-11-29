@@ -144,15 +144,35 @@ export async function deleteTeamAction(
       };
     }
 
-    // Soft delete team and related projects
+    // Soft delete team and clean up related data
     await prisma.$transaction([
+      // Soft delete the team
       prisma.team.update({
         where: { id: teamId },
         data: { deletedAt: new Date() },
       }),
+      // Soft delete all projects in the team
       prisma.project.updateMany({
         where: { teamId },
         data: { deletedAt: new Date() },
+      }),
+      // Soft delete all issues in team projects
+      prisma.issue.updateMany({
+        where: { project: { teamId } },
+        data: { deletedAt: new Date() },
+      }),
+      // Remove all team members
+      prisma.teamMember.deleteMany({
+        where: { teamId },
+      }),
+      // Cancel all pending invites
+      prisma.teamInvite.updateMany({
+        where: { teamId, status: "PENDING" },
+        data: { status: "CANCELLED" },
+      }),
+      // Remove all favorites for projects in this team
+      prisma.userFavoriteProject.deleteMany({
+        where: { project: { teamId } },
       }),
     ]);
 
