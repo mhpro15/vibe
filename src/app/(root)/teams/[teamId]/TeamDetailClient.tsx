@@ -3,6 +3,20 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import {
+  ChevronRight,
+  Pencil,
+  Plus,
+  UserPlus,
+  LogOut,
+  Trash2,
+  FolderKanban,
+  Users,
+  Calendar,
+  Crown,
+  Shield,
+  User,
+} from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Card, CardHeader, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
@@ -55,7 +69,8 @@ export function TeamDetailClient({
 }: TeamDetailClientProps) {
   const router = useRouter();
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
-  const [isCreateProjectModalOpen, setIsCreateProjectModalOpen] = useState(false);
+  const [isCreateProjectModalOpen, setIsCreateProjectModalOpen] =
+    useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [teamName, setTeamName] = useState(team.name);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -125,33 +140,18 @@ export function TeamDetailClient({
   return (
     <div>
       {/* Breadcrumb */}
-      <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mb-6">
-        <Link
-          href="/teams"
-          className="hover:text-gray-900 dark:hover:text-white"
-        >
+      <div className="flex items-center gap-2 text-sm text-neutral-400 mb-6">
+        <Link href="/teams" className="hover:text-white transition-colors">
           Teams
         </Link>
-        <svg
-          className="w-4 h-4"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M9 5l7 7-7 7"
-          />
-        </svg>
-        <span className="text-gray-900 dark:text-white">{team.name}</span>
+        <ChevronRight className="w-4 h-4" />
+        <span className="text-white">{team.name}</span>
       </div>
 
       {/* Team Header */}
       <div className="flex items-start justify-between mb-8">
         <div className="flex items-center gap-4">
-          <div className="w-16 h-16 rounded-xl bg-linear-to-br from-neutral-700 to-neutral-800 border border-neutral-600/50 flex items-center justify-center text-white font-bold text-2xl shadow-lg">
+          <div className="w-16 h-16 rounded-xl bg-linear-to-br from-violet-600/20 to-violet-800/20 border border-violet-500/30 flex items-center justify-center text-violet-400 font-bold text-2xl">
             {team.name.charAt(0).toUpperCase()}
           </div>
           <div>
@@ -161,7 +161,7 @@ export function TeamDetailClient({
                   type="text"
                   value={teamName}
                   onChange={(e) => setTeamName(e.target.value)}
-                  className="text-2xl font-bold bg-transparent border-b-2 border-white/50 focus:outline-none text-white"
+                  className="text-2xl font-bold bg-transparent border-b-2 border-violet-500/50 focus:border-violet-400 focus:outline-none text-white"
                   autoFocus
                 />
                 <Button
@@ -184,37 +184,30 @@ export function TeamDetailClient({
               </div>
             ) : (
               <div className="flex items-center gap-2">
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-                  {team.name}
-                </h1>
+                <h1 className="text-2xl font-bold text-white">{team.name}</h1>
                 {canEdit && (
                   <button
                     onClick={() => setIsEditing(true)}
-                    className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                    className="p-1.5 text-neutral-500 hover:text-white hover:bg-neutral-800 rounded-lg transition-colors"
                   >
-                    <svg
-                      className="w-4 h-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
-                      />
-                    </svg>
+                    <Pencil className="w-4 h-4" />
                   </button>
                 )}
               </div>
             )}
-            <div className="flex items-center gap-4 mt-1 text-sm text-gray-600 dark:text-gray-400">
-              <span>{team.memberCount} members</span>
-              <span>•</span>
-              <span>{team.projectCount} projects</span>
-              <span>•</span>
-              <span>
+            <div className="flex items-center gap-4 mt-2 text-sm text-neutral-400">
+              <span className="flex items-center gap-1.5">
+                <Users className="w-4 h-4" />
+                {team.memberCount} members
+              </span>
+              <span className="text-neutral-600">•</span>
+              <span className="flex items-center gap-1.5">
+                <FolderKanban className="w-4 h-4" />
+                {team.projectCount} projects
+              </span>
+              <span className="text-neutral-600">•</span>
+              <span className="flex items-center gap-1.5">
+                <Calendar className="w-4 h-4" />
                 Created {new Date(team.createdAt).toLocaleDateString()}
               </span>
             </div>
@@ -224,36 +217,15 @@ export function TeamDetailClient({
         <div className="flex items-center gap-2">
           {canInvite && (
             <>
-              <Button onClick={() => setIsCreateProjectModalOpen(true)} variant="outline">
-                <svg
-                  className="w-4 h-4 mr-2"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                  />
-                </svg>
+              <Button
+                onClick={() => setIsCreateProjectModalOpen(true)}
+                variant="outline"
+              >
+                <Plus className="w-4 h-4 mr-2" />
                 New Project
               </Button>
               <Button onClick={() => setIsInviteModalOpen(true)}>
-                <svg
-                  className="w-4 h-4 mr-2"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
-                  />
-                </svg>
+                <UserPlus className="w-4 h-4 mr-2" />
                 Invite Member
               </Button>
             </>
@@ -264,6 +236,7 @@ export function TeamDetailClient({
               onClick={handleLeaveTeam}
               isLoading={isLeaving}
             >
+              <LogOut className="w-4 h-4 mr-2" />
               Leave Team
             </Button>
           )}
@@ -273,6 +246,7 @@ export function TeamDetailClient({
               onClick={handleDeleteTeam}
               isLoading={isDeleting}
             >
+              <Trash2 className="w-4 h-4 mr-2" />
               Delete Team
             </Button>
           )}
@@ -286,10 +260,10 @@ export function TeamDetailClient({
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                <h2 className="text-lg font-semibold text-white">
                   Team Members
                 </h2>
-                <Badge>{team.memberCount} members</Badge>
+                <Badge variant="default">{team.memberCount} members</Badge>
               </div>
             </CardHeader>
             <CardContent>
@@ -309,35 +283,23 @@ export function TeamDetailClient({
         <div className="space-y-6">
           <Card>
             <CardHeader>
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+              <h2 className="text-lg font-semibold text-white">
                 Quick Actions
               </h2>
             </CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent className="space-y-2">
               <Link
                 href={`/projects?team=${team.id}`}
-                className="flex items-center gap-3 p-3 rounded-xl hover:bg-neutral-800 transition-colors"
+                className="flex items-center gap-3 p-3 rounded-xl hover:bg-neutral-800/50 border border-transparent hover:border-neutral-700/50 transition-all group"
               >
-                <div className="w-10 h-10 rounded-xl bg-neutral-800 border border-neutral-700/50 flex items-center justify-center">
-                  <svg
-                    className="w-5 h-5 text-neutral-300"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
-                    />
-                  </svg>
+                <div className="w-10 h-10 rounded-xl bg-neutral-800 border border-neutral-700/50 flex items-center justify-center group-hover:border-neutral-600 transition-colors">
+                  <FolderKanban className="w-5 h-5 text-neutral-400 group-hover:text-white transition-colors" />
                 </div>
                 <div>
-                  <p className="font-medium text-gray-900 dark:text-white">
+                  <p className="font-medium text-white">
                     View Projects
                   </p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                  <p className="text-sm text-neutral-500">
                     {team.projectCount} projects
                   </p>
                 </div>
@@ -345,28 +307,16 @@ export function TeamDetailClient({
               {canInvite && (
                 <button
                   onClick={() => setIsInviteModalOpen(true)}
-                  className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                  className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-neutral-800/50 border border-transparent hover:border-neutral-700/50 transition-all group"
                 >
-                  <div className="w-10 h-10 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-                    <svg
-                      className="w-5 h-5 text-green-600 dark:text-green-400"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
-                      />
-                    </svg>
+                  <div className="w-10 h-10 rounded-xl bg-emerald-900/30 border border-emerald-700/30 flex items-center justify-center group-hover:border-emerald-600/50 transition-colors">
+                    <UserPlus className="w-5 h-5 text-emerald-400" />
                   </div>
                   <div className="text-left">
-                    <p className="font-medium text-gray-900 dark:text-white">
+                    <p className="font-medium text-white">
                       Invite Members
                     </p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                    <p className="text-sm text-neutral-500">
                       Add team members
                     </p>
                   </div>
@@ -377,31 +327,42 @@ export function TeamDetailClient({
 
           <Card>
             <CardHeader>
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+              <h2 className="text-lg font-semibold text-white">
                 Your Role
               </h2>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center gap-3">
-                <Badge
-                  variant={
-                    currentUserRole === "OWNER"
-                      ? "primary"
-                      : currentUserRole === "ADMIN"
-                      ? "info"
-                      : "default"
-                  }
-                  size="md"
-                >
-                  {currentUserRole}
-                </Badge>
-                <span className="text-sm text-gray-600 dark:text-gray-400">
-                  {currentUserRole === "OWNER" && "Full control over the team"}
-                  {currentUserRole === "ADMIN" &&
-                    "Can manage projects and members"}
-                  {currentUserRole === "MEMBER" &&
-                    "Can view and work on projects"}
-                </span>
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-neutral-800/30 border border-neutral-700/50">
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                  currentUserRole === "OWNER" 
+                    ? "bg-amber-900/30 border border-amber-700/30" 
+                    : currentUserRole === "ADMIN"
+                    ? "bg-violet-900/30 border border-violet-700/30"
+                    : "bg-neutral-800 border border-neutral-700/50"
+                }`}>
+                  {currentUserRole === "OWNER" && <Crown className="w-5 h-5 text-amber-400" />}
+                  {currentUserRole === "ADMIN" && <Shield className="w-5 h-5 text-violet-400" />}
+                  {currentUserRole === "MEMBER" && <User className="w-5 h-5 text-neutral-400" />}
+                </div>
+                <div>
+                  <Badge
+                    variant={
+                      currentUserRole === "OWNER"
+                        ? "warning"
+                        : currentUserRole === "ADMIN"
+                        ? "primary"
+                        : "default"
+                    }
+                    size="md"
+                  >
+                    {currentUserRole}
+                  </Badge>
+                  <p className="text-sm text-neutral-400 mt-1">
+                    {currentUserRole === "OWNER" && "Full control over the team"}
+                    {currentUserRole === "ADMIN" && "Can manage projects and members"}
+                    {currentUserRole === "MEMBER" && "Can view and work on projects"}
+                  </p>
+                </div>
               </div>
             </CardContent>
           </Card>

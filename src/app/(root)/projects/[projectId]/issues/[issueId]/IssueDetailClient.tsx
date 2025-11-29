@@ -4,7 +4,7 @@ import { useActionState } from "react";
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import { CommentList } from "@/components/issue";
+import { CommentList, AIFeatures } from "@/components/issue";
 import {
   deleteIssueAction,
   changeStatusAction,
@@ -40,6 +40,8 @@ interface Issue {
   projectId: string;
   createdAt: Date;
   updatedAt: Date;
+  aiSummary?: string | null;
+  aiSuggestion?: string | null;
   project: {
     id: string;
     name: string;
@@ -327,6 +329,15 @@ export function IssueDetailClient({
             </div>
           </div>
         </div>
+
+        {/* AI Features */}
+        <AIFeatures
+          issueId={issue.id}
+          descriptionLength={issue.description?.length || 0}
+          commentCount={issue.comments.length}
+          cachedSummary={issue.aiSummary}
+          cachedSuggestion={issue.aiSuggestion}
+        />
       </div>
     </div>
   );

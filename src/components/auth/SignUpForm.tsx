@@ -1,28 +1,21 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { signUpAction, type AuthActionResult } from "@/lib/actions/auth";
-import { signIn } from "@/lib/auth-client";
+import { signUp, signIn } from "@/lib/auth-client";
 import { Button, Input } from "@/components/ui";
-import { AlertCircle, CheckCircle2, Info } from "lucide-react";
-
-const initialState: AuthActionResult = {
-  success: false,
-};
+import { AlertCircle, CheckCircle2 } from "lucide-react";
 
 export function SignUpForm() {
-  const [state, formAction, isPending] = useActionState(
-    signUpAction,
-    initialState
-  );
-  const [googleError, setGoogleError] = useState<string | null>(null);
-
-  const displayError = state.error || googleError;
+  const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
+  const [isPending, setIsPending] = useState(false);
 
   // Helper to get contextual help for specific errors
-  const getErrorHelp = (error: string) => {
-    if (error.includes("already exists")) {
+  const getErrorHelp = (errorMsg: string) => {
+    if (errorMsg.includes("already exists") || errorMsg.includes("exists")) {
       return (
         <p className="text-xs text-red-400/70 mt-1">
           Try{" "}
@@ -36,7 +29,7 @@ export function SignUpForm() {
         </p>
       );
     }
-    if (error.includes("Password")) {
+    if (errorMsg.includes("Password") || errorMsg.includes("password")) {
       return (
         <p className="text-xs text-red-400/70 mt-1">
           Use at least 6 characters with a mix of letters and numbers
@@ -44,6 +37,72 @@ export function SignUpForm() {
       );
     }
     return null;
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setError(null);
+    setIsPending(true);
+
+    const formData = new FormData(e.currentTarget);
+    const name = formData.get("name") as string;
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+    const confirmPassword = formData.get("confirmPassword") as string;
+
+    // Validation
+    if (!name || name.length < 1 || name.length > 50) {
+      setError("Name must be between 1 and 50 characters");
+      setIsPending(false);
+      return;
+    }
+
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setError("Please enter a valid email address");
+      setIsPending(false);
+      return;
+    }
+
+    if (!password || password.length < 6) {
+      setError("Password must be at least 6 characters");
+      setIsPending(false);
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      setIsPending(false);
+      return;
+    }
+
+    try {
+      const { error: signUpError } = await signUp.email({
+        name,
+        email,
+        password,
+        callbackURL: "/dashboard",
+      });
+
+      if (signUpError) {
+        const errorMessage = signUpError.message || "Failed to create account";
+        if (errorMessage.includes("email") || errorMessage.includes("exists")) {
+          setError("An account with this email already exists");
+        } else {
+          setError(errorMessage);
+        }
+        setIsPending(false);
+        return;
+      }
+
+      setSuccess(true);
+      // Redirect on success
+      router.push("/dashboard");
+      router.refresh();
+    } catch (err) {
+      console.error("Sign up error:", err);
+      setError("Failed to create account. Please try again.");
+      setIsPending(false);
+    }
   };
 
   return (
@@ -58,7 +117,7 @@ export function SignUpForm() {
           </p>
         </div>
 
-        {state.success && (
+        {success && (
           <div className="mb-6 p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex items-start gap-3">
             <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
             <div>
@@ -72,19 +131,19 @@ export function SignUpForm() {
           </div>
         )}
 
-        {displayError && (
+        {error && (
           <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl flex items-start gap-3">
             <AlertCircle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
             <div>
               <p className="text-sm font-medium text-red-400">
-                {displayError}
+                {error}
               </p>
-              {getErrorHelp(displayError)}
+              {getErrorHelp(error)}
             </div>
           </div>
         )}
 
-        <form action={formAction} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-5">
           <Input
             label="Full Name"
             name="name"
@@ -143,7 +202,7 @@ export function SignUpForm() {
 
           <GoogleSignInButton 
             className="mt-4" 
-            onError={(error) => setGoogleError(error)}
+            onError={(err) => setError(err)}
           />
         </div>
 

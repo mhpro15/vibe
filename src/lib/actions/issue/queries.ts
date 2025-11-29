@@ -41,6 +41,9 @@ export async function getIssueById(issueId: string) {
         },
         orderBy: { createdAt: "asc" },
       },
+      subtasks: {
+        orderBy: { position: "asc" },
+      },
     },
   });
 

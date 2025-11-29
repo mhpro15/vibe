@@ -1,12 +1,19 @@
 "use client";
 
-import { useActionState, useEffect, useRef, useState } from "react";
+import {
+  useActionState,
+  useEffect,
+  useRef,
+  useState,
+  useCallback,
+} from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Badge } from "@/components/ui/Badge";
 import { createIssueAction, IssueActionResult } from "@/lib/actions/issue";
+import { suggestLabelsSimple, detectDuplicatesSimple } from "@/lib/actions/ai";
 
 interface Label {
   id: string;
@@ -18,6 +25,12 @@ interface TeamMember {
   id: string;
   name: string;
   image?: string | null;
+}
+
+interface DuplicateIssue {
+  id: string;
+  title: string;
+  similarity: number;
 }
 
 interface CreateIssueFormProps {
@@ -40,10 +53,90 @@ export function CreateIssueForm({
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
   const [selectedLabels, setSelectedLabels] = useState<string[]>([]);
+  const [suggestedLabels, setSuggestedLabels] = useState<string[]>([]);
+  const [isSuggestingLabels, setIsSuggestingLabels] = useState(false);
+  const [duplicates, setDuplicates] = useState<DuplicateIssue[]>([]);
+  const [isCheckingDuplicates, setIsCheckingDuplicates] = useState(false);
+  const [showDuplicateWarning, setShowDuplicateWarning] = useState(false);
+  const debounceTimer = useRef<NodeJS.Timeout | null>(null);
   const [state, formAction, isPending] = useActionState(
     createIssueAction,
     initialState
   );
+
+  // Debounced duplicate check when title changes
+  const handleTitleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const title = e.target.value;
+
+      if (debounceTimer.current) {
+        clearTimeout(debounceTimer.current);
+      }
+
+      if (title.length >= 10) {
+        debounceTimer.current = setTimeout(async () => {
+          setIsCheckingDuplicates(true);
+          try {
+            const result = await detectDuplicatesSimple(projectId, title);
+            if (result.success && result.duplicates) {
+              setDuplicates(result.duplicates);
+              setShowDuplicateWarning(result.duplicates.length > 0);
+            }
+          } catch {
+            // Silently fail duplicate check
+          } finally {
+            setIsCheckingDuplicates(false);
+          }
+        }, 500);
+      } else {
+        setDuplicates([]);
+        setShowDuplicateWarning(false);
+      }
+    },
+    [projectId]
+  );
+
+  // Suggest labels based on title and description
+  const handleSuggestLabels = async () => {
+    const form = formRef.current;
+    if (!form) return;
+
+    const title =
+      (form.elements.namedItem("title") as HTMLInputElement)?.value || "";
+    const description =
+      (form.elements.namedItem("description") as HTMLTextAreaElement)?.value ||
+      "";
+
+    if (!title && !description) return;
+
+    setIsSuggestingLabels(true);
+    try {
+      const result = await suggestLabelsSimple(projectId, title, description);
+      if (result.success && result.labels) {
+        // Extract just the label names for suggestions
+        setSuggestedLabels(result.labels.map(l => l.name));
+      }
+    } catch {
+      // Silently fail label suggestion
+    } finally {
+      setIsSuggestingLabels(false);
+    }
+  };
+
+  // Apply suggested label
+  const applySuggestedLabel = (labelName: string) => {
+    const label = labels.find(
+      (l) => l.name.toLowerCase() === labelName.toLowerCase()
+    );
+    if (label && !selectedLabels.includes(label.id)) {
+      setSelectedLabels([...selectedLabels, label.id]);
+      setSuggestedLabels(
+        suggestedLabels.filter(
+          (l) => l.toLowerCase() !== labelName.toLowerCase()
+        )
+      );
+    }
+  };
 
   useEffect(() => {
     if (state.success && state.data?.issueId) {
@@ -62,11 +155,7 @@ export function CreateIssueForm({
   return (
     <form ref={formRef} action={formAction} className="space-y-6">
       <input type="hidden" name="projectId" value={projectId} />
-      <input
-        type="hidden"
-        name="labelIds"
-        value={selectedLabels.join(",")}
-      />
+      <input type="hidden" name="labelIds" value={selectedLabels.join(",")} />
 
       {/* Project indicator */}
       <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
@@ -102,10 +191,54 @@ export function CreateIssueForm({
             maxLength={200}
             required
             className="text-lg"
+            onChange={handleTitleChange}
           />
           <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
             Max 200 characters
+            {isCheckingDuplicates && (
+              <span className="ml-2 text-blue-400">
+                🔍 Checking for duplicates...
+              </span>
+            )}
           </p>
+
+          {/* Duplicate Warning */}
+          {showDuplicateWarning && duplicates.length > 0 && (
+            <div className="mt-3 p-3 bg-yellow-900/20 border border-yellow-600/30 rounded-lg">
+              <div className="flex items-center gap-2 text-yellow-500 mb-2">
+                <span>⚠️</span>
+                <span className="text-sm font-medium">
+                  Potential duplicates found
+                </span>
+              </div>
+              <div className="space-y-2">
+                {duplicates.slice(0, 3).map((dup) => (
+                  <Link
+                    key={dup.id}
+                    href={`/projects/${projectId}/issues/${dup.id}`}
+                    className="block p-2 bg-neutral-800/50 rounded-lg hover:bg-neutral-700/50 transition-colors"
+                    target="_blank"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-white truncate">
+                        {dup.title}
+                      </span>
+                      <span className="text-xs text-gray-400 ml-2 shrink-0">
+                        {Math.round(dup.similarity * 100)}% match
+                      </span>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowDuplicateWarning(false)}
+                className="mt-2 text-xs text-gray-400 hover:text-white"
+              >
+                Dismiss warning
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Description */}
@@ -192,9 +325,52 @@ export function CreateIssueForm({
         {/* Labels */}
         {labels.length > 0 && (
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Labels
-            </label>
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Labels
+              </label>
+              <button
+                type="button"
+                onClick={handleSuggestLabels}
+                disabled={isSuggestingLabels}
+                className="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1 disabled:opacity-50"
+              >
+                {isSuggestingLabels ? (
+                  <>
+                    <span className="animate-spin">⚙️</span>
+                    Analyzing...
+                  </>
+                ) : (
+                  <>
+                    <span>✨</span>
+                    AI Suggest Labels
+                  </>
+                )}
+              </button>
+            </div>
+
+            {/* AI Suggested Labels */}
+            {suggestedLabels.length > 0 && (
+              <div className="mb-3 p-3 bg-blue-900/20 border border-blue-600/30 rounded-lg">
+                <p className="text-xs text-blue-400 mb-2">
+                  ✨ AI Suggested Labels
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {suggestedLabels.map((labelName) => (
+                    <button
+                      key={labelName}
+                      type="button"
+                      onClick={() => applySuggestedLabel(labelName)}
+                      className="px-2 py-1 text-xs bg-blue-600/20 text-blue-300 rounded-lg hover:bg-blue-600/40 transition-colors flex items-center gap-1"
+                    >
+                      <span>+</span>
+                      {labelName}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div className="flex flex-wrap gap-2">
               {labels.map((label) => (
                 <button

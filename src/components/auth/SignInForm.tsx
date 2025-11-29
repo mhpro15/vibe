@@ -1,37 +1,67 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { signInAction, type AuthActionResult } from "@/lib/actions/auth";
 import { signIn } from "@/lib/auth-client";
 import { Button, Input } from "@/components/ui";
-import { AlertCircle, CheckCircle2 } from "lucide-react";
-
-const initialState: AuthActionResult = {
-  success: false,
-};
+import { AlertCircle } from "lucide-react";
 
 export function SignInForm() {
-  const [state, formAction, isPending] = useActionState(
-    signInAction,
-    initialState
-  );
-  const [googleError, setGoogleError] = useState<string | null>(null);
+  const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
+  const [isPending, setIsPending] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setError(null);
+    setIsPending(true);
+
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+
+    if (!email || !password) {
+      setError("Email and password are required");
+      setIsPending(false);
+      return;
+    }
+
+    try {
+      const { error: signInError } = await signIn.email({
+        email,
+        password,
+        callbackURL: "/dashboard",
+      });
+
+      if (signInError) {
+        setError(signInError.message || "Email or password is incorrect");
+        setIsPending(false);
+        return;
+      }
+
+      // Redirect on success
+      router.push("/dashboard");
+      router.refresh();
+    } catch (err) {
+      console.error("Sign in error:", err);
+      setError("Email or password is incorrect");
+      setIsPending(false);
+    }
+  };
 
   const handleGoogleSignIn = async () => {
-    setGoogleError(null);
+    setError(null);
     try {
       await signIn.social({
         provider: "google",
         callbackURL: "/dashboard",
       });
-    } catch (error) {
-      console.error("Google sign in error:", error);
-      setGoogleError("Failed to sign in with Google. Please try again.");
+    } catch (err) {
+      console.error("Google sign in error:", err);
+      setError("Failed to sign in with Google. Please try again.");
     }
   };
-
-  const displayError = state.error || googleError;
 
   return (
     <div className="w-full max-w-md mx-auto">
@@ -45,14 +75,14 @@ export function SignInForm() {
           </p>
         </div>
 
-        {displayError && (
+        {error && (
           <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl flex items-start gap-3">
             <AlertCircle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
             <div>
               <p className="text-sm font-medium text-red-400">
-                {displayError}
+                {error}
               </p>
-              {displayError.includes("incorrect") && (
+              {error.includes("incorrect") && (
                 <p className="text-xs text-red-400/70 mt-1">
                   Please check your email and password, or{" "}
                   <Link href="/forgot-password" className="underline hover:text-red-300">
@@ -64,7 +94,7 @@ export function SignInForm() {
           </div>
         )}
 
-        <form action={formAction} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-5">
           <Input
             label="Email"
             name="email"

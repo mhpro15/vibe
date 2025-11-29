@@ -1,28 +1,55 @@
 "use client";
 
-import { useActionState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useSession } from "@/lib/auth-client";
-import { updateProfileAction, type AuthActionResult } from "@/lib/actions/auth";
+import { useSession, authClient } from "@/lib/auth-client";
 import { Button, Input } from "@/components/ui";
-
-const initialState: AuthActionResult = {
-  success: false,
-};
+import { CheckCircle2, AlertCircle } from "lucide-react";
 
 export function ProfileForm() {
   const router = useRouter();
   const { data: session, isPending } = useSession();
-  const [state, formAction, isSubmitting] = useActionState(
-    updateProfileAction,
-    initialState
-  );
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
 
-  useEffect(() => {
-    if (state.success) {
-      router.refresh();
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setError(null);
+    setSuccess(false);
+    setIsSubmitting(true);
+
+    const formData = new FormData(e.currentTarget);
+    const name = formData.get("name") as string;
+
+    if (!name || name.length < 1 || name.length > 50) {
+      setError("Name must be between 1 and 50 characters");
+      setIsSubmitting(false);
+      return;
     }
-  }, [state.success, router]);
+
+    try {
+      // Use the client API to update user
+      const { error: updateError } = await authClient.updateUser({
+        name,
+      });
+
+      if (updateError) {
+        setError(updateError.message || "Failed to update profile");
+        setIsSubmitting(false);
+        return;
+      }
+
+      setSuccess(true);
+      // Refresh the page to get updated session data
+      router.refresh();
+    } catch (err) {
+      console.error("Update profile error:", err);
+      setError("Failed to update profile");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   if (isPending) {
     return (
@@ -40,23 +67,25 @@ export function ProfileForm() {
         Personal Information
       </h2>
 
-      {state.error && (
-        <div className="mb-4 p-3 bg-red-900/20 border border-red-900/50 rounded-lg">
+      {error && (
+        <div className="mb-4 p-3 bg-red-900/20 border border-red-900/50 rounded-lg flex items-center gap-2">
+          <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
           <p className="text-sm text-red-400">
-            {state.error}
+            {error}
           </p>
         </div>
       )}
 
-      {state.success && (
-        <div className="mb-4 p-3 bg-emerald-900/20 border border-emerald-900/50 rounded-lg">
+      {success && (
+        <div className="mb-4 p-3 bg-emerald-900/20 border border-emerald-900/50 rounded-lg flex items-center gap-2">
+          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
           <p className="text-sm text-emerald-400">
             Profile updated successfully!
           </p>
         </div>
       )}
 
-      <form action={formAction} className="space-y-5">
+      <form onSubmit={handleSubmit} className="space-y-5">
         <div className="flex items-center gap-4 mb-6">
           <div className="w-16 h-16 rounded-full bg-neutral-800 border border-neutral-700/50 flex items-center justify-center overflow-hidden">
             <span className="text-xl font-medium text-neutral-400">
