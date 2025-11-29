@@ -89,7 +89,9 @@ export async function assignIssueAction(
         select: { name: true },
       });
       if (assignee?.email) {
-        const issueUrl = `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/projects/${issue.projectId}/issues/${issueId}`;
+        const issueUrl = `${
+          process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
+        }/projects/${issue.projectId}/issues/${issueId}`;
         await sendIssueAssignedEmail(
           assignee.email,
           session.user.name || "Someone",
