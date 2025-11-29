@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { Card, CardHeader, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { TeamMembersList, InviteMemberModal } from "@/components/team";
+import { CreateProjectModal } from "@/components/project";
 import {
   deleteTeamAction,
   leaveTeamAction,
@@ -54,6 +55,7 @@ export function TeamDetailClient({
 }: TeamDetailClientProps) {
   const router = useRouter();
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+  const [isCreateProjectModalOpen, setIsCreateProjectModalOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [teamName, setTeamName] = useState(team.name);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -221,22 +223,40 @@ export function TeamDetailClient({
 
         <div className="flex items-center gap-2">
           {canInvite && (
-            <Button onClick={() => setIsInviteModalOpen(true)}>
-              <svg
-                className="w-4 h-4 mr-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
-                />
-              </svg>
-              Invite Member
-            </Button>
+            <>
+              <Button onClick={() => setIsCreateProjectModalOpen(true)} variant="outline">
+                <svg
+                  className="w-4 h-4 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                  />
+                </svg>
+                New Project
+              </Button>
+              <Button onClick={() => setIsInviteModalOpen(true)}>
+                <svg
+                  className="w-4 h-4 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
+                  />
+                </svg>
+                Invite Member
+              </Button>
+            </>
           )}
           {!isOwner && (
             <Button
@@ -393,6 +413,13 @@ export function TeamDetailClient({
         onClose={() => setIsInviteModalOpen(false)}
         teamId={team.id}
         onSuccess={() => router.refresh()}
+      />
+
+      <CreateProjectModal
+        isOpen={isCreateProjectModalOpen}
+        onClose={() => setIsCreateProjectModalOpen(false)}
+        teamId={team.id}
+        teamName={team.name}
       />
     </div>
   );

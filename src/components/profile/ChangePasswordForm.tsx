@@ -18,22 +18,22 @@ export function ChangePasswordForm() {
   );
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
-      <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">
+    <section className="bg-neutral-900/50 border border-neutral-700/50 rounded-xl p-5">
+      <h2 className="text-sm font-medium text-white uppercase tracking-wider mb-4">
         Change Password
       </h2>
 
       {state.error && (
-        <div className="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-          <p className="text-sm text-red-600 dark:text-red-400">
+        <div className="mb-4 p-3 bg-red-900/20 border border-red-900/50 rounded-lg">
+          <p className="text-sm text-red-400">
             {state.error}
           </p>
         </div>
       )}
 
       {state.success && (
-        <div className="mb-4 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
-          <p className="text-sm text-green-600 dark:text-green-400">
+        <div className="mb-4 p-3 bg-emerald-900/20 border border-emerald-900/50 rounded-lg">
+          <p className="text-sm text-emerald-400">
             Password changed successfully!
           </p>
         </div>
@@ -70,12 +70,12 @@ export function ChangePasswordForm() {
           minLength={6}
         />
 
-        <div className="flex justify-end pt-4">
+        <div className="flex justify-end pt-2">
           <Button type="submit" isLoading={isPending}>
             Change Password
           </Button>
         </div>
       </form>
-    </div>
+    </section>
   );
 }

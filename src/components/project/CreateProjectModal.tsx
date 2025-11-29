@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -26,6 +27,7 @@ export function CreateProjectModal({
   teamId,
   teamName,
 }: CreateProjectModalProps) {
+  const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
   const [state, formAction, isPending] = useActionState(
     createProjectAction,
@@ -33,11 +35,12 @@ export function CreateProjectModal({
   );
 
   useEffect(() => {
-    if (state.success) {
+    if (state.success && state.data?.projectId) {
       formRef.current?.reset();
       onClose();
+      router.push(`/projects/${state.data.projectId}`);
     }
-  }, [state.success, onClose]);
+  }, [state.success, state.data?.projectId, onClose, router]);
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Create New Project">

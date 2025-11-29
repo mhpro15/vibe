@@ -49,5 +49,7 @@ export async function isProjectOwner(userId: string, projectId: string) {
 export type ProjectActionResult = {
   success: boolean;
   error?: string;
-  data?: unknown;
+  data?: {
+    projectId?: string;
+  };
 };

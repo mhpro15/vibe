@@ -436,31 +436,6 @@ export default async function DashboardPage() {
               </Link>
             </div>
           </section>
-
-          {/* Keyboard Shortcuts Hint */}
-          <section className="bg-neutral-900/50 border border-neutral-700/50 rounded-xl p-4">
-            <p className="text-xs text-neutral-400 mb-3 font-medium">Keyboard shortcuts</p>
-            <div className="space-y-2 text-xs">
-              <div className="flex items-center justify-between text-neutral-400">
-                <span>New issue</span>
-                <kbd className="px-2 py-1 bg-neutral-800 border border-neutral-700 rounded text-neutral-300">
-                  C
-                </kbd>
-              </div>
-              <div className="flex items-center justify-between text-neutral-400">
-                <span>Search</span>
-                <kbd className="px-2 py-1 bg-neutral-800 border border-neutral-700 rounded text-neutral-300">
-                  /
-                </kbd>
-              </div>
-              <div className="flex items-center justify-between text-neutral-400">
-                <span>Go to projects</span>
-                <kbd className="px-2 py-1 bg-neutral-800 border border-neutral-700 rounded text-neutral-300">
-                  G P
-                </kbd>
-              </div>
-            </div>
-          </section>
         </div>
       </div>
     </div>
