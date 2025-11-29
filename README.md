@@ -76,7 +76,8 @@ A modern, lightweight issue tracking application built for the Litmers Vibe Codi
 - Node.js 18+
 - PostgreSQL database (we use Neon)
 - Google OAuth credentials (optional)
-- SMTP server for emails (optional)
+- Resend API key for emails (optional)
+- OpenAI API key for AI features (optional)
 
 ### Installation
 
@@ -102,19 +103,22 @@ A modern, lightweight issue tracking application built for the Litmers Vibe Codi
    DATABASE_URL="postgresql://..."
 
    # Better Auth
-   BETTER_AUTH_SECRET="your-secret-key"
+   BETTER_AUTH_SECRET="your-secret-key-at-least-32-characters"
    BETTER_AUTH_URL="http://localhost:3000"
 
    # Google OAuth (optional)
    GOOGLE_CLIENT_ID="your-google-client-id"
    GOOGLE_CLIENT_SECRET="your-google-client-secret"
 
-   # Email (optional)
-   SMTP_HOST="smtp.example.com"
-   SMTP_PORT="587"
-   SMTP_USER="your-email@example.com"
-   SMTP_PASS="your-password"
-   EMAIL_FROM="noreply@yourapp.com"
+   # Email - Resend (optional)
+   RESEND_API_KEY="re_your-resend-api-key"
+   EMAIL_FROM="noreply@yourdomain.com"
+
+   # AI Features - OpenAI (optional)
+   OPENAI_API_KEY="sk-your-openai-api-key"
+
+   # App URL
+   NEXT_PUBLIC_APP_URL="http://localhost:3000"
    ```
 
 4. **Set up the database**
