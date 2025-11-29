@@ -20,10 +20,8 @@ export function Badge({
   const variants = {
     default: "bg-neutral-700/50 text-neutral-200 border border-neutral-600",
     primary: "bg-white/15 text-white border border-white/30",
-    success:
-      "bg-emerald-500/15 text-emerald-300 border border-emerald-500/30",
-    warning:
-      "bg-amber-500/15 text-amber-300 border border-amber-500/30",
+    success: "bg-emerald-500/15 text-emerald-300 border border-emerald-500/30",
+    warning: "bg-amber-500/15 text-amber-300 border border-amber-500/30",
     danger: "bg-red-500/15 text-red-300 border border-red-500/30",
     info: "bg-violet-500/15 text-violet-300 border border-violet-500/30",
   };

@@ -33,16 +33,16 @@ export function ProjectCard({
   showTeam = true,
 }: ProjectCardProps) {
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5 hover:shadow-md transition-all group">
+    <div className="bg-neutral-900 rounded-xl border border-neutral-700/50 p-5 hover:bg-neutral-800 hover:border-neutral-600 transition-all group">
       <div className="flex items-start justify-between">
         <Link href={`/projects/${project.id}`} className="flex-1 min-w-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-linear-to-br from-green-500 to-teal-600 flex items-center justify-center text-white font-bold text-lg">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-neutral-700 to-neutral-800 border border-neutral-600/50 flex items-center justify-center text-white font-semibold text-lg shadow-lg">
               {project.name.charAt(0).toUpperCase()}
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
-                <h3 className="font-semibold text-gray-900 dark:text-white truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                <h3 className="font-semibold text-white truncate group-hover:text-neutral-300 transition-colors">
                   {project.name}
                 </h3>
                 {project.isArchived && (

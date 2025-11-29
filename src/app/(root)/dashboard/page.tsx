@@ -74,9 +74,9 @@ export default async function DashboardPage() {
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+              <div className="w-12 h-12 rounded-xl bg-neutral-800 border border-neutral-700/50 flex items-center justify-center">
                 <svg
-                  className="w-6 h-6 text-blue-600 dark:text-blue-400"
+                  className="w-6 h-6 text-neutral-300"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -202,7 +202,7 @@ export default async function DashboardPage() {
               </h2>
               <Link
                 href="/issues"
-                className="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400"
+                className="text-sm text-neutral-400 hover:text-white transition-colors"
               >
                 View all
               </Link>
@@ -275,7 +275,7 @@ export default async function DashboardPage() {
               </h2>
               <Link
                 href="/teams"
-                className="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400"
+                className="text-sm text-neutral-400 hover:text-white transition-colors"
               >
                 View all
               </Link>
@@ -304,7 +304,7 @@ export default async function DashboardPage() {
                 </p>
                 <Link
                   href="/teams"
-                  className="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400"
+                  className="inline-flex items-center text-sm font-medium text-neutral-400 hover:text-white transition-colors"
                 >
                   Create or join a team
                   <svg
@@ -328,16 +328,16 @@ export default async function DashboardPage() {
                   <Link
                     key={membership.team.id}
                     href={`/teams/${membership.team.id}`}
-                    className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                    className="flex items-center gap-3 p-3 rounded-xl hover:bg-neutral-800 transition-colors"
                   >
-                    <div className="w-10 h-10 rounded-lg bg-linear-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold">
+                    <div className="w-10 h-10 rounded-lg bg-linear-to-br from-neutral-700 to-neutral-800 border border-neutral-600/50 flex items-center justify-center text-white font-bold">
                       {membership.team.name.charAt(0).toUpperCase()}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium text-gray-900 dark:text-white truncate">
+                      <p className="font-medium text-white truncate">
                         {membership.team.name}
                       </p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                      <p className="text-sm text-neutral-400">
                         {membership.team._count.members} members ·{" "}
                         {membership.team._count.projects} projects
                       </p>
@@ -345,10 +345,10 @@ export default async function DashboardPage() {
                     <span
                       className={`px-2 py-1 text-xs font-medium rounded ${
                         membership.role === "OWNER"
-                          ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
+                          ? "bg-white/15 text-white border border-white/30"
                           : membership.role === "ADMIN"
-                          ? "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400"
-                          : "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-400"
+                          ? "bg-purple-500/15 text-purple-400 border border-purple-500/30"
+                          : "bg-neutral-800 text-neutral-400 border border-neutral-700"
                       }`}
                     >
                       {membership.role}

@@ -149,7 +149,7 @@ export function TeamDetailClient({
       {/* Team Header */}
       <div className="flex items-start justify-between mb-8">
         <div className="flex items-center gap-4">
-          <div className="w-16 h-16 rounded-xl bg-linear-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-2xl">
+          <div className="w-16 h-16 rounded-xl bg-linear-to-br from-neutral-700 to-neutral-800 border border-neutral-600/50 flex items-center justify-center text-white font-bold text-2xl shadow-lg">
             {team.name.charAt(0).toUpperCase()}
           </div>
           <div>
@@ -159,7 +159,7 @@ export function TeamDetailClient({
                   type="text"
                   value={teamName}
                   onChange={(e) => setTeamName(e.target.value)}
-                  className="text-2xl font-bold bg-transparent border-b-2 border-blue-500 focus:outline-none"
+                  className="text-2xl font-bold bg-transparent border-b-2 border-white/50 focus:outline-none text-white"
                   autoFocus
                 />
                 <Button
@@ -296,11 +296,11 @@ export function TeamDetailClient({
             <CardContent className="space-y-3">
               <Link
                 href={`/projects?team=${team.id}`}
-                className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                className="flex items-center gap-3 p-3 rounded-xl hover:bg-neutral-800 transition-colors"
               >
-                <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-xl bg-neutral-800 border border-neutral-700/50 flex items-center justify-center">
                   <svg
-                    className="w-5 h-5 text-blue-600 dark:text-blue-400"
+                    className="w-5 h-5 text-neutral-300"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"

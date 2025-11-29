@@ -125,7 +125,7 @@ export function ProjectSettings({ project, canEdit }: ProjectSettingsProps) {
               maxLength={2000}
               defaultValue={project.description || ""}
               disabled={!canEdit}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none disabled:opacity-50"
+              className="w-full px-4 py-2.5 border border-neutral-700/50 rounded-xl bg-neutral-900 text-white placeholder-neutral-500 focus:ring-2 focus:ring-white/10 focus:border-neutral-600 resize-none disabled:opacity-50 transition-all"
             />
           </div>
 
@@ -234,7 +234,7 @@ export function ProjectSettings({ project, canEdit }: ProjectSettingsProps) {
             <span className="text-xs text-gray-500">(default)</span>
           </div>
           <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-            <span className="w-3 h-3 rounded-full bg-blue-500" />
+            <span className="w-3 h-3 rounded-full bg-violet-500" />
             <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
               In Progress
             </span>
@@ -312,11 +312,7 @@ export function ProjectSettings({ project, canEdit }: ProjectSettingsProps) {
               </div>
               <form action={archiveAction}>
                 <input type="hidden" name="projectId" value={project.id} />
-                <Button
-                  type="submit"
-                  variant="outline"
-                  disabled={isArchiving}
-                >
+                <Button type="submit" variant="outline" disabled={isArchiving}>
                   {isArchiving
                     ? "..."
                     : project.isArchived
@@ -335,10 +331,7 @@ export function ProjectSettings({ project, canEdit }: ProjectSettingsProps) {
                   Permanently delete this project and all its data
                 </p>
               </div>
-              <Button
-                variant="danger"
-                onClick={() => setShowDeleteModal(true)}
-              >
+              <Button variant="danger" onClick={() => setShowDeleteModal(true)}>
                 Delete
               </Button>
             </div>
@@ -386,7 +379,12 @@ export function ProjectSettings({ project, canEdit }: ProjectSettingsProps) {
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Label Name
             </label>
-            <Input name="name" placeholder="e.g., Bug, Feature, Enhancement" maxLength={50} required />
+            <Input
+              name="name"
+              placeholder="e.g., Bug, Feature, Enhancement"
+              maxLength={50}
+              required
+            />
           </div>
 
           <div>
@@ -401,7 +399,7 @@ export function ProjectSettings({ project, canEdit }: ProjectSettingsProps) {
                   onClick={() => setNewLabelColor(color)}
                   className={`w-8 h-8 rounded-full transition-all ${
                     newLabelColor === color
-                      ? "ring-2 ring-offset-2 ring-blue-500"
+                      ? "ring-2 ring-offset-2 ring-offset-neutral-900 ring-white"
                       : ""
                   }`}
                   style={{ backgroundColor: color }}
@@ -463,7 +461,7 @@ export function ProjectSettings({ project, canEdit }: ProjectSettingsProps) {
                   onClick={() => setNewStatusColor(color)}
                   className={`w-8 h-8 rounded-full transition-all ${
                     newStatusColor === color
-                      ? "ring-2 ring-offset-2 ring-blue-500"
+                      ? "ring-2 ring-offset-2 ring-offset-neutral-900 ring-white"
                       : ""
                   }`}
                   style={{ backgroundColor: color }}

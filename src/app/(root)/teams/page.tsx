@@ -92,7 +92,7 @@ export default function TeamsPage() {
       {isLoading ? (
         <div className="flex items-center justify-center py-12">
           <svg
-            className="animate-spin h-8 w-8 text-blue-600"
+            className="animate-spin h-8 w-8 text-white"
             viewBox="0 0 24 24"
           >
             <circle

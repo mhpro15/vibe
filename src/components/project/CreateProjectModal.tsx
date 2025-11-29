@@ -85,7 +85,7 @@ export function CreateProjectModal({
             rows={3}
             maxLength={2000}
             placeholder="Describe your project..."
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+            className="w-full px-4 py-2.5 border border-neutral-700/50 rounded-xl bg-neutral-900 text-white placeholder-neutral-500 focus:ring-2 focus:ring-white/10 focus:border-neutral-600 resize-none transition-all"
           />
           <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
             Max 2000 characters

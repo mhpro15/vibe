@@ -47,8 +47,13 @@ interface ProjectDetailClientProps {
   canEdit: boolean;
 }
 
-export function ProjectDetailClient({ project, canEdit }: ProjectDetailClientProps) {
-  const [activeTab, setActiveTab] = useState<"issues" | "board" | "settings">("issues");
+export function ProjectDetailClient({
+  project,
+  canEdit,
+}: ProjectDetailClientProps) {
+  const [activeTab, setActiveTab] = useState<"issues" | "board" | "settings">(
+    "issues"
+  );
   const [isFavorite, setIsFavorite] = useState(project.isFavorite);
   const [, startTransition] = useTransition();
 
@@ -105,7 +110,7 @@ export function ProjectDetailClient({ project, canEdit }: ProjectDetailClientPro
             <div className="flex items-center gap-4 mt-1 text-sm text-gray-500 dark:text-gray-400">
               <Link
                 href={`/teams/${project.team.id}`}
-                className="hover:text-blue-600 dark:hover:text-blue-400"
+                className="hover:text-white transition-colors"
               >
                 {project.team.name}
               </Link>
@@ -156,8 +161,8 @@ export function ProjectDetailClient({ project, canEdit }: ProjectDetailClientPro
           onClick={() => setActiveTab("issues")}
           className={`pb-3 px-1 text-sm font-medium transition-colors border-b-2 -mb-px flex items-center gap-2 ${
             activeTab === "issues"
-              ? "border-blue-600 text-blue-600"
-              : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400"
+              ? "border-white text-white"
+              : "border-transparent text-neutral-500 hover:text-neutral-300"
           }`}
         >
           <svg
@@ -179,8 +184,8 @@ export function ProjectDetailClient({ project, canEdit }: ProjectDetailClientPro
           onClick={() => setActiveTab("board")}
           className={`pb-3 px-1 text-sm font-medium transition-colors border-b-2 -mb-px flex items-center gap-2 ${
             activeTab === "board"
-              ? "border-blue-600 text-blue-600"
-              : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400"
+              ? "border-white text-white"
+              : "border-transparent text-neutral-500 hover:text-neutral-300"
           }`}
         >
           <svg
@@ -203,8 +208,8 @@ export function ProjectDetailClient({ project, canEdit }: ProjectDetailClientPro
             onClick={() => setActiveTab("settings")}
             className={`pb-3 px-1 text-sm font-medium transition-colors border-b-2 -mb-px flex items-center gap-2 ${
               activeTab === "settings"
-                ? "border-blue-600 text-blue-600"
-                : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400"
+                ? "border-white text-white"
+                : "border-transparent text-neutral-500 hover:text-neutral-300"
             }`}
           >
             <svg

@@ -37,7 +37,7 @@ async function isTeamAdmin(userId: string, teamId: string) {
 }
 
 // Helper to check if user is project owner
-async function isProjectOwner(userId: string, projectId: string) {
+async function _isProjectOwner(userId: string, projectId: string) {
   const project = await prisma.project.findUnique({
     where: { id: projectId },
     select: { ownerId: true },
@@ -546,11 +546,11 @@ export async function createCustomStatusAction(
   }
 
   try {
-    // Get max order
-    const maxOrder = await prisma.customStatus.findFirst({
+    // Get max position
+    const maxPosition = await prisma.customStatus.findFirst({
       where: { projectId },
-      orderBy: { order: "desc" },
-      select: { order: true },
+      orderBy: { position: "desc" },
+      select: { position: true },
     });
 
     const customStatus = await prisma.customStatus.create({
@@ -558,7 +558,7 @@ export async function createCustomStatusAction(
         name,
         color,
         projectId,
-        order: (maxOrder?.order ?? -1) + 1,
+        position: (maxPosition?.position ?? -1) + 1,
       },
     });
 
@@ -705,7 +705,7 @@ export async function getProjectById(projectId: string) {
         orderBy: { name: "asc" },
       },
       customStatuses: {
-        orderBy: { order: "asc" },
+        orderBy: { position: "asc" },
       },
       _count: {
         select: {

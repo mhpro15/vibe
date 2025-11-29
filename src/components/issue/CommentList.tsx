@@ -65,7 +65,8 @@ function CommentItem({
 
   const isOwner = comment.author.id === currentUserId;
   const wasEdited =
-    new Date(comment.updatedAt).getTime() > new Date(comment.createdAt).getTime() + 1000;
+    new Date(comment.updatedAt).getTime() >
+    new Date(comment.createdAt).getTime() + 1000;
 
   const handleCancelEdit = () => {
     setIsEditing(false);
@@ -74,11 +75,7 @@ function CommentItem({
 
   return (
     <div className="flex gap-3">
-      <Avatar
-        src={comment.author.image}
-        name={comment.author.name}
-        size="sm"
-      />
+      <Avatar src={comment.author.image} name={comment.author.name} size="sm" />
       <div className="flex-1">
         <div className="flex items-center gap-2">
           <span className="font-medium text-gray-900 dark:text-white">
@@ -97,7 +94,7 @@ function CommentItem({
               name="content"
               value={editContent}
               onChange={(e) => setEditContent(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+              className="w-full px-4 py-2.5 border border-neutral-700/50 rounded-xl bg-neutral-900 text-white focus:ring-2 focus:ring-white/10 focus:border-neutral-600 resize-none transition-all"
               rows={3}
             />
             {updateState.error && (
@@ -126,7 +123,7 @@ function CommentItem({
               <div className="flex gap-2 mt-2">
                 <button
                   onClick={() => setIsEditing(true)}
-                  className="text-xs text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400"
+                  className="text-xs text-neutral-500 hover:text-white transition-colors"
                 >
                   Edit
                 </button>
