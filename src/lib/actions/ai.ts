@@ -24,9 +24,11 @@ const RATE_LIMIT_PER_DAY = 100;
 /**
  * Check and update rate limit for AI requests
  */
-async function checkRateLimit(userId: string): Promise<{ allowed: boolean; error?: string }> {
+async function checkRateLimit(
+  userId: string
+): Promise<{ allowed: boolean; error?: string }> {
   const now = new Date();
-  
+
   let rateLimit = await prisma.aiRateLimit.findUnique({
     where: { userId },
   });
@@ -45,7 +47,8 @@ async function checkRateLimit(userId: string): Promise<{ allowed: boolean; error
   }
 
   // Check if minute window has passed
-  const minuteElapsed = (now.getTime() - rateLimit.minuteReset.getTime()) / 1000 / 60;
+  const minuteElapsed =
+    (now.getTime() - rateLimit.minuteReset.getTime()) / 1000 / 60;
   if (minuteElapsed >= 1) {
     // Reset minute counter
     rateLimit = await prisma.aiRateLimit.update({
@@ -58,7 +61,8 @@ async function checkRateLimit(userId: string): Promise<{ allowed: boolean; error
   }
 
   // Check if day has passed
-  const dayElapsed = (now.getTime() - rateLimit.dailyReset.getTime()) / 1000 / 60 / 60 / 24;
+  const dayElapsed =
+    (now.getTime() - rateLimit.dailyReset.getTime()) / 1000 / 60 / 60 / 24;
   if (dayElapsed >= 1) {
     // Reset daily counter
     rateLimit = await prisma.aiRateLimit.update({
@@ -100,41 +104,99 @@ async function checkRateLimit(userId: string): Promise<{ allowed: boolean; error
 
 /**
  * Call the AI API (using OpenAI-compatible API)
+ * Uses fetch directly to support both OpenAI and compatible APIs (Azure, local LLMs, etc.)
+ *
+ * API Reference: https://platform.openai.com/docs/api-reference/chat/create
+ *
+ * Request format:
+ * - model: The model to use (e.g., "gpt-4o-mini", "gpt-4o")
+ * - messages: Array of {role: "system"|"user"|"assistant", content: string}
+ * - max_tokens: Maximum tokens in response
+ * - temperature: 0-2, controls randomness (0.7 is balanced)
+ *
+ * Response format:
+ * - choices[0].message.content: The generated text
  */
 async function callAI(prompt: string, systemPrompt?: string): Promise<string> {
   const apiKey = process.env.OPENAI_API_KEY || process.env.AI_API_KEY;
-  const apiUrl = process.env.AI_API_URL || "https://api.openai.com/v1/chat/completions";
+  const apiUrl =
+    process.env.AI_API_URL || "https://api.openai.com/v1/chat/completions";
   const model = process.env.AI_MODEL || "gpt-4o-mini";
 
   if (!apiKey) {
-    throw new Error("AI API key not configured");
+    throw new Error(
+      "AI API key not configured. Set OPENAI_API_KEY in your environment."
+    );
   }
 
-  const response = await fetch(apiUrl, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model,
-      messages: [
-        ...(systemPrompt ? [{ role: "system", content: systemPrompt }] : []),
-        { role: "user", content: prompt },
-      ],
-      max_tokens: 500,
-      temperature: 0.7,
-    }),
-  });
+  // Build messages array with proper role types
+  const messages: Array<{
+    role: "system" | "user" | "assistant";
+    content: string;
+  }> = [];
 
-  if (!response.ok) {
-    const error = await response.text();
-    console.error("AI API error:", error);
-    throw new Error("AI API request failed");
+  if (systemPrompt) {
+    messages.push({ role: "system", content: systemPrompt });
   }
+  messages.push({ role: "user", content: prompt });
 
-  const data = await response.json();
-  return data.choices[0]?.message?.content || "";
+  try {
+    const response = await fetch(apiUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model,
+        messages,
+        max_tokens: 500,
+        temperature: 0.7,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => null);
+      const errorMessage = errorData?.error?.message || response.statusText;
+
+      // Handle specific error codes
+      if (response.status === 401) {
+        console.error("AI API authentication failed - check API key");
+        throw new Error("AI authentication failed. Check your API key.");
+      } else if (response.status === 429) {
+        console.error("AI API rate limit exceeded");
+        throw new Error("AI rate limit exceeded. Please try again later.");
+      } else if (response.status === 500 || response.status === 503) {
+        console.error("AI API server error:", errorMessage);
+        throw new Error(
+          "AI service temporarily unavailable. Please try again."
+        );
+      } else {
+        console.error("AI API error:", response.status, errorMessage);
+        throw new Error("AI request failed. Please try again.");
+      }
+    }
+
+    const data = await response.json();
+
+    // Validate response structure
+    if (!data.choices || !data.choices[0]?.message?.content) {
+      console.error("Unexpected AI response format:", data);
+      throw new Error("Invalid AI response format");
+    }
+
+    return data.choices[0].message.content;
+  } catch (error) {
+    // Re-throw if it's already our custom error
+    if (error instanceof Error && error.message.startsWith("AI")) {
+      throw error;
+    }
+    // Handle network/timeout errors
+    console.error("AI API connection error:", error);
+    throw new Error(
+      "Failed to connect to AI service. Check your network connection."
+    );
+  }
 }
 
 // FR-040: AI Summary Generation
@@ -163,7 +225,10 @@ export async function generateSummaryAction(
 
   // Check description length
   if (!issue.description || issue.description.length <= 10) {
-    return { success: false, error: "Description must be more than 10 characters for AI summary" };
+    return {
+      success: false,
+      error: "Description must be more than 10 characters for AI summary",
+    };
   }
 
   // Check cache - return cached if exists and description hasn't changed
@@ -183,7 +248,10 @@ export async function generateSummaryAction(
 Title: ${issue.title}
 Description: ${issue.description}`;
 
-    const summary = await callAI(prompt, "You are a helpful assistant that summarizes software issues concisely.");
+    const summary = await callAI(
+      prompt,
+      "You are a helpful assistant that summarizes software issues concisely."
+    );
 
     // Cache the result
     await prisma.issue.update({
@@ -199,7 +267,10 @@ Description: ${issue.description}`;
     return { success: true, data: { summary } };
   } catch (error) {
     console.error("AI summary error:", error);
-    return { success: false, error: "Failed to generate AI summary. Please try again." };
+    return {
+      success: false,
+      error: "Failed to generate AI summary. Please try again.",
+    };
   }
 }
 
@@ -229,7 +300,10 @@ export async function generateSuggestionAction(
 
   // Check description length
   if (!issue.description || issue.description.length <= 10) {
-    return { success: false, error: "Description must be more than 10 characters for AI suggestion" };
+    return {
+      success: false,
+      error: "Description must be more than 10 characters for AI suggestion",
+    };
   }
 
   // Check cache
@@ -269,7 +343,10 @@ Priority: ${issue.priority}`;
     return { success: true, data: { suggestion } };
   } catch (error) {
     console.error("AI suggestion error:", error);
-    return { success: false, error: "Failed to generate AI suggestion. Please try again." };
+    return {
+      success: false,
+      error: "Failed to generate AI suggestion. Please try again.",
+    };
   }
 }
 
@@ -318,24 +395,34 @@ Available Labels: ${labelNames}
 
 Respond with ONLY the label names that apply, separated by commas. If no labels apply, respond with "none".`;
 
-    const response = await callAI(prompt, "You are a helpful assistant that categorizes software issues.");
+    const response = await callAI(
+      prompt,
+      "You are a helpful assistant that categorizes software issues."
+    );
 
     // Parse response to find matching labels
     const suggestedNames = response
       .toLowerCase()
       .split(",")
       .map((s) => s.trim());
-    
-    const suggestedLabels = labels.filter((label) =>
-      suggestedNames.some((name) => 
-        name !== "none" && label.name.toLowerCase().includes(name) || name.includes(label.name.toLowerCase())
+
+    const suggestedLabels = labels
+      .filter((label) =>
+        suggestedNames.some(
+          (name) =>
+            (name !== "none" && label.name.toLowerCase().includes(name)) ||
+            name.includes(label.name.toLowerCase())
+        )
       )
-    ).slice(0, 3);
+      .slice(0, 3);
 
     return { success: true, data: { labels: suggestedLabels } };
   } catch (error) {
     console.error("AI label suggestion error:", error);
-    return { success: false, error: "Failed to suggest labels. Please try again." };
+    return {
+      success: false,
+      error: "Failed to suggest labels. Please try again.",
+    };
   }
 }
 
@@ -388,18 +475,22 @@ ${issueList}
 
 Respond with ONLY the numbers of similar issues (1-3 max), separated by commas. If no duplicates, respond with "none".`;
 
-    const response = await callAI(prompt, "You are a helpful assistant that detects duplicate software issues.");
+    const response = await callAI(
+      prompt,
+      "You are a helpful assistant that detects duplicate software issues."
+    );
 
     // Parse response
     if (response.toLowerCase().includes("none")) {
       return { success: true, data: { duplicates: [] } };
     }
 
-    const indices = response
-      .match(/\d+/g)
-      ?.map((n) => parseInt(n) - 1)
-      .filter((i) => i >= 0 && i < existingIssues.length)
-      .slice(0, 3) || [];
+    const indices =
+      response
+        .match(/\d+/g)
+        ?.map((n) => parseInt(n) - 1)
+        .filter((i) => i >= 0 && i < existingIssues.length)
+        .slice(0, 3) || [];
 
     const duplicates = indices.map((i) => ({
       id: existingIssues[i].id,
@@ -410,7 +501,10 @@ Respond with ONLY the numbers of similar issues (1-3 max), separated by commas. 
     return { success: true, data: { duplicates } };
   } catch (error) {
     console.error("AI duplicate detection error:", error);
-    return { success: false, error: "Failed to check for duplicates. Please try again." };
+    return {
+      success: false,
+      error: "Failed to check for duplicates. Please try again.",
+    };
   }
 }
 
@@ -447,7 +541,10 @@ export async function generateCommentSummaryAction(
 
   // Check minimum comments
   if (issue.comments.length < 5) {
-    return { success: false, error: "At least 5 comments are required for summary" };
+    return {
+      success: false,
+      error: "At least 5 comments are required for summary",
+    };
   }
 
   // Check rate limit
@@ -478,7 +575,10 @@ ${commentText}`;
     return { success: true, data: { commentSummary } };
   } catch (error) {
     console.error("AI comment summary error:", error);
-    return { success: false, error: "Failed to summarize comments. Please try again." };
+    return {
+      success: false,
+      error: "Failed to summarize comments. Please try again.",
+    };
   }
 }
 
@@ -504,7 +604,11 @@ export async function suggestLabelsSimple(
   projectId: string,
   title: string,
   description: string
-): Promise<{ success: boolean; labels?: { id: string; name: string; color: string }[]; error?: string }> {
+): Promise<{
+  success: boolean;
+  labels?: { id: string; name: string; color: string }[];
+  error?: string;
+}> {
   const session = await getSession();
   if (!session?.user?.id) {
     return { success: false, error: "Authentication required" };
@@ -541,24 +645,35 @@ Available Labels: ${labelNames}
 
 Respond with ONLY the label names that apply, separated by commas. If no labels apply, respond with "none".`;
 
-    const response = await callAI(prompt, "You are a helpful assistant that categorizes software issues.");
+    const response = await callAI(
+      prompt,
+      "You are a helpful assistant that categorizes software issues."
+    );
 
     // Parse response to find matching labels
     const suggestedNames = response
       .toLowerCase()
       .split(",")
       .map((s) => s.trim());
-    
-    const suggestedLabels = labels.filter((label) =>
-      suggestedNames.some((name) => 
-        name !== "none" && (label.name.toLowerCase().includes(name) || name.includes(label.name.toLowerCase()))
+
+    const suggestedLabels = labels
+      .filter((label) =>
+        suggestedNames.some(
+          (name) =>
+            name !== "none" &&
+            (label.name.toLowerCase().includes(name) ||
+              name.includes(label.name.toLowerCase()))
+        )
       )
-    ).slice(0, 3);
+      .slice(0, 3);
 
     return { success: true, labels: suggestedLabels };
   } catch (error) {
     console.error("AI label suggestion error:", error);
-    return { success: false, error: "Failed to suggest labels. Please try again." };
+    return {
+      success: false,
+      error: "Failed to suggest labels. Please try again.",
+    };
   }
 }
 
@@ -568,7 +683,11 @@ Respond with ONLY the label names that apply, separated by commas. If no labels 
 export async function detectDuplicatesSimple(
   projectId: string,
   title: string
-): Promise<{ success: boolean; duplicates?: { id: string; title: string; similarity: number }[]; error?: string }> {
+): Promise<{
+  success: boolean;
+  duplicates?: { id: string; title: string; similarity: number }[];
+  error?: string;
+}> {
   const session = await getSession();
   if (!session?.user?.id) {
     return { success: false, error: "Authentication required" };
@@ -610,18 +729,22 @@ ${issueList}
 
 Respond with ONLY the numbers of similar issues (1-3 max), separated by commas. If no duplicates, respond with "none".`;
 
-    const response = await callAI(prompt, "You are a helpful assistant that detects duplicate software issues.");
+    const response = await callAI(
+      prompt,
+      "You are a helpful assistant that detects duplicate software issues."
+    );
 
     // Parse response
     if (response.toLowerCase().includes("none")) {
       return { success: true, duplicates: [] };
     }
 
-    const indices = response
-      .match(/\d+/g)
-      ?.map((n) => parseInt(n) - 1)
-      .filter((i) => i >= 0 && i < existingIssues.length)
-      .slice(0, 3) || [];
+    const indices =
+      response
+        .match(/\d+/g)
+        ?.map((n) => parseInt(n) - 1)
+        .filter((i) => i >= 0 && i < existingIssues.length)
+        .slice(0, 3) || [];
 
     const duplicates = indices.map((i) => ({
       id: existingIssues[i].id,
@@ -632,6 +755,9 @@ Respond with ONLY the numbers of similar issues (1-3 max), separated by commas. 
     return { success: true, duplicates };
   } catch (error) {
     console.error("AI duplicate detection error:", error);
-    return { success: false, error: "Failed to check for duplicates. Please try again." };
+    return {
+      success: false,
+      error: "Failed to check for duplicates. Please try again.",
+    };
   }
 }
