@@ -2,7 +2,7 @@
 
 A modern, lightweight issue tracking application built for the Litmers Vibe Coding Contest 2025.
 
-![Next.js](https://img.shields.io/badge/Next.js-16.0.5-black)
+![Next.js](https://img.shields.io/badge/Next.js-16.0.7-black)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)
 ![Prisma](https://img.shields.io/badge/Prisma-7.0-2D3748)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-38B2AC)
