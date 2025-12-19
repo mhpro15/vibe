@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useState, useEffect } from "react";
 import { Avatar } from "@/components/ui/Avatar";
 import { Button } from "@/components/ui/Button";
 import {
@@ -73,14 +73,19 @@ function CommentItem({
     setEditContent(comment.content);
   };
 
+  // Close edit mode after successful update
+  useEffect(() => {
+    if (updateState.success) {
+      setIsEditing(false);
+    }
+  }, [updateState.success]);
+
   return (
     <div className="flex gap-3">
       <Avatar src={comment.author.image} name={comment.author.name} size="sm" />
       <div className="flex-1">
         <div className="flex items-center gap-2">
-          <span className="font-medium text-white">
-            {comment.author.name}
-          </span>
+          <span className="font-medium text-white">{comment.author.name}</span>
           <span className="text-xs text-neutral-500">
             {formatTimeAgo(comment.createdAt)}
             {wasEdited && " (edited)"}
@@ -146,10 +151,7 @@ function CommentItem({
   );
 }
 
-export function CommentList({ 
-  comments, 
-  currentUserId 
-}: CommentListProps) {
+export function CommentList({ comments, currentUserId }: CommentListProps) {
   if (comments.length === 0) {
     return (
       <div className="text-center py-8 text-neutral-500">
