@@ -1,28 +1,57 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Avatar } from "@/components/ui/Avatar";
 import {
   StatusPieChart,
-  CompletionRingChart,
   PriorityBarChart,
   TrendLineChart,
   MemberBarChart,
 } from "@/components/charts";
-import { getProjectStats } from "@/lib/actions/stats";
 import {
   CheckCircle2,
   Clock,
   AlertCircle,
-  Loader2,
   ArrowUpRight,
   Calendar,
 } from "lucide-react";
 
+interface DashboardIssue {
+  id: string;
+  title: string;
+  status: string;
+  priority: string;
+  createdAt: Date;
+  dueDate?: Date | null;
+  assignee?: {
+    id: string;
+    name: string;
+    image: string | null;
+  } | null;
+}
+
 interface ProjectDashboardProps {
   projectId: string;
-  stats: any; // Using any for now to match the complex return type
+  stats: {
+    totalIssues: number;
+    doneCount: number;
+    inProgressCount: number;
+    completionRate: number;
+    recentIssues: DashboardIssue[];
+    dueToSoonIssues: DashboardIssue[];
+    issueCreationTrend: any[];
+    completionTrend: any[];
+    priorityChartData: any[];
+    statusChartData: any[];
+    memberStats: any[];
+    team?: {
+      members: Array<{
+        id: string;
+        name: string;
+        image: string | null;
+      }>;
+    };
+  };
 }
 
 export function ProjectDashboard({ projectId, stats }: ProjectDashboardProps) {

@@ -70,45 +70,45 @@ export function DashboardSidebar({
   recentProjects,
 }: DashboardSidebarProps) {
   return (
-    <div className="space-y-4 md:space-y-6">
+    <div className="space-y-6 md:space-y-8">
       {/* My Teams */}
-      <section className="bg-neutral-900/50 border border-neutral-700/50 rounded-lg md:rounded-xl p-3 md:p-4">
-        <div className="flex items-center justify-between mb-3 md:mb-4">
-          <h2 className="text-xs md:text-sm font-medium text-white uppercase tracking-wider">
+      <section className="bg-neutral-900/50 border border-neutral-800 rounded-xl p-4 md:p-5">
+        <div className="flex items-center justify-between mb-4 md:mb-5">
+          <h2 className="text-xs md:text-sm font-bold text-neutral-400 uppercase tracking-[0.2em]">
             My Teams
           </h2>
           <Link
             href="/teams"
-            className="text-[10px] md:text-xs text-violet-400 hover:text-violet-300 transition-colors"
+            className="text-xs text-violet-400 hover:text-violet-300 transition-colors font-medium"
           >
             View All
           </Link>
         </div>
-        <div className="space-y-2">
+        <div className="space-y-3">
           {teams.map((membership) => (
             <div key={membership.team.id} className="space-y-1">
               <Link
                 href={`/teams/${membership.team.id}`}
-                className="flex items-center gap-2 md:gap-3 p-2 rounded-lg hover:bg-neutral-800 transition-colors group"
+                className="flex items-center gap-3 md:gap-4 p-2.5 rounded-xl hover:bg-neutral-800/80 transition-all group border border-transparent hover:border-neutral-700/50"
               >
                 <div
-                  className={`w-7 h-7 md:w-8 md:h-8 rounded-lg bg-linear-to-br ${getTeamColor(
+                  className={`w-10 h-10 md:w-12 md:h-12 rounded-xl bg-linear-to-br ${getTeamColor(
                     membership.team.name
-                  )} flex items-center justify-center text-white font-bold text-xs md:text-sm shrink-0 shadow-lg`}
+                  )} flex items-center justify-center text-white font-bold text-sm md:text-lg shrink-0 shadow-lg shadow-black/20`}
                 >
                   {membership.team.name.charAt(0)}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <span className="text-xs md:text-sm text-neutral-200 group-hover:text-white transition-colors truncate block">
+                  <span className="text-sm md:text-base font-semibold text-neutral-200 group-hover:text-white transition-colors truncate block">
                     {membership.team.name}
                   </span>
-                  <div className="flex items-center gap-2 mt-0.5">
-                    <div className="flex items-center gap-1 text-[10px] text-neutral-500">
-                      <Users className="w-2.5 h-2.5" />
+                  <div className="flex items-center gap-3 mt-1">
+                    <div className="flex items-center gap-1.5 text-xs text-neutral-500">
+                      <Users className="w-3.5 h-3.5" />
                       {membership.team._count.members}
                     </div>
-                    <div className="flex items-center gap-1 text-[10px] text-neutral-500">
-                      <FolderKanban className="w-2.5 h-2.5" />
+                    <div className="flex items-center gap-1.5 text-xs text-neutral-500">
+                      <FolderKanban className="w-3.5 h-3.5" />
                       {membership.team._count.projects}
                     </div>
                   </div>
@@ -120,43 +120,43 @@ export function DashboardSidebar({
       </section>
 
       {/* Recent Projects */}
-      <section className="bg-neutral-900/50 border border-neutral-700/50 rounded-lg md:rounded-xl p-3 md:p-4">
-        <div className="flex items-center justify-between mb-3 md:mb-4">
-          <h2 className="text-xs md:text-sm font-medium text-white uppercase tracking-wider">
+      <section className="bg-neutral-900/50 border border-neutral-800 rounded-xl p-4 md:p-5">
+        <div className="flex items-center justify-between mb-4 md:mb-5">
+          <h2 className="text-xs md:text-sm font-bold text-neutral-400 uppercase tracking-[0.2em]">
             Recent Projects
           </h2>
           <Link
             href="/projects"
-            className="text-[10px] md:text-xs text-violet-400 hover:text-violet-300 transition-colors"
+            className="text-xs text-violet-400 hover:text-violet-300 transition-colors font-medium"
           >
             View All
           </Link>
         </div>
-        <div className="space-y-2">
+        <div className="space-y-3">
           {recentProjects.map((project) => (
             <Link
               key={project.id}
               href={`/projects/${project.id}`}
-              className="flex items-center gap-2 md:gap-3 p-2 rounded-lg hover:bg-neutral-800 transition-colors group"
+              className="flex items-center gap-3 md:gap-4 p-2.5 rounded-xl hover:bg-neutral-800/80 transition-all group border border-transparent hover:border-neutral-700/50"
             >
               <div
-                className={`w-7 h-7 md:w-8 md:h-8 rounded-lg bg-linear-to-br ${getProjectColor(
+                className={`w-10 h-10 md:w-12 md:h-12 rounded-xl bg-linear-to-br ${getProjectColor(
                   project.name
-                )} flex items-center justify-center text-white font-bold text-xs md:text-sm shrink-0 shadow-lg`}
+                )} flex items-center justify-center text-white font-bold text-sm md:text-lg shrink-0 shadow-lg shadow-black/20`}
               >
                 {project.name.charAt(0)}
               </div>
               <div className="flex-1 min-w-0">
-                <span className="text-xs md:text-sm text-neutral-200 group-hover:text-white transition-colors truncate block">
+                <span className="text-sm md:text-base font-semibold text-neutral-200 group-hover:text-white transition-colors truncate block">
                   {project.name}
                 </span>
-                <div className="flex items-center gap-2 mt-0.5">
-                  <span className="text-[10px] text-neutral-500 truncate">
+                <div className="flex items-center gap-3 mt-1">
+                  <span className="text-xs text-neutral-500 truncate font-medium">
                     {project.team.name}
                   </span>
-                  <span className="text-[10px] text-neutral-600">•</span>
-                  <div className="flex items-center gap-1 text-[10px] text-neutral-500">
-                    <Layers className="w-2.5 h-2.5" />
+                  <span className="text-neutral-700">•</span>
+                  <div className="flex items-center gap-1.5 text-xs text-neutral-500">
+                    <Layers className="w-3.5 h-3.5" />
                     {project._count.issues}
                   </div>
                 </div>

@@ -59,9 +59,11 @@ export default async function DashboardPage() {
   });
 
   const inProgressIssues = assignedIssues.filter(
-    (i) => i.status === "IN_PROGRESS"
+    (i) => i.status === "IN_PROGRESS" || i.status === "IN_REVIEW"
   );
-  const backlogIssues = assignedIssues.filter((i) => i.status === "BACKLOG");
+  const upNextIssues = assignedIssues.filter(
+    (i) => i.status === "TODO" || i.status === "BACKLOG"
+  );
   const doneThisWeek = assignedIssues.filter((i) => {
     const weekAgo = new Date();
     weekAgo.setDate(weekAgo.getDate() - 7);
@@ -80,7 +82,7 @@ export default async function DashboardPage() {
     where: {
       assigneeId: session.user.id,
       deletedAt: null,
-      status: { not: "DONE" },
+      status: { notIn: ["DONE", "CANCELLED"] },
       dueDate: {
         gte: todayStart,
         lt: todayEnd,
@@ -99,7 +101,7 @@ export default async function DashboardPage() {
     where: {
       assigneeId: session.user.id,
       deletedAt: null,
-      status: { not: "DONE" },
+      status: { notIn: ["DONE", "CANCELLED"] },
       dueDate: {
         gte: todayEnd,
         lte: sevenDaysFromNow,
@@ -111,7 +113,6 @@ export default async function DashboardPage() {
       },
     },
     orderBy: { dueDate: "asc" },
-    take: 5,
   });
 
   // Get my recent comments (max 5)
@@ -189,7 +190,7 @@ export default async function DashboardPage() {
 
       <DashboardStats
         inProgressCount={inProgressIssues.length}
-        backlogCount={backlogIssues.length}
+        backlogCount={upNextIssues.length}
         doneThisWeekCount={doneThisWeek.length}
         dueTodayCount={dueTodayIssues.length}
       />
@@ -201,8 +202,9 @@ export default async function DashboardPage() {
           {dueTodayIssues.length > 0 && (
             <DashboardIssuesList
               title="Due Today"
-              issues={dueTodayIssues}
+              issues={dueTodayIssues.slice(0, 5)}
               type="due-today"
+              showMoreCount={dueTodayIssues.length > 5 ? dueTodayIssues.length - 5 : 0}
             />
           )}
 
@@ -220,19 +222,20 @@ export default async function DashboardPage() {
           {dueSoonIssues.length > 0 && (
             <DashboardIssuesList
               title="Due This Week"
-              issues={dueSoonIssues}
+              issues={dueSoonIssues.slice(0, 5)}
               type="due-soon"
+              showMoreCount={dueSoonIssues.length > 5 ? dueSoonIssues.length - 5 : 0}
             />
           )}
 
           <DashboardIssuesList
             title="Up Next"
-            issues={backlogIssues.slice(0, 5)}
+            issues={upNextIssues.slice(0, 5)}
             type="up-next"
             emptyMessage="Backlog is empty"
             emptySubMessage="Great job! You're all caught up."
             showMoreCount={
-              backlogIssues.length > 5 ? backlogIssues.length - 5 : 0
+              upNextIssues.length > 5 ? upNextIssues.length - 5 : 0
             }
           />
         </div>
