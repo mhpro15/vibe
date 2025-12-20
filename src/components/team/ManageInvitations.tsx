@@ -106,10 +106,10 @@ export function ManageInvitations({
         {optimisticInvitations.map((invite) => (
           <div
             key={invite.id}
-            className="px-5 py-4 flex items-center justify-between hover:bg-neutral-800/30 transition-colors"
+            className="px-5 py-4 flex flex-col sm:flex-row sm:items-center justify-between hover:bg-neutral-800/30 transition-colors gap-4"
           >
             <div className="flex items-center gap-3 min-w-0 flex-1">
-              <div className="w-10 h-10 rounded-full bg-neutral-800 flex items-center justify-center border border-neutral-700">
+              <div className="w-10 h-10 rounded-full bg-neutral-800 flex items-center justify-center border border-neutral-700 shrink-0">
                 <Mail className="w-4 h-4 text-neutral-400" />
               </div>
               <div className="min-w-0 flex-1">
@@ -135,7 +135,7 @@ export function ManageInvitations({
             <button
               onClick={() => handleCancel(invite.id)}
               disabled={processingId === invite.id}
-              className="ml-3 p-2 text-neutral-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors disabled:opacity-50"
+              className="self-end sm:self-auto ml-3 p-2 text-neutral-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors disabled:opacity-50"
               title="Cancel invitation"
             >
               {processingId === invite.id ? (

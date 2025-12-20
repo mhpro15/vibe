@@ -140,32 +140,32 @@ export function TeamMembersList({
         return (
           <div
             key={member.id}
-            className="py-4 flex items-center justify-between first:pt-0 last:pb-0"
+            className="py-4 flex items-center justify-between gap-4 first:pt-0 last:pb-0"
           >
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 min-w-0">
               <Avatar
                 src={member.user.image}
                 name={member.user.name}
                 size="lg"
               />
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="font-medium text-white">
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="font-medium text-white truncate">
                     {member.user.name}
                   </span>
                   {isCurrentUser && (
-                    <span className="text-xs text-neutral-500 bg-neutral-800 px-1.5 py-0.5 rounded">
+                    <span className="text-xs text-neutral-500 bg-neutral-800 px-1.5 py-0.5 rounded shrink-0">
                       (you)
                     </span>
                   )}
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-1.5 shrink-0">
                     <RoleIcon role={member.role} />
                     <Badge variant={roleColors[member.role]} size="sm">
                       {member.role}
                     </Badge>
                   </div>
                 </div>
-                <p className="text-sm text-neutral-400 mt-0.5">
+                <p className="text-sm text-neutral-400 mt-0.5 truncate">
                   {member.user.email}
                 </p>
                 <p className="text-xs text-neutral-500 mt-0.5">
@@ -175,7 +175,7 @@ export function TeamMembersList({
             </div>
 
             {(canChangeRole || canKick) && (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 shrink-0">
                 {canChangeRole && (
                   <select
                     value={member.role}

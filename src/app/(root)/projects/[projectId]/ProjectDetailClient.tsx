@@ -217,18 +217,18 @@ export function ProjectDetailClient({
   return (
     <div>
       {/* Header */}
-      <div className="flex items-start justify-between mb-8">
+      <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-8">
         <div className="flex items-center gap-4">
           <div
             className={`w-14 h-14 rounded-xl bg-linear-to-br ${getProjectColor(
               optimisticProject.name
-            )} flex items-center justify-center shadow-lg`}
+            )} flex items-center justify-center shadow-lg shrink-0`}
           >
             <Layers className="w-7 h-7 text-white" />
           </div>
-          <div>
-            <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold text-white">
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-3">
+              <h1 className="text-2xl font-bold text-white truncate">
                 {optimisticProject.name}
               </h1>
               {optimisticProject.isArchived && (
@@ -250,30 +250,33 @@ export function ProjectDetailClient({
                 />
               </button>
             </div>
-            <div className="flex items-center gap-4 mt-1 text-sm text-neutral-500">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-1 text-sm text-neutral-500">
               <Link
                 href={`/teams/${optimisticProject.team.id}`}
-                className="hover:text-white transition-colors"
+                className="hover:text-white transition-colors truncate"
               >
                 {optimisticProject.team.name}
               </Link>
-              <span>•</span>
+              <span className="hidden sm:inline">•</span>
               <div className="flex items-center gap-1">
                 <Avatar
                   src={optimisticProject.owner.image}
                   name={optimisticProject.owner.name}
                   size="xs"
                 />
-                <span>{optimisticProject.owner.name}</span>
+                <span className="truncate">{optimisticProject.owner.name}</span>
               </div>
-              <span>•</span>
+              <span className="hidden sm:inline">•</span>
               <span>{optimisticProject._count.issues} issues</span>
             </div>
           </div>
         </div>
 
-        <Link href={`/projects/${optimisticProject.id}/issues/new`}>
-          <Button>
+        <Link 
+          href={`/projects/${optimisticProject.id}/issues/new`}
+          className="w-full md:w-auto"
+        >
+          <Button className="w-full md:w-auto">
             <Plus className="w-4 h-4 mr-2" />
             New Issue
           </Button>
@@ -287,10 +290,10 @@ export function ProjectDetailClient({
       )}
 
       {/* Tabs */}
-      <div className="flex gap-4 mb-6 border-b border-neutral-700/50">
+      <div className="flex gap-4 mb-6 border-b border-neutral-700/50 overflow-x-auto pb-1">
         <button
           onClick={() => setActiveTab("dashboard")}
-          className={`pb-3 px-1 text-sm font-medium transition-colors border-b-2 -mb-px flex items-center gap-2 ${
+          className={`pb-3 px-1 text-sm font-medium transition-colors border-b-2 -mb-px flex items-center gap-2 whitespace-nowrap ${
             activeTab === "dashboard"
               ? "border-white text-white"
               : "border-transparent text-neutral-500 hover:text-neutral-300"
@@ -301,7 +304,7 @@ export function ProjectDetailClient({
         </button>
         <button
           onClick={() => setActiveTab("issues")}
-          className={`pb-3 px-1 text-sm font-medium transition-colors border-b-2 -mb-px flex items-center gap-2 ${
+          className={`pb-3 px-1 text-sm font-medium transition-colors border-b-2 -mb-px flex items-center gap-2 whitespace-nowrap ${
             activeTab === "issues"
               ? "border-white text-white"
               : "border-transparent text-neutral-500 hover:text-neutral-300"
@@ -312,7 +315,7 @@ export function ProjectDetailClient({
         </button>
         <button
           onClick={() => setActiveTab("board")}
-          className={`pb-3 px-1 text-sm font-medium transition-colors border-b-2 -mb-px flex items-center gap-2 ${
+          className={`pb-3 px-1 text-sm font-medium transition-colors border-b-2 -mb-px flex items-center gap-2 whitespace-nowrap ${
             activeTab === "board"
               ? "border-white text-white"
               : "border-transparent text-neutral-500 hover:text-neutral-300"
@@ -324,7 +327,7 @@ export function ProjectDetailClient({
         {canEdit && (
           <button
             onClick={() => setActiveTab("settings")}
-            className={`pb-3 px-1 text-sm font-medium transition-colors border-b-2 -mb-px flex items-center gap-2 ${
+            className={`pb-3 px-1 text-sm font-medium transition-colors border-b-2 -mb-px flex items-center gap-2 whitespace-nowrap ${
               activeTab === "settings"
                 ? "border-white text-white"
                 : "border-transparent text-neutral-500 hover:text-neutral-300"

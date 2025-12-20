@@ -332,13 +332,13 @@ export function IssueDetailClient({
       <div className="lg:col-span-2 space-y-6">
         {/* Header */}
         <div className="bg-neutral-900 rounded-xl border border-neutral-700/50 p-6">
-          <div className="flex items-start justify-between">
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-2">
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+            <div className="flex-1 min-w-0">
+              <div className="flex flex-wrap items-center gap-2 mb-2">
                 <span
                   className={`px-2 py-1 rounded text-xs font-medium ${
                     statusOptions.find((s) => s.value === issue.status)?.color
-                  } text-white`}
+                  } text-white shrink-0`}
                 >
                   {statusOptions.find((s) => s.value === issue.status)?.label}
                 </span>
@@ -348,7 +348,7 @@ export function IssueDetailClient({
                   );
                   return (
                     <span
-                      className={`px-2 py-1 rounded text-xs font-medium border ${priorityOption?.color} ${priorityOption?.textColor} ${priorityOption?.borderColor}`}
+                      className={`px-2 py-1 rounded text-xs font-medium border ${priorityOption?.color} ${priorityOption?.textColor} ${priorityOption?.borderColor} shrink-0`}
                     >
                       {priorityOption?.label} Priority
                     </span>
@@ -360,7 +360,7 @@ export function IssueDetailClient({
               {isEditingTitle ? (
                 <form
                   action={handleUpdateIssue}
-                  className="flex items-center gap-2"
+                  className="flex flex-col sm:flex-row items-start sm:items-center gap-2"
                 >
                   <input type="hidden" name="issueId" value={issue.id} />
                   <input
@@ -380,35 +380,37 @@ export function IssueDetailClient({
                     name="title"
                     value={editTitle}
                     onChange={(e) => setEditTitle(e.target.value)}
-                    className="flex-1 text-2xl font-bold bg-neutral-800 border border-neutral-600 rounded-lg px-3 py-1 text-white focus:outline-none focus:ring-2 focus:ring-violet-500/50"
+                    className="w-full sm:flex-1 text-2xl font-bold bg-neutral-800 border border-neutral-600 rounded-lg px-3 py-1 text-white focus:outline-none focus:ring-2 focus:ring-violet-500/50"
                     maxLength={200}
                   />
-                  <Button
-                    type="submit"
-                    size="sm"
-                    disabled={isUpdating || !editTitle.trim()}
-                  >
-                    {isUpdating ? "..." : "Save"}
-                  </Button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsEditingTitle(false);
-                      setEditTitle(issue.title);
-                    }}
-                    className="p-1.5 rounded-lg hover:bg-neutral-700 text-neutral-400 hover:text-white transition-colors"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
+                  <div className="flex items-center gap-2 mt-2 sm:mt-0">
+                    <Button
+                      type="submit"
+                      size="sm"
+                      disabled={isUpdating || !editTitle.trim()}
+                    >
+                      {isUpdating ? "..." : "Save"}
+                    </Button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsEditingTitle(false);
+                        setEditTitle(issue.title);
+                      }}
+                      className="p-1.5 rounded-lg hover:bg-neutral-700 text-neutral-400 hover:text-white transition-colors"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
                 </form>
               ) : (
-                <div className="group flex items-center gap-2">
-                  <h1 className="text-2xl font-bold text-white">
+                <div className="group flex items-start gap-2">
+                  <h1 className="text-2xl font-bold text-white break-words">
                     {issue.title}
                   </h1>
                   <button
                     onClick={() => setIsEditingTitle(true)}
-                    className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg hover:bg-neutral-700 text-neutral-400 hover:text-white transition-all"
+                    className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg hover:bg-neutral-700 text-neutral-400 hover:text-white transition-all shrink-0 mt-1"
                     title="Edit title"
                   >
                     <Pencil className="w-4 h-4" />
@@ -421,7 +423,7 @@ export function IssueDetailClient({
               )}
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 self-end sm:self-auto">
               <form action={deleteAction}>
                 <input type="hidden" name="issueId" value={issue.id} />
                 <Button

@@ -93,7 +93,7 @@ export function PendingInvitations({ invitations }: PendingInvitationsProps) {
             key={invite.id}
             className="bg-neutral-900/50 border border-neutral-700/50 rounded-lg p-4"
           >
-            <div className="flex items-start justify-between gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
               <div className="flex items-start gap-3 min-w-0">
                 <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center shrink-0">
                   <Users className="w-5 h-5 text-purple-400" />
@@ -118,7 +118,7 @@ export function PendingInvitations({ invitations }: PendingInvitationsProps) {
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 shrink-0">
+              <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
                 <button
                   onClick={() => handleRespond(invite.id, "decline")}
                   disabled={isPending}

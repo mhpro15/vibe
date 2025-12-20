@@ -190,63 +190,65 @@ export function TeamDetailClient({
       </div>
 
       {/* Team Header */}
-      <div className="flex items-start justify-between mb-8">
+      <div className="flex flex-col sm:flex-row items-start justify-between gap-4 mb-8">
         <div className="flex items-center gap-4">
-          <div className={`w-16 h-16 rounded-xl bg-linear-to-br ${getTeamColor(team.name)} border flex items-center justify-center`}>
+          <div className={`w-16 h-16 rounded-xl bg-linear-to-br ${getTeamColor(team.name)} border flex items-center justify-center shrink-0`}>
             <Users className="w-8 h-8 text-violet-400" />
           </div>
-          <div>
+          <div className="min-w-0">
             {isEditing ? (
-              <div className="flex items-center gap-2">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
                 <input
                   type="text"
                   value={teamName}
                   onChange={(e) => setTeamName(e.target.value)}
-                  className="text-2xl font-bold bg-transparent border-b-2 border-violet-500/50 focus:border-violet-400 focus:outline-none text-white"
+                  className="text-2xl font-bold bg-transparent border-b-2 border-violet-500/50 focus:border-violet-400 focus:outline-none text-white w-full sm:w-auto"
                   autoFocus
                 />
-                <Button
-                  size="sm"
-                  onClick={handleUpdateName}
-                  isLoading={isUpdating}
-                >
-                  Save
-                </Button>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => {
-                    setIsEditing(false);
-                    setTeamName(team.name);
-                  }}
-                >
-                  Cancel
-                </Button>
+                <div className="flex items-center gap-2 mt-2 sm:mt-0">
+                  <Button
+                    size="sm"
+                    onClick={handleUpdateName}
+                    isLoading={isUpdating}
+                  >
+                    Save
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => {
+                      setIsEditing(false);
+                      setTeamName(team.name);
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                </div>
               </div>
             ) : (
               <div className="flex items-center gap-2">
-                <h1 className="text-2xl font-bold text-white">{team.name}</h1>
+                <h1 className="text-2xl font-bold text-white break-words">{team.name}</h1>
                 {canEdit && (
                   <button
                     onClick={() => setIsEditing(true)}
-                    className="p-1.5 text-neutral-500 hover:text-white hover:bg-neutral-800 rounded-lg transition-colors"
+                    className="p-1.5 text-neutral-500 hover:text-white hover:bg-neutral-800 rounded-lg transition-colors shrink-0"
                   >
                     <Pencil className="w-4 h-4" />
                   </button>
                 )}
               </div>
             )}
-            <div className="flex items-center gap-4 mt-2 text-sm text-neutral-400">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-2 text-sm text-neutral-400">
               <span className="flex items-center gap-1.5">
                 <Users className="w-4 h-4" />
                 {team.memberCount} members
               </span>
-              <span className="text-neutral-600">•</span>
+              <span className="hidden sm:inline text-neutral-600">•</span>
               <span className="flex items-center gap-1.5">
                 <Layers className="w-4 h-4" />
                 {team.projectCount} projects
               </span>
-              <span className="text-neutral-600">•</span>
+              <span className="hidden sm:inline text-neutral-600">•</span>
               <span className="flex items-center gap-1.5">
                 <Calendar className="w-4 h-4" />
                 Created {new Date(team.createdAt).toLocaleDateString()}
@@ -255,17 +257,18 @@ export function TeamDetailClient({
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
           {canInvite && (
             <>
               <Button
                 onClick={() => setIsCreateProjectModalOpen(true)}
                 variant="outline"
+                className="flex-1 sm:flex-none"
               >
                 <Plus className="w-4 h-4 mr-2" />
                 New Project
               </Button>
-              <Button onClick={() => setIsInviteModalOpen(true)}>
+              <Button onClick={() => setIsInviteModalOpen(true)} className="flex-1 sm:flex-none">
                 <UserPlus className="w-4 h-4 mr-2" />
                 Invite Member
               </Button>
@@ -276,6 +279,7 @@ export function TeamDetailClient({
               variant="outline"
               onClick={handleLeaveTeam}
               isLoading={isLeaving}
+              className="flex-1 sm:flex-none"
             >
               <LogOut className="w-4 h-4 mr-2" />
               Leave Team
@@ -286,6 +290,7 @@ export function TeamDetailClient({
               variant="danger"
               onClick={handleDeleteTeam}
               isLoading={isDeleting}
+              className="flex-1 sm:flex-none"
             >
               <Trash2 className="w-4 h-4 mr-2" />
               Delete Team
@@ -295,7 +300,7 @@ export function TeamDetailClient({
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-4 mb-6 border-b border-neutral-700/50">
+      <div className="flex gap-4 mb-6 border-b border-neutral-700/50 overflow-x-auto whitespace-nowrap pb-1">
         <button
           onClick={() => setActiveTab("members")}
           className={`pb-3 px-1 text-sm font-medium transition-colors border-b-2 -mb-px flex items-center gap-2 ${
