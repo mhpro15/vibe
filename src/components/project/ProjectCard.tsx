@@ -63,7 +63,7 @@ export function ProjectCard({
                   {project.name}
                 </h3>
                 {project.isArchived && (
-                  <Archive className="w-3 h-3 text-neutral-500 shrink-0" title="Archived" />
+                  <Archive className="w-3 h-3 text-neutral-500 shrink-0" />
                 )}
               </div>
               {showTeam && (
