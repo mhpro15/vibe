@@ -7,11 +7,11 @@ import {
 import { Badge } from "@/components/ui/Badge";
 import {
   SubtasksList,
-  AIFeatures,
   IssueHeader,
   IssueDescription,
   IssueSidebar,
   IssueCommentsSection,
+  ActivityHistory,
 } from "@/components/issue";
 import {
   deleteIssueAction,
@@ -20,6 +20,7 @@ import {
   updateIssueAction,
   IssueActionResult,
 } from "@/lib/actions/issue";
+import { IssueActivityType } from "@/generated/prisma/client";
 
 interface Label {
   id: string;
@@ -44,6 +45,18 @@ interface Subtask {
   title: string;
   isCompleted: boolean;
   position: number;
+}
+
+interface Activity {
+  id: string;
+  type: IssueActivityType;
+  details: any;
+  createdAt: Date;
+  user: {
+    id: string;
+    name: string;
+    image?: string | null;
+  };
 }
 
 interface Issue {
@@ -75,6 +88,7 @@ interface Issue {
   } | null;
   labels: Label[];
   comments: Comment[];
+  activities: Activity[];
 }
 
 interface IssueDetailClientProps {
@@ -252,15 +266,6 @@ export function IssueDetailClient({
           />
         </div>
 
-        {/* AI Features */}
-        <AIFeatures
-          issueId={issue.id}
-          descriptionLength={issue.description?.length || 0}
-          commentCount={issue.comments.length}
-          cachedSummary={issue.aiSummary}
-          cachedSuggestion={issue.aiSuggestion}
-        />
-
         {/* Subtasks */}
         <SubtasksList issueId={issue.id} subtasks={subtasks} />
 
@@ -273,11 +278,15 @@ export function IssueDetailClient({
           commentAction={handleAddComment}
           commentState={commentState}
         />
+
+        {/* Activity History */}
+        <ActivityHistory activities={issue.activities} />
       </div>
 
       {/* Sidebar - Mobile: Horizontal cards, Desktop: Vertical stack */}
       <IssueSidebar
         issue={issue}
+        commentCount={issue.comments.length}
         teamMembers={teamMembers}
         statusOptions={statusOptions}
         priorityOptions={priorityOptions}

@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/Button";
 import { Pencil } from "lucide-react";
+import { IssueActionResult } from "@/lib/actions/issue";
 
 interface Issue {
   id: string;
@@ -16,7 +17,7 @@ interface IssueDescriptionProps {
   issue: Issue;
   isUpdating: boolean;
   updateAction: (formData: FormData) => void;
-  updateState: { success: boolean; error?: string };
+  updateState: IssueActionResult;
 }
 
 export function IssueDescription({
@@ -38,10 +39,14 @@ export function IssueDescription({
   }, [isEditingDescription]);
 
   useEffect(() => {
-    if (updateState.success) {
+    if (updateState.success && updateState.source === "description") {
       setIsEditingDescription(false);
     }
-  }, [updateState.success]);
+  }, [updateState]);
+
+  useEffect(() => {
+    setEditDescription(issue.description || "");
+  }, [issue.description]);
 
   return (
     <div className="mt-3 md:mt-4">
@@ -63,6 +68,7 @@ export function IssueDescription({
       {isEditingDescription ? (
         <form action={updateAction} className="space-y-2">
           <input type="hidden" name="issueId" value={issue.id} />
+          <input type="hidden" name="updateSource" value="description" />
           <input type="hidden" name="title" value={issue.title} />
           <input type="hidden" name="priority" value={issue.priority} />
           <input

@@ -1,6 +1,7 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
+import { IssueActivityType } from "@/generated/prisma/client";
 
 /**
  * Result type for issue actions
@@ -8,6 +9,7 @@ import { prisma } from "@/lib/prisma";
 export type IssueActionResult = {
   success: boolean;
   error?: string;
+  source?: string;
   data?: {
     issueId?: string;
     commentId?: string;
@@ -59,6 +61,25 @@ export async function logIssueChange(
       field,
       oldValue,
       newValue,
+    },
+  });
+}
+
+/**
+ * Log an issue activity
+ */
+export async function logIssueActivity(
+  issueId: string,
+  userId: string,
+  type: IssueActivityType,
+  details?: any
+) {
+  await prisma.issueActivity.create({
+    data: {
+      issueId,
+      userId,
+      type,
+      details: details || {},
     },
   });
 }

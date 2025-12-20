@@ -40,6 +40,7 @@ model User {
   teamInvitesSent  TeamInvite[]     @relation("InviteSender")
   teamInvitesReceived TeamInvite[]  @relation("InviteRecipient")
   issueChanges    IssueChange[]
+  issueActivities IssueActivity[]
   teamActivityLogs TeamActivityLog[]
   teamActivityTargets TeamActivityLog[] @relation("TeamActivityTarget")
 
@@ -262,6 +263,7 @@ model Issue {
   subtasks  Subtask[]
   comments  Comment[]
   changes   IssueChange[]
+  activities IssueActivity[]
 
   @@map("issue")
 }
@@ -334,6 +336,34 @@ model IssueChange {
   createdAt    DateTime @default(now())
 
   @@map("issue_change")
+}
+
+enum IssueActivityType {
+  ISSUE_CREATED
+  ISSUE_UPDATED
+  STATUS_CHANGED
+  PRIORITY_CHANGED
+  ASSIGNEE_CHANGED
+  COMMENT_ADDED
+  COMMENT_DELETED
+  SUBTASK_ADDED
+  SUBTASK_TOGGLED
+  SUBTASK_DELETED
+  LABEL_ADDED
+  LABEL_REMOVED
+}
+
+model IssueActivity {
+  id        String            @id @default(cuid())
+  issueId   String
+  issue     Issue             @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User              @relation(fields: [userId], references: [id])
+  type      IssueActivityType
+  details   Json?             // Additional context like { from: "TODO", to: "DONE" }
+  createdAt DateTime          @default(now())
+
+  @@map("issue_activity")
 }
 
 // ============================================

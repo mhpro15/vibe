@@ -3,7 +3,12 @@
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/actions/auth";
 import { revalidatePath } from "next/cache";
-import { IssueActionResult, isTeamMember, logIssueChange } from "./helpers";
+import {
+  IssueActionResult,
+  isTeamMember,
+  logIssueChange,
+  logIssueActivity,
+} from "./helpers";
 import { notifyCommentAdded } from "@/lib/actions/notification";
 
 // FR-036: Add Comment
@@ -55,6 +60,10 @@ export async function addCommentAction(
       null,
       comment.id
     );
+    await logIssueActivity(issueId, session.user.id, "COMMENT_ADDED", {
+      commentId: comment.id,
+      content: content.substring(0, 50) + (content.length > 50 ? "..." : ""),
+    });
 
     // Notify issue creator and assignee about the comment
     const usersToNotify: string[] = [];
@@ -166,6 +175,10 @@ export async function deleteCommentAction(
     await prisma.comment.update({
       where: { id: commentId },
       data: { deletedAt: new Date() },
+    });
+
+    await logIssueActivity(comment.issueId, session.user.id, "COMMENT_DELETED", {
+      commentId: comment.id,
     });
 
     revalidatePath(

@@ -4,7 +4,12 @@ import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/actions/auth";
 import { revalidatePath } from "next/cache";
 import { IssueStatus, IssuePriority } from "@/generated/prisma/client";
-import { IssueActionResult, isTeamMember, logIssueChange } from "./helpers";
+import {
+  IssueActionResult,
+  isTeamMember,
+  logIssueChange,
+  logIssueActivity,
+} from "./helpers";
 import { notifyIssueAssigned } from "@/lib/actions/notification";
 import { sendIssueAssignedEmail } from "@/lib/email";
 
@@ -274,7 +279,17 @@ export async function changeStatusAction(
     }
 
     if (statusChanged) {
-      await logIssueChange(issueId, session.user.id, "status", String(oldStatus), String(newStatus));
+      await logIssueChange(
+        issueId,
+        session.user.id,
+        "status",
+        String(oldStatus),
+        String(newStatus)
+      );
+      await logIssueActivity(issueId, session.user.id, "STATUS_CHANGED", {
+        from: oldStatus,
+        to: newStatus,
+      });
     }
 
     revalidatePath(`/projects/${issue.projectId}`);
@@ -350,6 +365,25 @@ export async function updateLabelsAction(
       oldLabels || null,
       newLabelsStr || null
     );
+
+    // Log activity
+    const oldLabelNames = issue.labels.map((l) => l.label.name);
+    const newLabelNames = newLabels.map((l) => l.name);
+
+    const added = newLabelNames.filter((n) => !oldLabelNames.includes(n));
+    const removed = oldLabelNames.filter((n) => !newLabelNames.includes(n));
+
+    for (const labelName of added) {
+      await logIssueActivity(issueId, session.user.id, "LABEL_ADDED", {
+        labelName,
+      });
+    }
+
+    for (const labelName of removed) {
+      await logIssueActivity(issueId, session.user.id, "LABEL_REMOVED", {
+        labelName,
+      });
+    }
 
     revalidatePath(`/projects/${issue.projectId}`);
     revalidatePath(`/projects/${issue.projectId}/issues/${issueId}`);

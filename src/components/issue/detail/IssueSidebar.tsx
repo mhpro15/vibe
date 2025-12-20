@@ -11,6 +11,7 @@ import {
   Pencil,
   ChevronDown,
 } from "lucide-react";
+import { AIFeatures } from "../AIFeatures";
 
 interface Label {
   id: string;
@@ -26,6 +27,8 @@ interface Issue {
   priority: string;
   dueDate: Date | null;
   createdAt: Date;
+  aiSummary?: string | null;
+  aiSuggestion?: string | null;
   assignee: {
     id: string;
     name: string;
@@ -40,6 +43,7 @@ interface Issue {
 
 interface IssueSidebarProps {
   issue: Issue;
+  commentCount: number;
   teamMembers: Array<{
     id: string;
     name: string | null;
@@ -61,6 +65,7 @@ interface IssueSidebarProps {
 
 export function IssueSidebar({
   issue,
+  commentCount,
   teamMembers,
   statusOptions,
   priorityOptions,
@@ -462,6 +467,17 @@ export function IssueSidebar({
           </div>
         </div>
       </div>
+
+        {/* AI Features */}
+        <div className="mt-4">
+          <AIFeatures
+            issueId={issue.id}
+            descriptionLength={issue.description?.length || 0}
+            commentCount={commentCount}
+            cachedSummary={issue.aiSummary}
+            cachedSuggestion={issue.aiSuggestion}
+          />
+        </div>
     </div>
   );
 }

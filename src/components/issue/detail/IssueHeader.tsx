@@ -61,10 +61,14 @@ export function IssueHeader({
   }, [isEditingTitle]);
 
   useEffect(() => {
-    if (updateState.success) {
+    if (updateState.success && updateState.source === "title") {
       setIsEditingTitle(false);
     }
-  }, [updateState.success]);
+  }, [updateState]);
+
+  useEffect(() => {
+    setEditTitle(issue.title);
+  }, [issue.title]);
 
   const handleUpdateTitle = async (formData: FormData) => {
     await updateAction(formData);
@@ -112,6 +116,7 @@ export function IssueHeader({
         {isEditingTitle ? (
           <form action={handleUpdateTitle} className="flex flex-col gap-2">
             <input type="hidden" name="issueId" value={issue.id} />
+            <input type="hidden" name="updateSource" value="title" />
             <input
               type="hidden"
               name="description"

@@ -44,6 +44,14 @@ export async function getIssueById(issueId: string) {
       subtasks: {
         orderBy: { position: "asc" },
       },
+      activities: {
+        include: {
+          user: {
+            select: { id: true, name: true, image: true },
+          },
+        },
+        orderBy: { createdAt: "desc" },
+      },
     },
   });
 

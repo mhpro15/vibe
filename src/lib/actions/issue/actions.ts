@@ -3,12 +3,13 @@
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/actions/auth";
 import { revalidatePath } from "next/cache";
-import { IssuePriority } from "@/generated/prisma/client";
+import { IssuePriority, IssueActivityType } from "@/generated/prisma/client";
 import {
   IssueActionResult,
   isTeamMember,
   getProjectTeamId,
   logIssueChange,
+  logIssueActivity,
 } from "./helpers";
 import { notifyIssueAssigned } from "@/lib/actions/notification";
 import { sendIssueAssignedEmail } from "@/lib/email";
@@ -83,6 +84,7 @@ export async function createIssueAction(
 
     // Log creation
     await logIssueChange(issue.id, session.user.id, "created", null, title);
+    await logIssueActivity(issue.id, session.user.id, "ISSUE_CREATED", { title });
 
     // Notify assignee if different from creator
     if (assigneeId && assigneeId !== session.user.id) {
@@ -149,19 +151,23 @@ export async function updateIssueAction(
   const assigneeId =
     assigneeIdStr && assigneeIdStr.trim() !== "" ? assigneeIdStr : null;
 
-  // Validate
-  if (!title || title.length < 1 || title.length > 200) {
-    return {
-      success: false,
-      error: "Issue title must be between 1 and 200 characters",
-    };
+  // Validate only if present
+  if (formData.has("title")) {
+    if (!title || title.length < 1 || title.length > 200) {
+      return {
+        success: false,
+        error: "Issue title must be between 1 and 200 characters",
+      };
+    }
   }
 
-  if (description && description.length > 5000) {
-    return {
-      success: false,
-      error: "Description must be less than 5000 characters",
-    };
+  if (formData.has("description")) {
+    if (description && description.length > 5000) {
+      return {
+        success: false,
+        error: "Description must be less than 5000 characters",
+      };
+    }
   }
 
   // Get issue and check permissions
@@ -193,16 +199,20 @@ export async function updateIssueAction(
     await prisma.issue.update({
       where: { id: issueId },
       data: {
-        title,
-        description,
-        priority,
-        dueDate: dueDate ? new Date(dueDate) : null,
-        assigneeId: assigneeId || null,
+        title: formData.has("title") ? title : undefined,
+        description: formData.has("description") ? description : undefined,
+        priority: formData.has("priority") ? priority : undefined,
+        dueDate: formData.has("dueDate")
+          ? dueDate
+            ? new Date(dueDate)
+            : null
+          : undefined,
+        assigneeId: formData.has("assigneeId") ? assigneeId || null : undefined,
       },
     });
 
     // Log changes
-    if (oldIssue?.title !== title) {
+    if (formData.has("title") && oldIssue?.title !== title) {
       await logIssueChange(
         issueId,
         session.user.id,
@@ -210,8 +220,13 @@ export async function updateIssueAction(
         oldIssue?.title || null,
         title
       );
+      await logIssueActivity(issueId, session.user.id, "ISSUE_UPDATED", {
+        field: "title",
+        from: oldIssue?.title,
+        to: title,
+      });
     }
-    if (oldIssue?.description !== description) {
+    if (formData.has("description") && oldIssue?.description !== description) {
       await logIssueChange(
         issueId,
         session.user.id,
@@ -219,8 +234,11 @@ export async function updateIssueAction(
         oldIssue?.description || null,
         description || null
       );
+      await logIssueActivity(issueId, session.user.id, "ISSUE_UPDATED", {
+        field: "description",
+      });
     }
-    if (oldIssue?.priority !== priority) {
+    if (formData.has("priority") && oldIssue?.priority !== priority) {
       await logIssueChange(
         issueId,
         session.user.id,
@@ -228,8 +246,25 @@ export async function updateIssueAction(
         oldIssue?.priority || null,
         priority
       );
+      await logIssueActivity(issueId, session.user.id, "PRIORITY_CHANGED", {
+        from: oldIssue?.priority,
+        to: priority,
+      });
     }
-    if (oldIssue?.assigneeId !== (assigneeId || null)) {
+    if (
+      formData.has("assigneeId") &&
+      oldIssue?.assigneeId !== (assigneeId || null)
+    ) {
+      // Get names for activity log
+      let toName = "Unassigned";
+      if (assigneeId) {
+        const toUser = await prisma.user.findUnique({
+          where: { id: assigneeId },
+          select: { name: true },
+        });
+        toName = toUser?.name || "Unknown";
+      }
+
       await logIssueChange(
         issueId,
         session.user.id,
@@ -237,6 +272,10 @@ export async function updateIssueAction(
         oldIssue?.assigneeId || null,
         assigneeId || null
       );
+      await logIssueActivity(issueId, session.user.id, "ASSIGNEE_CHANGED", {
+        from: oldIssue?.assigneeId, // Keep ID for reference if needed, but we'll use 'to' name
+        to: toName,
+      });
 
       // Notify new assignee if they're different from the person editing
       if (assigneeId && assigneeId !== session.user.id) {
@@ -244,7 +283,7 @@ export async function updateIssueAction(
         await notifyIssueAssigned(
           assigneeId,
           issueId,
-          title,
+          title || oldIssue?.title || "Issue",
           issue.projectId,
           session.user.name || "Someone"
         );
@@ -265,7 +304,7 @@ export async function updateIssueAction(
           await sendIssueAssignedEmail(
             assignee.email,
             session.user.name || "Someone",
-            title,
+            title || oldIssue?.title || "Issue",
             project?.name || "a project",
             issueUrl
           );
@@ -276,7 +315,7 @@ export async function updateIssueAction(
     revalidatePath(`/projects/${issue.projectId}`);
     revalidatePath(`/projects/${issue.projectId}/issues/${issueId}`);
 
-    return { success: true };
+    return { success: true, source: (formData.get("updateSource") as string) || undefined };
   } catch (error) {
     console.error("Update issue error:", error);
     return { success: false, error: "Failed to update issue" };

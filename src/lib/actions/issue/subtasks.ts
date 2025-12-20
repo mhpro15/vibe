@@ -3,7 +3,12 @@
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/actions/auth";
 import { revalidatePath } from "next/cache";
-import { IssueActionResult, isTeamMember, logIssueChange } from "./helpers";
+import {
+  IssueActionResult,
+  isTeamMember,
+  logIssueChange,
+  logIssueActivity,
+} from "./helpers";
 
 // FR-039: Add Subtask
 export async function addSubtaskAction(
@@ -61,6 +66,10 @@ export async function addSubtaskAction(
       null,
       title
     );
+    await logIssueActivity(issueId, session.user.id, "SUBTASK_ADDED", {
+      title,
+      subtaskId: subtask.id,
+    });
 
     revalidatePath(`/projects/${issue.projectId}/issues/${issueId}`);
 
@@ -111,6 +120,11 @@ export async function toggleSubtaskAction(
       subtask.isCompleted ? "completed" : "incomplete",
       !subtask.isCompleted ? "completed" : "incomplete"
     );
+    await logIssueActivity(subtask.issueId, session.user.id, "SUBTASK_TOGGLED", {
+      subtaskId,
+      title: subtask.title,
+      isCompleted: !subtask.isCompleted,
+    });
 
     revalidatePath(
       `/projects/${subtask.issue.project.id}/issues/${subtask.issueId}`
@@ -162,6 +176,9 @@ export async function deleteSubtaskAction(
       subtask.title,
       null
     );
+    await logIssueActivity(subtask.issueId, session.user.id, "SUBTASK_DELETED", {
+      title: subtask.title,
+    });
 
     revalidatePath(
       `/projects/${subtask.issue.project.id}/issues/${subtask.issueId}`
