@@ -17,6 +17,7 @@ export async function GET(request: NextRequest) {
     }
 
     const searchTerm = query.trim();
+    console.log(`Searching for: "${searchTerm}" for user: ${session.user.id}`);
 
     // Get user's team memberships to filter results
     const userTeamIds = await prisma.teamMember
@@ -78,7 +79,6 @@ export async function GET(request: NextRequest) {
         id: { in: userTeamIds },
         OR: [
           { name: { contains: searchTerm, mode: "insensitive" } },
-          { description: { contains: searchTerm, mode: "insensitive" } },
         ],
       },
       take: 5,
