@@ -290,8 +290,8 @@ export default async function DashboardPage() {
   return (
     <div className="w-full">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-xl font-medium text-white mb-1">
+      <div className="mb-4 md:mb-6">
+        <h1 className="text-lg md:text-xl font-medium text-white mb-0.5">
           Good{" "}
           {new Date().getHours() < 12
             ? "morning"
@@ -300,7 +300,7 @@ export default async function DashboardPage() {
             : "evening"}
           , {session.user.name?.split(" ")[0]}
         </h1>
-        <p className="text-sm text-neutral-500">
+        <p className="text-xs md:text-sm text-neutral-500">
           {new Date().toLocaleDateString("en-US", {
             weekday: "long",
             month: "long",
@@ -311,61 +311,102 @@ export default async function DashboardPage() {
 
       {/* Pending Invitations */}
       {pendingInvitations.length > 0 && (
-        <div className="mb-6">
+        <div className="mb-4 md:mb-6">
           <PendingInvitations invitations={pendingInvitations} />
         </div>
       )}
 
-      {/* Quick Stats Row */}
-      <div className="flex flex-wrap items-center gap-4 mb-8 text-sm">
-        <div className="flex items-center gap-2 bg-neutral-900 border border-neutral-700/50 rounded-lg px-4 py-2.5">
-          <div className="w-2 h-2 rounded-full bg-violet-500"></div>
-          <span className="text-neutral-400">In Progress</span>
-          <span className="text-white font-medium">
-            {inProgressIssues.length}
-          </span>
-        </div>
-        <div className="flex items-center gap-2 bg-neutral-900 border border-neutral-700/50 rounded-lg px-4 py-2.5">
-          <div className="w-2 h-2 rounded-full bg-neutral-500"></div>
-          <span className="text-neutral-400">Backlog</span>
-          <span className="text-white font-medium">{backlogIssues.length}</span>
-        </div>
-        <div className="flex items-center gap-2 bg-neutral-900 border border-neutral-700/50 rounded-lg px-4 py-2.5">
-          <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
-          <span className="text-neutral-400">Done this week</span>
-          <span className="text-white font-medium">{doneThisWeek.length}</span>
-        </div>
-        {dueTodayIssues.length > 0 && (
-          <div className="flex items-center gap-2 bg-red-900/30 border border-red-700/50 rounded-lg px-4 py-2.5">
-            <Clock className="w-4 h-4 text-red-400" />
-            <span className="text-red-400 font-medium">
-              {dueTodayIssues.length} due today
+      {/* Quick Stats Row - Horizontal scroll on mobile */}
+      <div className="mb-4 md:mb-6 -mx-4 px-4 md:mx-0 md:px-0">
+        <div className="flex gap-2 md:gap-3 overflow-x-auto pb-2 scrollbar-hide">
+          <div className="flex items-center gap-2 bg-neutral-900 border border-neutral-700/50 rounded-lg px-3 py-2 whitespace-nowrap shrink-0">
+            <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-violet-500"></div>
+            <span className="text-neutral-400 text-xs md:text-sm">In Progress</span>
+            <span className="text-white font-medium text-xs md:text-sm">
+              {inProgressIssues.length}
             </span>
           </div>
-        )}
+          <div className="flex items-center gap-2 bg-neutral-900 border border-neutral-700/50 rounded-lg px-3 py-2 whitespace-nowrap shrink-0">
+            <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-neutral-500"></div>
+            <span className="text-neutral-400 text-xs md:text-sm">Backlog</span>
+            <span className="text-white font-medium text-xs md:text-sm">{backlogIssues.length}</span>
+          </div>
+          <div className="flex items-center gap-2 bg-neutral-900 border border-neutral-700/50 rounded-lg px-3 py-2 whitespace-nowrap shrink-0">
+            <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-emerald-500"></div>
+            <span className="text-neutral-400 text-xs md:text-sm">Done this week</span>
+            <span className="text-white font-medium text-xs md:text-sm">{doneThisWeek.length}</span>
+          </div>
+          {dueTodayIssues.length > 0 && (
+            <div className="flex items-center gap-2 bg-red-900/30 border border-red-700/50 rounded-lg px-3 py-2 whitespace-nowrap shrink-0">
+              <Clock className="w-3.5 h-3.5 md:w-4 md:h-4 text-red-400" />
+              <span className="text-red-400 font-medium text-xs md:text-sm">
+                {dueTodayIssues.length} due today
+              </span>
+            </div>
+          )}
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* Mobile: Priority Content First, Desktop: 2-column grid */}
+      <div className="space-y-4 md:space-y-0 md:grid md:grid-cols-1 lg:grid-cols-3 md:gap-4 lg:gap-6">
         {/* Main Content - Issues */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="lg:col-span-2 space-y-3 md:space-y-4 lg:space-y-6">
+          {/* Due Today - Priority #1 on mobile */}
+          {dueTodayIssues.length > 0 && (
+            <section className="bg-red-900/20 border border-red-700/30 rounded-lg md:rounded-xl p-3 md:p-4">
+              <div className="flex items-center gap-1.5 md:gap-2 mb-3 md:mb-4">
+                <Clock className="w-3.5 h-3.5 md:w-4 md:h-4 text-red-400" />
+                <h2 className="text-xs md:text-sm font-medium text-red-400 uppercase tracking-wider">
+                  Due Today
+                </h2>
+              </div>
+              <div className="space-y-1">
+                {dueTodayIssues.map((issue) => (
+                  <Link
+                    key={issue.id}
+                    href={`/projects/${issue.projectId}/issues/${issue.id}`}
+                    className="flex items-center gap-2 md:gap-3 px-2 md:px-3 py-2 md:py-2.5 rounded-lg bg-neutral-800/50 hover:bg-neutral-800 border border-transparent hover:border-red-700/30 transition-all group"
+                  >
+                    <div
+                      className={`w-0.5 md:w-1 h-6 md:h-8 rounded-full ${getStatusColor(
+                        issue.status
+                      )}`}
+                    ></div>
+                    <div className="flex-1 min-w-0">
+                      <span className="text-xs md:text-sm text-white truncate block">
+                        {issue.title}
+                      </span>
+                      <p className="text-[10px] md:text-xs text-neutral-500 mt-0.5">
+                        {issue.project.name}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      {getPriorityIcon(issue.priority)}
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </section>
+          )}
+
           {/* Currently Working On */}
-          <section className="bg-neutral-900/50 border border-neutral-700/50 rounded-xl p-4">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-sm font-medium text-white uppercase tracking-wider">
+          <section className="bg-neutral-900/50 border border-neutral-700/50 rounded-lg md:rounded-xl p-3 md:p-4">
+            <div className="flex items-center justify-between mb-3 md:mb-4">
+              <h2 className="text-xs md:text-sm font-medium text-white uppercase tracking-wider">
                 Currently Working On
               </h2>
               {inProgressIssues.length > 4 && (
-                <span className="text-xs text-neutral-500">
+                <span className="text-[10px] md:text-xs text-neutral-500">
                   +{inProgressIssues.length - 4} more
                 </span>
               )}
             </div>
             {inProgressIssues.length === 0 ? (
-              <div className="border border-dashed border-neutral-700 rounded-lg p-6 text-center">
-                <p className="text-neutral-400 text-sm">
+              <div className="border border-dashed border-neutral-700 rounded-lg p-4 md:p-6 text-center">
+                <p className="text-neutral-400 text-xs md:text-sm">
                   No issues in progress
                 </p>
-                <p className="text-neutral-500 text-xs mt-1">
+                <p className="text-neutral-500 text-[10px] md:text-xs mt-1">
                   Pick something from your backlog to get started
                 </p>
               </div>
@@ -375,24 +416,22 @@ export default async function DashboardPage() {
                   <Link
                     key={issue.id}
                     href={`/projects/${issue.projectId}/issues/${issue.id}`}
-                    className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-neutral-800/50 hover:bg-neutral-800 border border-transparent hover:border-neutral-700/50 transition-all group"
+                    className="flex items-center gap-2 md:gap-3 px-2 md:px-3 py-2 md:py-2.5 rounded-lg bg-neutral-800/50 hover:bg-neutral-800 border border-transparent hover:border-neutral-700/50 transition-all group"
                   >
                     <div
-                      className={`w-1 h-8 rounded-full ${getStatusColor(
+                      className={`w-0.5 md:w-1 h-6 md:h-8 rounded-full ${getStatusColor(
                         issue.status
                       )}`}
                     ></div>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm text-white truncate">
-                          {issue.title}
-                        </span>
-                      </div>
-                      <p className="text-xs text-neutral-500 mt-0.5">
+                      <span className="text-xs md:text-sm text-white truncate block">
+                        {issue.title}
+                      </span>
+                      <p className="text-[10px] md:text-xs text-neutral-500 mt-0.5">
                         {issue.project.name}
                       </p>
                     </div>
-                    <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="hidden md:flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                       {getPriorityIcon(issue.priority)}
                     </div>
                   </Link>
@@ -401,52 +440,12 @@ export default async function DashboardPage() {
             )}
           </section>
 
-          {/* Due Today - Only show if there are issues */}
-          {dueTodayIssues.length > 0 && (
-            <section className="bg-red-900/20 border border-red-700/30 rounded-xl p-4">
-              <div className="flex items-center gap-2 mb-4">
-                <Clock className="w-4 h-4 text-red-400" />
-                <h2 className="text-sm font-medium text-red-400 uppercase tracking-wider">
-                  Due Today
-                </h2>
-              </div>
-              <div className="space-y-1">
-                {dueTodayIssues.map((issue) => (
-                  <Link
-                    key={issue.id}
-                    href={`/projects/${issue.projectId}/issues/${issue.id}`}
-                    className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-neutral-800/50 hover:bg-neutral-800 border border-transparent hover:border-red-700/30 transition-all group"
-                  >
-                    <div
-                      className={`w-1 h-8 rounded-full ${getStatusColor(
-                        issue.status
-                      )}`}
-                    ></div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm text-white truncate">
-                          {issue.title}
-                        </span>
-                      </div>
-                      <p className="text-xs text-neutral-500 mt-0.5">
-                        {issue.project.name}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {getPriorityIcon(issue.priority)}
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </section>
-          )}
-
-          {/* Due This Week - Only show if there are issues */}
+          {/* Due This Week */}
           {dueSoonIssues.length > 0 && (
-            <section className="bg-amber-900/20 border border-amber-700/30 rounded-xl p-4">
-              <div className="flex items-center gap-2 mb-4">
-                <CalendarClock className="w-4 h-4 text-amber-400" />
-                <h2 className="text-sm font-medium text-amber-400 uppercase tracking-wider">
+            <section className="bg-amber-900/20 border border-amber-700/30 rounded-lg md:rounded-xl p-3 md:p-4">
+              <div className="flex items-center gap-1.5 md:gap-2 mb-3 md:mb-4">
+                <CalendarClock className="w-3.5 h-3.5 md:w-4 md:h-4 text-amber-400" />
+                <h2 className="text-xs md:text-sm font-medium text-amber-400 uppercase tracking-wider">
                   Due This Week
                 </h2>
               </div>
@@ -455,25 +454,23 @@ export default async function DashboardPage() {
                   <Link
                     key={issue.id}
                     href={`/projects/${issue.projectId}/issues/${issue.id}`}
-                    className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-neutral-800/50 hover:bg-neutral-800 border border-transparent hover:border-amber-700/30 transition-all group"
+                    className="flex items-center gap-2 md:gap-3 px-2 md:px-3 py-2 md:py-2.5 rounded-lg bg-neutral-800/50 hover:bg-neutral-800 border border-transparent hover:border-amber-700/30 transition-all group"
                   >
                     <div
-                      className={`w-1 h-8 rounded-full ${getStatusColor(
+                      className={`w-0.5 md:w-1 h-6 md:h-8 rounded-full ${getStatusColor(
                         issue.status
                       )}`}
                     ></div>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm text-white truncate">
-                          {issue.title}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2 text-xs text-neutral-500 mt-0.5">
-                        <span>{issue.project.name}</span>
+                      <span className="text-xs md:text-sm text-white truncate block">
+                        {issue.title}
+                      </span>
+                      <div className="flex items-center gap-1.5 md:gap-2 text-[10px] md:text-xs text-neutral-500 mt-0.5">
+                        <span className="truncate">{issue.project.name}</span>
                         {issue.dueDate && (
                           <>
-                            <span>•</span>
-                            <span className="text-amber-400">
+                            <span className="hidden sm:inline">•</span>
+                            <span className="text-amber-400 hidden sm:inline">
                               Due{" "}
                               {new Date(issue.dueDate).toLocaleDateString(
                                 "en-US",
@@ -484,7 +481,7 @@ export default async function DashboardPage() {
                         )}
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="hidden md:flex items-center gap-2">
                       {getPriorityIcon(issue.priority)}
                     </div>
                   </Link>
@@ -494,20 +491,20 @@ export default async function DashboardPage() {
           )}
 
           {/* Up Next */}
-          <section className="bg-neutral-900/50 border border-neutral-700/50 rounded-xl p-4">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-sm font-medium text-white uppercase tracking-wider">
+          <section className="bg-neutral-900/50 border border-neutral-700/50 rounded-lg md:rounded-xl p-3 md:p-4">
+            <div className="flex items-center justify-between mb-3 md:mb-4">
+              <h2 className="text-xs md:text-sm font-medium text-white uppercase tracking-wider">
                 Up Next
               </h2>
               {backlogIssues.length > 5 && (
-                <span className="text-xs text-neutral-500">
+                <span className="text-[10px] md:text-xs text-neutral-500">
                   +{backlogIssues.length - 5} more
                 </span>
               )}
             </div>
             {backlogIssues.length === 0 ? (
-              <div className="border border-dashed border-neutral-700 rounded-lg p-6 text-center">
-                <p className="text-neutral-400 text-sm">
+              <div className="border border-dashed border-neutral-700 rounded-lg p-4 md:p-6 text-center">
+                <p className="text-neutral-400 text-xs md:text-sm">
                   Your backlog is empty
                 </p>
               </div>
@@ -517,24 +514,22 @@ export default async function DashboardPage() {
                   <Link
                     key={issue.id}
                     href={`/projects/${issue.projectId}/issues/${issue.id}`}
-                    className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-neutral-800/50 hover:bg-neutral-800 border border-transparent hover:border-neutral-700/50 transition-all group"
+                    className="flex items-center gap-2 md:gap-3 px-2 md:px-3 py-2 md:py-2.5 rounded-lg bg-neutral-800/50 hover:bg-neutral-800 border border-transparent hover:border-neutral-700/50 transition-all group"
                   >
                     <div
-                      className={`w-1 h-8 rounded-full ${getStatusColor(
+                      className={`w-0.5 md:w-1 h-6 md:h-8 rounded-full ${getStatusColor(
                         issue.status
                       )}`}
                     ></div>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm text-white truncate">
-                          {issue.title}
-                        </span>
-                      </div>
-                      <p className="text-xs text-neutral-500 mt-0.5">
+                      <span className="text-xs md:text-sm text-white truncate block">
+                        {issue.title}
+                      </span>
+                      <p className="text-[10px] md:text-xs text-neutral-500 mt-0.5">
                         {issue.project.name}
                       </p>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="hidden md:flex items-center gap-2">
                       {getPriorityIcon(issue.priority)}
                     </div>
                   </Link>
@@ -543,8 +538,8 @@ export default async function DashboardPage() {
             )}
           </section>
 
-          {/* Recent Activity */}
-          <section className="bg-neutral-900/50 border border-neutral-700/50 rounded-xl p-4">
+          {/* Recent Activity - Hidden on mobile */}
+          <section className="hidden md:block bg-neutral-900/50 border border-neutral-700/50 rounded-xl p-4">
             <h2 className="text-sm font-medium text-white uppercase tracking-wider mb-4">
               Recent Activity
             </h2>
@@ -577,8 +572,8 @@ export default async function DashboardPage() {
             )}
           </section>
 
-          {/* My Recent Comments */}
-          <section className="bg-neutral-900/50 border border-neutral-700/50 rounded-xl p-4">
+          {/* My Recent Comments - Hidden on mobile */}
+          <section className="hidden md:block bg-neutral-900/50 border border-neutral-700/50 rounded-xl p-4">
             <div className="flex items-center gap-2 mb-4">
               <MessageSquare className="w-4 h-4 text-neutral-500" />
               <h2 className="text-sm font-medium text-white uppercase tracking-wider">

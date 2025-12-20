@@ -86,12 +86,12 @@ export function IssueList({
   const showFilters = currentUserId || statusOptions.length > 0;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {/* Filter Bar */}
       {showFilters && (
-        <div className="flex items-center gap-3 flex-wrap">
-          <div className="flex items-center gap-1.5 text-sm text-neutral-400">
-            <Filter className="w-4 h-4" />
+        <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center gap-1 text-xs text-neutral-400">
+            <Filter className="w-3.5 h-3.5" />
             <span>Filters:</span>
           </div>
 
@@ -99,13 +99,13 @@ export function IssueList({
           {currentUserId && (
             <button
               onClick={() => setShowMyIssues(!showMyIssues)}
-              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+              className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium transition-colors ${
                 showMyIssues
                   ? "bg-blue-600 text-white"
                   : "bg-neutral-800 text-neutral-300 hover:bg-neutral-700"
               }`}
             >
-              <User className="w-3.5 h-3.5" />
+              <User className="w-3 h-3" />
               My Issues
             </button>
           )}
@@ -115,7 +115,7 @@ export function IssueList({
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="bg-neutral-800 border border-neutral-700 text-neutral-300 text-sm rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 outline-none"
+              className="bg-neutral-800 border border-neutral-700 text-neutral-300 text-xs rounded-lg px-2.5 py-1 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 outline-none"
             >
               <option value="">All Statuses</option>
               {statusOptions.map((status) => (
@@ -133,16 +133,16 @@ export function IssueList({
                 setShowMyIssues(false);
                 setStatusFilter("");
               }}
-              className="inline-flex items-center gap-1 px-2 py-1.5 rounded-lg text-sm text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800 transition-colors"
+              className="inline-flex items-center gap-0.5 px-2 py-1 rounded-lg text-xs text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800 transition-colors"
             >
-              <X className="w-3.5 h-3.5" />
+              <X className="w-3 h-3" />
               Clear
             </button>
           )}
 
           {/* Results count */}
           {hasActiveFilters && (
-            <span className="text-sm text-neutral-500">
+            <span className="text-xs text-neutral-500">
               {filteredIssues.length} of {issues.length} issues
             </span>
           )}
@@ -151,11 +151,11 @@ export function IssueList({
 
       {/* Empty State */}
       {filteredIssues.length === 0 ? (
-        <div className="text-center py-12">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-neutral-800 border border-neutral-700/50 flex items-center justify-center">
-            <ClipboardList className="w-8 h-8 text-neutral-500" />
+        <div className="text-center py-10">
+          <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-neutral-800 border border-neutral-700/50 flex items-center justify-center">
+            <ClipboardList className="w-6 h-6 text-neutral-500" />
           </div>
-          <h3 className="text-lg font-medium text-white mb-1">
+          <h3 className="text-base font-medium text-white mb-1">
             {hasActiveFilters ? "No issues match filters" : emptyMessage}
           </h3>
           {hasActiveFilters && (
@@ -171,26 +171,26 @@ export function IssueList({
           )}
         </div>
       ) : (
-        <div className="bg-neutral-900 rounded-xl border border-neutral-700/50">
+        <div className="bg-neutral-900 rounded-lg border border-neutral-700/50">
           {/* Header */}
-          <div className="flex items-center gap-3 px-4 py-2 border-b border-neutral-700/50 bg-neutral-800/50 rounded-t-xl">
-            <div className="w-32 text-xs font-medium text-neutral-400 uppercase tracking-wider">
+          <div className="flex items-center gap-3 px-3 py-1.5 border-b border-neutral-700/50 bg-neutral-800/50 rounded-t-lg">
+            <div className="w-28 text-[10px] font-medium text-neutral-400 uppercase tracking-wider">
               Status
             </div>
-            <div className="flex-1 text-xs font-medium text-neutral-400 uppercase tracking-wider">
+            <div className="flex-1 text-[10px] font-medium text-neutral-400 uppercase tracking-wider">
               Issue
             </div>
-            <div className="hidden md:block w-24 text-xs font-medium text-neutral-400 uppercase tracking-wider text-center">
+            <div className="hidden md:block w-20 text-[10px] font-medium text-neutral-400 uppercase tracking-wider text-center">
               Labels
             </div>
-            <div className="hidden sm:block w-20 text-xs font-medium text-neutral-400 uppercase tracking-wider text-center">
+            <div className="hidden sm:block w-16 text-[10px] font-medium text-neutral-400 uppercase tracking-wider text-center">
               Due
             </div>
-            <div className="w-6 text-xs font-medium text-neutral-400 uppercase tracking-wider text-center">
+            <div className="w-6 text-[10px] font-medium text-neutral-400 uppercase tracking-wider text-center">
               Pri
             </div>
-            <div className="w-8 text-xs font-medium text-neutral-400 uppercase tracking-wider text-center"></div>
-            <div className="w-6" /> {/* More options */}
+            <div className="w-7 text-[10px] font-medium text-neutral-400 uppercase tracking-wider text-center"></div>
+            <div className="w-5" /> {/* More options */}
           </div>
 
           {/* Issue rows */}

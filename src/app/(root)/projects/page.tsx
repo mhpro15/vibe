@@ -17,11 +17,11 @@ export default async function ProjectsPage() {
 
   return (
     <div>
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-white">
+      <div className="mb-6">
+        <h1 className="text-xl font-bold text-white">
           Projects
         </h1>
-        <p className="text-neutral-500 mt-1">
+        <p className="text-sm text-neutral-500 mt-0.5">
           View and manage all your projects across teams
         </p>
       </div>

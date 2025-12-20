@@ -50,27 +50,24 @@ export function ProjectCard({
   showTeam = true,
 }: ProjectCardProps) {
   return (
-    <div className="bg-neutral-900 rounded-xl border border-neutral-700/50 p-5 hover:bg-neutral-800 hover:border-neutral-600 transition-all group">
-      <div className="flex items-start justify-between">
+    <div className="bg-neutral-900 rounded-lg border border-neutral-700/50 p-3 hover:bg-neutral-800 hover:border-neutral-600 transition-all group">
+      <div className="flex items-start justify-between gap-2 mb-2">
         <Link href={`/projects/${project.id}`} className="flex-1 min-w-0">
-          <div className="flex items-center gap-3">
-            <div className={`w-10 h-10 rounded-xl bg-linear-to-br ${getProjectColor(project.name)} flex items-center justify-center shadow-lg`}>
-              <Hexagon className="w-5 h-5 text-white/90" />
+          <div className="flex items-center gap-2.5">
+            <div className={`w-8 h-8 rounded-lg bg-linear-to-br ${getProjectColor(project.name)} flex items-center justify-center shadow-lg shrink-0`}>
+              <Hexagon className="w-4 h-4 text-white/90" />
             </div>
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2">
-                <h3 className="font-semibold text-white truncate group-hover:text-neutral-300 transition-colors">
+              <div className="flex items-center gap-1.5">
+                <h3 className="font-semibold text-white text-sm truncate group-hover:text-neutral-300 transition-colors">
                   {project.name}
                 </h3>
                 {project.isArchived && (
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded bg-neutral-700/50 text-neutral-400">
-                    <Archive className="w-3 h-3" />
-                    Archived
-                  </span>
+                  <Archive className="w-3 h-3 text-neutral-500 shrink-0" title="Archived" />
                 )}
               </div>
               {showTeam && (
-                <p className="text-sm text-neutral-500 truncate">
+                <p className="text-xs text-neutral-500 truncate">
                   {project.team.name}
                 </p>
               )}
@@ -84,10 +81,10 @@ export function ProjectCard({
               e.preventDefault();
               onToggleFavorite(project.id);
             }}
-            className="p-2 hover:bg-neutral-700/50 rounded-lg transition-colors"
+            className="p-1 hover:bg-neutral-700/50 rounded transition-colors shrink-0"
           >
             <Star
-              className={`w-5 h-5 transition-colors ${
+              className={`w-4 h-4 transition-colors ${
                 project.isFavorite
                   ? "text-amber-400 fill-current"
                   : "text-neutral-500 hover:text-amber-400"
@@ -98,25 +95,25 @@ export function ProjectCard({
       </div>
 
       {project.description && (
-        <p className="mt-3 text-sm text-neutral-400 line-clamp-2 whitespace-pre-wrap">
+        <p className="text-xs text-neutral-400 line-clamp-1 mb-2 px-0.5">
           {project.description}
         </p>
       )}
 
-      <div className="mt-4 flex items-center justify-between">
-        <div className="flex items-center gap-2">
+      <div className="flex items-center justify-between gap-2 text-xs">
+        <div className="flex items-center gap-1.5 min-w-0">
           <Avatar
             src={project.owner.image}
             name={project.owner.name}
             size="sm"
           />
-          <span className="text-sm text-neutral-500">
+          <span className="text-neutral-500 truncate">
             {project.owner.name}
           </span>
         </div>
-        <div className="flex items-center gap-1.5 text-sm text-neutral-500">
-          <ClipboardList className="w-4 h-4" />
-          <span>{project._count.issues} issues</span>
+        <div className="flex items-center gap-1 text-neutral-500 shrink-0">
+          <ClipboardList className="w-3.5 h-3.5" />
+          <span>{project._count.issues}</span>
         </div>
       </div>
     </div>

@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Avatar } from "@/components/ui/Avatar";
 import { NotificationBell } from "@/components/layout/NotificationBell";
 import { signOut } from "@/lib/auth-client";
-import { Menu } from "lucide-react";
+import { Menu, Search, X } from "lucide-react";
 import { useSidebar } from "./SidebarProvider";
+import Link from "next/link";
 
 interface HeaderProps {
   user: {
@@ -17,11 +18,77 @@ interface HeaderProps {
   };
 }
 
+interface SearchResult {
+  id: string;
+  title: string;
+  type: "issue" | "project" | "team";
+  projectId?: string;
+  teamId?: string;
+  status?: string;
+}
+
 export function Header({ user }: HeaderProps) {
   const router = useRouter();
   const { toggle } = useSidebar();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [showSearchResults, setShowSearchResults] = useState(false);
+  const searchRef = useRef<HTMLDivElement>(null);
+
+  // Close search results when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setShowSearchResults(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Debounced search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (searchQuery.trim()) {
+        performSearch(searchQuery);
+      } else {
+        setSearchResults([]);
+        setShowSearchResults(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  const performSearch = async (query: string) => {
+    setIsSearching(true);
+    try {
+      const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+      if (response.ok) {
+        const results = await response.json();
+        setSearchResults(results);
+        setShowSearchResults(true);
+      }
+    } catch (error) {
+      console.error("Search error:", error);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const clearSearch = () => {
+    setSearchQuery("");
+    setSearchResults([]);
+    setShowSearchResults(false);
+  };
+
+  const handleResultClick = () => {
+    clearSearch();
+  };
 
   const handleSignOut = async () => {
     setIsLoggingOut(true);
@@ -50,26 +117,77 @@ export function Header({ user }: HeaderProps) {
       </button>
 
       {/* Search */}
-      <div className="flex-1 max-w-xl hidden md:block">
+      <div className="flex-1 max-w-xl hidden md:block" ref={searchRef}>
         <div className="relative">
-          <svg
-            className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-            />
-          </svg>
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500" />
           <input
             type="text"
-            placeholder="Search issues, projects..."
-            className="w-full pl-10 pr-4 py-2 rounded-xl border border-neutral-700/50 bg-neutral-800/50 text-white placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-white/20 focus:border-neutral-500 transition-all"
+            placeholder="Search issues, projects, teams..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onFocus={() => searchQuery && setShowSearchResults(true)}
+            className="w-full pl-10 pr-10 py-2 rounded-xl border border-neutral-700/50 bg-neutral-800/50 text-white placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-white/20 focus:border-neutral-500 transition-all"
           />
+          {searchQuery && (
+            <button
+              onClick={clearSearch}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-white transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
+
+          {/* Search Results Dropdown */}
+          {showSearchResults && (
+            <div className="absolute top-full mt-2 w-full bg-neutral-900 border border-neutral-700/50 rounded-xl shadow-2xl shadow-black/40 max-h-96 overflow-y-auto z-50">
+              {isSearching ? (
+                <div className="px-4 py-8 text-center text-neutral-500 text-sm">
+                  Searching...
+                </div>
+              ) : searchResults.length === 0 ? (
+                <div className="px-4 py-8 text-center text-neutral-500 text-sm">
+                  No results found for &quot;{searchQuery}&quot;
+                </div>
+              ) : (
+                <div className="py-2">
+                  {searchResults.map((result) => (
+                    <Link
+                      key={`${result.type}-${result.id}`}
+                      href={
+                        result.type === "issue"
+                          ? `/projects/${result.projectId}/issues/${result.id}`
+                          : result.type === "project"
+                          ? `/projects/${result.id}`
+                          : `/teams/${result.id}`
+                      }
+                      onClick={handleResultClick}
+                      className="flex items-center gap-3 px-4 py-3 hover:bg-neutral-800 transition-colors"
+                    >
+                      <div className={`w-1.5 h-1.5 rounded-full ${
+                        result.type === "issue"
+                          ? result.status === "DONE"
+                            ? "bg-emerald-500"
+                            : result.status === "IN_PROGRESS"
+                            ? "bg-violet-500"
+                            : "bg-neutral-500"
+                          : result.type === "project"
+                          ? "bg-blue-500"
+                          : "bg-amber-500"
+                      }`}></div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm text-white truncate">
+                          {result.title}
+                        </p>
+                        <p className="text-xs text-neutral-500 capitalize">
+                          {result.type}
+                        </p>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
