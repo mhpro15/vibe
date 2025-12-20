@@ -1,6 +1,12 @@
 "use client";
 
-import { useState, useRef, useEffect, useActionState } from "react";
+import {
+  useState,
+  useRef,
+  useEffect,
+  useActionState,
+  useOptimistic,
+} from "react";
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -131,11 +137,27 @@ const priorityOptions = [
 ];
 
 export function IssueDetailClient({
-  issue,
+  issue: initialIssue,
   currentUserId,
   teamMembers,
   subtasks,
 }: IssueDetailClientProps) {
+  const [issue, addOptimisticIssue] = useOptimistic(
+    initialIssue,
+    (
+      state,
+      update: Partial<Issue> | { type: "add_comment"; comment: Comment }
+    ) => {
+      if ("type" in update && update.type === "add_comment") {
+        return {
+          ...state,
+          comments: [...state.comments, update.comment],
+        };
+      }
+      return { ...state, ...(update as Partial<Issue>) };
+    }
+  );
+
   const [, deleteAction, isDeleting] = useActionState(
     deleteIssueAction,
     initialState
@@ -152,6 +174,55 @@ export function IssueDetailClient({
     updateIssueAction,
     initialState
   );
+
+  const handleStatusChange = async (formData: FormData) => {
+    const newStatus = formData.get("status") as string;
+    addOptimisticIssue({ status: newStatus });
+    await statusAction(formData);
+  };
+
+  const handleAddComment = async (formData: FormData) => {
+    const content = formData.get("content") as string;
+    const currentUser = teamMembers.find((m) => m.id === currentUserId);
+
+    const tempComment: Comment = {
+      id: Math.random().toString(),
+      content,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      author: {
+        id: currentUserId,
+        name: currentUser?.name || "You",
+        image: currentUser?.image,
+      },
+    };
+
+    addOptimisticIssue({ type: "add_comment", comment: tempComment });
+    await commentAction(formData);
+  };
+
+  const handleUpdateIssue = async (formData: FormData) => {
+    const title = formData.get("title") as string;
+    const description = formData.get("description") as string;
+    const dueDate = formData.get("dueDate") as string;
+    const assigneeId = formData.get("assigneeId") as string;
+    const priority = formData.get("priority") as string;
+
+    const update: Partial<Issue> = {};
+    if (title) update.title = title;
+    if (description !== null) update.description = description;
+    if (dueDate !== null) update.dueDate = dueDate ? new Date(dueDate) : null;
+    if (assigneeId !== null) {
+      const assignee = teamMembers.find((m) => m.id === assigneeId);
+      update.assignee = assignee
+        ? { id: assignee.id, name: assignee.name || "", image: assignee.image }
+        : null;
+    }
+    if (priority) update.priority = priority;
+
+    addOptimisticIssue(update);
+    await updateAction(formData);
+  };
 
   // Editing states
   const [isEditingTitle, setIsEditingTitle] = useState(false);
@@ -287,7 +358,10 @@ export function IssueDetailClient({
 
               {/* Editable Title */}
               {isEditingTitle ? (
-                <form action={updateAction} className="flex items-center gap-2">
+                <form
+                  action={handleUpdateIssue}
+                  className="flex items-center gap-2"
+                >
                   <input type="hidden" name="issueId" value={issue.id} />
                   <input
                     type="hidden"
@@ -391,7 +465,7 @@ export function IssueDetailClient({
             </div>
 
             {isEditingDescription ? (
-              <form action={updateAction} className="space-y-3">
+              <form action={handleUpdateIssue} className="space-y-3">
                 <input type="hidden" name="issueId" value={issue.id} />
                 <input type="hidden" name="title" value={issue.title} />
                 <input type="hidden" name="priority" value={issue.priority} />
@@ -458,7 +532,7 @@ export function IssueDetailClient({
           {/* Add comment form */}
           <form
             key={formKey}
-            action={commentAction}
+            action={handleAddComment}
             className="mt-6 pt-6 border-t border-neutral-700/50"
           >
             <input type="hidden" name="issueId" value={issue.id} />
@@ -487,7 +561,7 @@ export function IssueDetailClient({
           <h3 className="text-sm font-medium text-neutral-400 mb-3">Status</h3>
           <div className="space-y-2">
             {statusOptions.map((status) => (
-              <form key={status.value} action={statusAction}>
+              <form key={status.value} action={handleStatusChange}>
                 <input type="hidden" name="issueId" value={issue.id} />
                 <input type="hidden" name="status" value={status.value} />
                 <button
@@ -521,7 +595,7 @@ export function IssueDetailClient({
               {/* Hidden form for priority updates */}
               <form
                 ref={priorityFormRef}
-                action={updateAction}
+                action={handleUpdateIssue}
                 className="hidden"
               >
                 <input type="hidden" name="issueId" value={issue.id} />
@@ -605,7 +679,7 @@ export function IssueDetailClient({
               {/* Hidden form for assignee updates */}
               <form
                 ref={assigneeFormRef}
-                action={updateAction}
+                action={handleUpdateIssue}
                 className="hidden"
               >
                 <input type="hidden" name="issueId" value={issue.id} />
@@ -717,7 +791,7 @@ export function IssueDetailClient({
                 Due Date
               </span>
               {isEditingDueDate ? (
-                <form action={updateAction} className="space-y-2">
+                <form action={handleUpdateIssue} className="space-y-2">
                   <input type="hidden" name="issueId" value={issue.id} />
                   <input type="hidden" name="title" value={issue.title} />
                   <input

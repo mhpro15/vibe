@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useOptimistic, useTransition } from "react";
 import { X, Mail, Clock, UserPlus } from "lucide-react";
 import { cancelInviteAction } from "@/lib/actions/team";
 
@@ -24,36 +24,46 @@ interface ManageInvitationsProps {
   onInviteCancelled?: () => void;
 }
 
-export function ManageInvitations({ invitations, onInviteCancelled }: ManageInvitationsProps) {
-  const [localInvitations, setLocalInvitations] = useState(invitations);
+export function ManageInvitations({
+  invitations,
+  onInviteCancelled,
+}: ManageInvitationsProps) {
+  const [optimisticInvitations, removeOptimisticInvitation] = useOptimistic(
+    invitations,
+    (state, inviteId: string) => state.filter((inv) => inv.id !== inviteId)
+  );
+  const [isPending, startTransition] = useTransition();
   const [processingId, setProcessingId] = useState<string | null>(null);
 
-  if (localInvitations.length === 0) {
+  if (optimisticInvitations.length === 0) {
     return null;
   }
 
   async function handleCancel(inviteId: string) {
     if (!confirm("Are you sure you want to cancel this invitation?")) return;
-    
+
     setProcessingId(inviteId);
 
-    try {
-      const formData = new FormData();
-      formData.set("inviteId", inviteId);
+    startTransition(async () => {
+      removeOptimisticInvitation(inviteId);
 
-      const result = await cancelInviteAction({ success: false }, formData);
+      try {
+        const formData = new FormData();
+        formData.set("inviteId", inviteId);
 
-      if (result.success) {
-        setLocalInvitations((prev) => prev.filter((inv) => inv.id !== inviteId));
-        onInviteCancelled?.();
-      } else {
-        alert(result.error || "Failed to cancel invitation");
+        const result = await cancelInviteAction({ success: false }, formData);
+
+        if (result.success) {
+          onInviteCancelled?.();
+        } else {
+          alert(result.error || "Failed to cancel invitation");
+        }
+      } catch {
+        alert("Failed to cancel invitation");
+      } finally {
+        setProcessingId(null);
       }
-    } catch {
-      alert("Failed to cancel invitation");
-    } finally {
-      setProcessingId(null);
-    }
+    });
   }
 
   function formatTimeLeft(expiresAt: Date) {
@@ -61,7 +71,9 @@ export function ManageInvitations({ invitations, onInviteCancelled }: ManageInvi
     const expires = new Date(expiresAt);
     const diffMs = expires.getTime() - now.getTime();
     const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-    const diffHours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const diffHours = Math.floor(
+      (diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+    );
 
     if (diffDays > 0) {
       return `${diffDays}d ${diffHours}h left`;
@@ -80,14 +92,18 @@ export function ManageInvitations({ invitations, onInviteCancelled }: ManageInvi
             <UserPlus className="w-4 h-4 text-amber-400" />
           </div>
           <div>
-            <h3 className="text-base font-semibold text-white">Pending Invitations</h3>
-            <p className="text-xs text-neutral-500">{localInvitations.length} pending</p>
+            <h3 className="text-base font-semibold text-white">
+              Pending Invitations
+            </h3>
+            <p className="text-xs text-neutral-500">
+              {optimisticInvitations.length} pending
+            </p>
           </div>
         </div>
       </div>
 
       <div className="divide-y divide-neutral-800">
-        {localInvitations.map((invite) => (
+        {optimisticInvitations.map((invite) => (
           <div
             key={invite.id}
             className="px-5 py-4 flex items-center justify-between hover:bg-neutral-800/30 transition-colors"

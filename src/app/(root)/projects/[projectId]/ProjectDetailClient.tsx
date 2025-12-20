@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useOptimistic } from "react";
 import Link from "next/link";
 import { Avatar } from "@/components/ui/Avatar";
 import { Button } from "@/components/ui/Button";
@@ -11,7 +11,11 @@ import {
 } from "@/components/project";
 import { IssueList } from "@/components/issue";
 import { toggleFavoriteProjectAction } from "@/lib/actions/project";
-import { changeStatusAction, assignIssueAction, changePriorityAction } from "@/lib/actions/issue";
+import {
+  changeStatusAction,
+  assignIssueAction,
+  changePriorityAction,
+} from "@/lib/actions/issue";
 import {
   Star,
   Plus,
@@ -125,12 +129,32 @@ export function ProjectDetailClient({
   const [activeTab, setActiveTab] = useState<
     "dashboard" | "issues" | "board" | "settings"
   >(initialTab);
-  const [isFavorite, setIsFavorite] = useState(project.isFavorite);
-  const [localIssues, setLocalIssues] = useState(issues);
+
+  const [optimisticProject, addOptimisticProject] = useOptimistic(
+    project,
+    (state, update: Partial<Project>) => ({ ...state, ...update })
+  );
+
+  const [optimisticIssues, addOptimisticIssues] = useOptimistic(
+    issues,
+    (state, update: { type: string; issueId: string; payload: any }) => {
+      switch (update.type) {
+        case "update_issue":
+          return state.map((issue) =>
+            issue.id === update.issueId
+              ? { ...issue, ...update.payload }
+              : issue
+          );
+        default:
+          return state;
+      }
+    }
+  );
+
   const [, startTransition] = useTransition();
 
   const handleToggleFavorite = () => {
-    setIsFavorite(!isFavorite);
+    addOptimisticProject({ isFavorite: !optimisticProject.isFavorite });
     startTransition(async () => {
       const formData = new FormData();
       formData.set("projectId", project.id);
@@ -139,47 +163,55 @@ export function ProjectDetailClient({
   };
 
   const handleStatusChange = async (issueId: string, status: string) => {
-    // Optimistic update
-    setLocalIssues((prev) =>
-      prev.map((issue) => (issue.id === issueId ? { ...issue, status } : issue))
-    );
+    addOptimisticIssues({
+      type: "update_issue",
+      issueId,
+      payload: { status },
+    });
 
-    const formData = new FormData();
-    formData.set("issueId", issueId);
-    formData.set("status", status);
-    await changeStatusAction({ success: false }, formData);
+    startTransition(async () => {
+      const formData = new FormData();
+      formData.set("issueId", issueId);
+      formData.set("status", status);
+      await changeStatusAction({ success: false }, formData);
+    });
   };
 
-  const handleAssigneeChange = async (issueId: string, assigneeId: string | null) => {
+  const handleAssigneeChange = async (
+    issueId: string,
+    assigneeId: string | null
+  ) => {
     const newAssignee = assigneeId
       ? teamMembers.find((m) => m.id === assigneeId) || null
       : null;
 
-    // Optimistic update
-    setLocalIssues((prev) =>
-      prev.map((issue) =>
-        issue.id === issueId ? { ...issue, assignee: newAssignee } : issue
-      )
-    );
+    addOptimisticIssues({
+      type: "update_issue",
+      issueId,
+      payload: { assignee: newAssignee },
+    });
 
-    const formData = new FormData();
-    formData.set("issueId", issueId);
-    formData.set("assigneeId", assigneeId || "");
-    await assignIssueAction({ success: false }, formData);
+    startTransition(async () => {
+      const formData = new FormData();
+      formData.set("issueId", issueId);
+      formData.set("assigneeId", assigneeId || "");
+      await assignIssueAction({ success: false }, formData);
+    });
   };
 
   const handlePriorityChange = async (issueId: string, priority: string) => {
-    // Optimistic update
-    setLocalIssues((prev) =>
-      prev.map((issue) =>
-        issue.id === issueId ? { ...issue, priority } : issue
-      )
-    );
+    addOptimisticIssues({
+      type: "update_issue",
+      issueId,
+      payload: { priority },
+    });
 
-    const formData = new FormData();
-    formData.set("issueId", issueId);
-    formData.set("priority", priority);
-    await changePriorityAction({ success: false }, formData);
+    startTransition(async () => {
+      const formData = new FormData();
+      formData.set("issueId", issueId);
+      formData.set("priority", priority);
+      await changePriorityAction({ success: false }, formData);
+    });
   };
 
   return (
@@ -187,13 +219,19 @@ export function ProjectDetailClient({
       {/* Header */}
       <div className="flex items-start justify-between mb-8">
         <div className="flex items-center gap-4">
-          <div className={`w-14 h-14 rounded-xl bg-linear-to-br ${getProjectColor(project.name)} flex items-center justify-center shadow-lg`}>
+          <div
+            className={`w-14 h-14 rounded-xl bg-linear-to-br ${getProjectColor(
+              optimisticProject.name
+            )} flex items-center justify-center shadow-lg`}
+          >
             <Layers className="w-7 h-7 text-white" />
           </div>
           <div>
             <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold text-white">{project.name}</h1>
-              {project.isArchived && (
+              <h1 className="text-2xl font-bold text-white">
+                {optimisticProject.name}
+              </h1>
+              {optimisticProject.isArchived && (
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded bg-neutral-700/50 text-neutral-400">
                   <Archive className="w-3 h-3" />
                   Archived
@@ -205,7 +243,7 @@ export function ProjectDetailClient({
               >
                 <Star
                   className={`w-5 h-5 transition-colors ${
-                    isFavorite
+                    optimisticProject.isFavorite
                       ? "text-amber-400 fill-current"
                       : "text-neutral-500 hover:text-amber-400"
                   }`}
@@ -214,27 +252,27 @@ export function ProjectDetailClient({
             </div>
             <div className="flex items-center gap-4 mt-1 text-sm text-neutral-500">
               <Link
-                href={`/teams/${project.team.id}`}
+                href={`/teams/${optimisticProject.team.id}`}
                 className="hover:text-white transition-colors"
               >
-                {project.team.name}
+                {optimisticProject.team.name}
               </Link>
               <span>•</span>
               <div className="flex items-center gap-1">
                 <Avatar
-                  src={project.owner.image}
-                  name={project.owner.name}
+                  src={optimisticProject.owner.image}
+                  name={optimisticProject.owner.name}
                   size="xs"
                 />
-                <span>{project.owner.name}</span>
+                <span>{optimisticProject.owner.name}</span>
               </div>
               <span>•</span>
-              <span>{project._count.issues} issues</span>
+              <span>{optimisticProject._count.issues} issues</span>
             </div>
           </div>
         </div>
 
-        <Link href={`/projects/${project.id}/issues/new`}>
+        <Link href={`/projects/${optimisticProject.id}/issues/new`}>
           <Button>
             <Plus className="w-4 h-4 mr-2" />
             New Issue
@@ -242,9 +280,9 @@ export function ProjectDetailClient({
         </Link>
       </div>
 
-      {project.description && (
+      {optimisticProject.description && (
         <p className="text-neutral-400 mb-6 max-w-3xl whitespace-pre-wrap">
-          {project.description}
+          {optimisticProject.description}
         </p>
       )}
 
@@ -299,12 +337,14 @@ export function ProjectDetailClient({
       </div>
 
       {/* Tab Content */}
-      {activeTab === "dashboard" && <ProjectDashboard projectId={project.id} />}
+      {activeTab === "dashboard" && (
+        <ProjectDashboard projectId={optimisticProject.id} />
+      )}
 
       {activeTab === "issues" && (
         <div className="space-y-4">
           {/* Issues List */}
-          {localIssues.length === 0 ? (
+          {optimisticIssues.length === 0 ? (
             <div className="bg-neutral-900 rounded-xl border border-neutral-700/50 p-6">
               <div className="text-center py-8">
                 <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-neutral-800 border border-neutral-700/50 flex items-center justify-center">
@@ -320,12 +360,12 @@ export function ProjectDetailClient({
             </div>
           ) : (
             <IssueList
-              issues={localIssues}
+              issues={optimisticIssues}
               teamMembers={teamMembers}
               currentUserId={currentUserId}
               statusOptions={
-                project.customStatuses.length > 0
-                  ? project.customStatuses.map((s) => s.name)
+                optimisticProject.customStatuses.length > 0
+                  ? optimisticProject.customStatuses.map((s) => s.name)
                   : [
                       "BACKLOG",
                       "TODO",
@@ -345,15 +385,15 @@ export function ProjectDetailClient({
 
       {activeTab === "board" && (
         <KanbanBoard
-          projectId={project.id}
-          issues={localIssues}
-          customStatuses={project.customStatuses}
+          projectId={optimisticProject.id}
+          issues={optimisticIssues}
+          customStatuses={optimisticProject.customStatuses}
         />
       )}
 
       {activeTab === "settings" && (
         <div className="bg-neutral-900 rounded-xl border border-neutral-700/50 p-6">
-          <ProjectSettings project={project} canEdit={canEdit} />
+          <ProjectSettings project={optimisticProject} canEdit={canEdit} />
         </div>
       )}
     </div>

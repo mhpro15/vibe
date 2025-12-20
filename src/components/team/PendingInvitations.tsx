@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useOptimistic } from "react";
 import { useRouter } from "next/navigation";
 import { respondToInviteAction } from "@/lib/actions/team";
 import { Users, Check, X, Clock, UserPlus } from "lucide-react";
@@ -28,30 +28,33 @@ export function PendingInvitations({ invitations }: PendingInvitationsProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [processingId, setProcessingId] = useState<string | null>(null);
-  const [localInvitations, setLocalInvitations] = useState(invitations);
 
-  if (localInvitations.length === 0) {
+  const [optimisticInvitations, removeOptimisticInvitation] = useOptimistic(
+    invitations,
+    (state, inviteId: string) => state.filter((inv) => inv.id !== inviteId)
+  );
+
+  if (optimisticInvitations.length === 0) {
     return null;
   }
 
   function handleRespond(inviteId: string, response: "accept" | "decline") {
     setProcessingId(inviteId);
-    
+    removeOptimisticInvitation(inviteId);
+
     startTransition(async () => {
       const formData = new FormData();
       formData.set("inviteId", inviteId);
       formData.set("response", response);
-      
+
       const result = await respondToInviteAction({ success: false }, formData);
-      
-      if (result.success) {
-        setLocalInvitations((prev) => prev.filter((inv) => inv.id !== inviteId));
-        router.refresh();
-      } else {
+
+      if (!result.success) {
         alert(result.error || "Failed to process invitation");
       }
-      
+
       setProcessingId(null);
+      router.refresh();
     });
   }
 
@@ -78,13 +81,14 @@ export function PendingInvitations({ invitations }: PendingInvitationsProps) {
             Pending Invitations
           </h2>
           <p className="text-xs text-neutral-400">
-            You have {localInvitations.length} team invitation{localInvitations.length > 1 ? "s" : ""}
+            You have {optimisticInvitations.length} team invitation
+            {optimisticInvitations.length > 1 ? "s" : ""}
           </p>
         </div>
       </div>
 
       <div className="space-y-3">
-        {localInvitations.map((invite) => (
+        {optimisticInvitations.map((invite) => (
           <div
             key={invite.id}
             className="bg-neutral-900/50 border border-neutral-700/50 rounded-lg p-4"
@@ -99,7 +103,8 @@ export function PendingInvitations({ invitations }: PendingInvitationsProps) {
                     {invite.team.name}
                   </h3>
                   <p className="text-xs text-neutral-400 mt-0.5">
-                    Invited by {invite.sender?.name || invite.sender?.email || "Unknown"}
+                    Invited by{" "}
+                    {invite.sender?.name || invite.sender?.email || "Unknown"}
                   </p>
                   <div className="flex items-center gap-3 mt-2">
                     <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-neutral-800 text-neutral-300">

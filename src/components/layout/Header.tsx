@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { Avatar } from "@/components/ui/Avatar";
 import { NotificationBell } from "@/components/layout/NotificationBell";
 import { signOut } from "@/lib/auth-client";
+import { Menu } from "lucide-react";
+import { useSidebar } from "./SidebarProvider";
 
 interface HeaderProps {
   user: {
@@ -17,6 +19,7 @@ interface HeaderProps {
 
 export function Header({ user }: HeaderProps) {
   const router = useRouter();
+  const { toggle } = useSidebar();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
@@ -38,9 +41,16 @@ export function Header({ user }: HeaderProps) {
   };
 
   return (
-    <header className="h-16 bg-neutral-900 border-b border-neutral-700/50 px-6 flex items-center justify-between">
+    <header className="h-16 bg-neutral-900 border-b border-neutral-700/50 px-6 flex items-center justify-between gap-4">
+      <button
+        onClick={toggle}
+        className="lg:hidden p-2 -ml-2 text-neutral-400 hover:text-white transition-colors"
+      >
+        <Menu className="w-6 h-6" />
+      </button>
+
       {/* Search */}
-      <div className="flex-1 max-w-xl">
+      <div className="flex-1 max-w-xl hidden md:block">
         <div className="relative">
           <svg
             className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500"
@@ -64,7 +74,7 @@ export function Header({ user }: HeaderProps) {
       </div>
 
       {/* Actions */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-4 ml-auto">
         {/* Notifications */}
         <NotificationBell />
 

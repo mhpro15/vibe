@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useOptimistic, useTransition } from "react";
 import { Crown, Shield, User, Trash2, Loader2 } from "lucide-react";
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
@@ -37,6 +37,23 @@ export function TeamMembersList({
   onMemberRemoved,
   onRoleChanged,
 }: TeamMembersListProps) {
+  const [optimisticMembers, updateOptimisticMembers] = useOptimistic(
+    members,
+    (
+      state,
+      action:
+        | { type: "kick"; id: string }
+        | { type: "role"; id: string; role: "OWNER" | "ADMIN" | "MEMBER" }
+    ) => {
+      if (action.type === "kick") {
+        return state.filter((m) => m.id !== action.id);
+      }
+      return state.map((m) =>
+        m.id === action.id ? { ...m, role: action.role } : m
+      );
+    }
+  );
+  const [isPending, startTransition] = useTransition();
   const [loadingMemberId, setLoadingMemberId] = useState<string | null>(null);
 
   const canManageMembers =
@@ -48,16 +65,20 @@ export function TeamMembersList({
       return;
 
     setLoadingMemberId(memberId);
-    const formData = new FormData();
-    formData.append("teamId", teamId);
-    formData.append("memberId", memberId);
 
-    const result = await kickMemberAction({ success: false }, formData);
-    setLoadingMemberId(null);
+    startTransition(async () => {
+      updateOptimisticMembers({ type: "kick", id: memberId });
+      const formData = new FormData();
+      formData.append("teamId", teamId);
+      formData.append("memberId", memberId);
 
-    if (result.success) {
-      onMemberRemoved?.();
-    }
+      const result = await kickMemberAction({ success: false }, formData);
+      setLoadingMemberId(null);
+
+      if (result.success) {
+        onMemberRemoved?.();
+      }
+    });
   };
 
   const handleRoleChange = async (
@@ -74,17 +95,21 @@ export function TeamMembersList({
     }
 
     setLoadingMemberId(memberId);
-    const formData = new FormData();
-    formData.append("teamId", teamId);
-    formData.append("memberId", memberId);
-    formData.append("newRole", newRole);
 
-    const result = await changeRoleAction({ success: false }, formData);
-    setLoadingMemberId(null);
+    startTransition(async () => {
+      updateOptimisticMembers({ type: "role", id: memberId, role: newRole });
+      const formData = new FormData();
+      formData.append("teamId", teamId);
+      formData.append("memberId", memberId);
+      formData.append("newRole", newRole);
 
-    if (result.success) {
-      onRoleChanged?.();
-    }
+      const result = await changeRoleAction({ success: false }, formData);
+      setLoadingMemberId(null);
+
+      if (result.success) {
+        onRoleChanged?.();
+      }
+    });
   };
 
   const roleColors = {
@@ -101,7 +126,7 @@ export function TeamMembersList({
 
   return (
     <div className="divide-y divide-neutral-800">
-      {members.map((member) => {
+      {optimisticMembers.map((member) => {
         const isCurrentUser = member.userId === currentUserId;
         const isMemberOwner = member.role === "OWNER";
         const canChangeRole = isOwner && !isCurrentUser;
@@ -129,7 +154,9 @@ export function TeamMembersList({
                     {member.user.name}
                   </span>
                   {isCurrentUser && (
-                    <span className="text-xs text-neutral-500 bg-neutral-800 px-1.5 py-0.5 rounded">(you)</span>
+                    <span className="text-xs text-neutral-500 bg-neutral-800 px-1.5 py-0.5 rounded">
+                      (you)
+                    </span>
                   )}
                   <div className="flex items-center gap-1.5">
                     <RoleIcon role={member.role} />

@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Avatar } from "@/components/ui/Avatar";
-import { motion } from "motion/react";
-import { LayoutDashboard, Users, Layers } from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
+import { LayoutDashboard, Users, Layers, X } from "lucide-react";
+import { useSidebar } from "./SidebarProvider";
 
 interface SidebarProps {
   user: {
@@ -39,143 +40,179 @@ const navigation = [
 
 export function Sidebar({ user, projects, teams }: SidebarProps) {
   const pathname = usePathname();
+  const { isOpen, close } = useSidebar();
 
   return (
-    <aside className="w-64 bg-neutral-900 border-r border-neutral-700/50 flex flex-col">
-      {/* Logo */}
-      <div className="h-16 flex items-center px-6 border-b border-neutral-700/50">
-        <Link href="/dashboard" className="group">
-          <span className="text-xl font-light text-white tracking-widest uppercase hover:tracking-[0.3em] transition-all duration-300 cursor-pointer">
-            Vibe
-          </span>
-        </Link>
-      </div>
+    <>
+      {/* Mobile Overlay */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={close}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden"
+          />
+        )}
+      </AnimatePresence>
 
-      {/* Navigation */}
-      <nav className="flex-1 p-4 space-y-1 overflow-y-auto custom-scrollbar">
-        {navigation.map((item) => {
-          const isActive =
-            pathname === item.href || pathname.startsWith(`${item.href}/`);
-          const Icon = item.icon;
-          const subItems =
-            item.type === "projects"
-              ? projects
-              : item.type === "teams"
-              ? teams
-              : [];
+      <aside
+        className={`
+          fixed inset-y-0 left-0 z-50 w-64 bg-neutral-900 border-r border-neutral-700/50 flex flex-col
+          transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0
+          ${isOpen ? "translate-x-0" : "-translate-x-full"}
+        `}
+      >
+        {/* Logo */}
+        <div className="h-16 flex items-center justify-between px-6 border-b border-neutral-700/50">
+          <Link href="/dashboard" className="group" onClick={close}>
+            <span className="text-xl font-light text-white tracking-widest uppercase hover:tracking-[0.3em] transition-all duration-300 cursor-pointer">
+              Vibe
+            </span>
+          </Link>
+          <button
+            onClick={close}
+            className="lg:hidden p-2 text-neutral-400 hover:text-white transition-colors"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
 
-          return (
-            <div key={item.name} className="space-y-1">
-              <Link href={item.href} className="block">
-                <motion.div
-                  className={`
-                    flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium
-                    ${
-                      isActive
-                        ? "bg-neutral-800 text-white border border-neutral-700/50"
-                        : "text-neutral-400 hover:text-white"
-                    }
-                  `}
-                  whileHover={
-                    !isActive
-                      ? {
-                          backgroundColor: "rgba(38, 38, 38, 1)",
-                          x: 4,
-                        }
-                      : {}
-                  }
-                  whileTap={!isActive ? { x: 2 } : {}}
-                  transition={{ duration: 0.2 }}
-                >
+        {/* Navigation */}
+        <nav className="flex-1 p-4 space-y-1 overflow-y-auto custom-scrollbar">
+          {navigation.map((item) => {
+            const isActive =
+              pathname === item.href || pathname.startsWith(`${item.href}/`);
+            const Icon = item.icon;
+            const subItems =
+              item.type === "projects"
+                ? projects
+                : item.type === "teams"
+                ? teams
+                : [];
+
+            return (
+              <div key={item.name} className="space-y-1">
+                <Link href={item.href} className="block" onClick={close}>
                   <motion.div
+                    className={`
+                      flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium
+                      ${
+                        isActive
+                          ? "bg-neutral-800 text-white border border-neutral-700/50"
+                          : "text-neutral-400 hover:text-white"
+                      }
+                    `}
                     whileHover={
                       !isActive
                         ? {
-                            rotate: [0, -10, 10, -5, 0],
-                            transition: { duration: 0.5 },
+                            backgroundColor: "rgba(38, 38, 38, 1)",
+                            x: 4,
                           }
                         : {}
                     }
+                    whileTap={!isActive ? { x: 2 } : {}}
+                    transition={{ duration: 0.2 }}
                   >
-                    <Icon
-                      className={`w-5 h-5 transition-all duration-300 ${
-                        isActive
-                          ? "text-violet-400"
-                          : "group-hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]"
-                      }`}
-                      strokeWidth={1.5}
-                    />
-                  </motion.div>
-                  {item.name}
-                </motion.div>
-              </Link>
-
-              {/* Quick Access Sub-items */}
-              {subItems.length > 0 && (
-                <div className="ml-9 space-y-1">
-                  {subItems.map((subItem) => {
-                    const subHref =
-                      item.type === "projects"
-                        ? `/projects/${subItem.id}`
-                        : `/teams/${subItem.id}`;
-                    const isSubActive = pathname === subHref;
-
-                    return (
-                      <Link key={subItem.id} href={subHref} className="block">
-                        <motion.div
-                          className={`
-                            px-3 py-1.5 rounded-lg text-xs font-medium truncate
-                            ${
-                              isSubActive
-                                ? "text-white bg-neutral-800/50"
-                                : "text-neutral-500 hover:text-neutral-300"
+                    <motion.div
+                      whileHover={
+                        !isActive
+                          ? {
+                              rotate: [0, -10, 10, -5, 0],
+                              transition: { duration: 0.5 },
                             }
-                          `}
-                          whileHover={{ x: 4 }}
-                          transition={{ duration: 0.2 }}
-                        >
-                          {subItem.name}
-                        </motion.div>
-                      </Link>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </nav>
+                          : {}
+                      }
+                    >
+                      <Icon
+                        className={`w-5 h-5 transition-all duration-300 ${
+                          isActive
+                            ? "text-violet-400"
+                            : "group-hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]"
+                        }`}
+                        strokeWidth={1.5}
+                      />
+                    </motion.div>
+                    {item.name}
+                  </motion.div>
+                </Link>
 
-      {/* User Section */}
-      <div className="p-4 border-t border-neutral-700/50">
-        <Link href="/profile" className="block">
-          <motion.div
-            className="flex items-center gap-3 px-3 py-2.5 rounded-xl"
-            whileHover={{
-              backgroundColor: "rgba(38, 38, 38, 1)",
-              x: 4,
-            }}
-            whileTap={{ x: 2 }}
-            transition={{ duration: 0.2 }}
-          >
+                {/* Quick Access Sub-items */}
+                {subItems.length > 0 && (
+                  <div className="ml-9 space-y-1">
+                    {subItems.map((subItem) => {
+                      const subHref =
+                        item.type === "projects"
+                          ? `/projects/${subItem.id}`
+                          : `/teams/${subItem.id}`;
+                      const isSubActive = pathname === subHref;
+
+                      return (
+                        <Link
+                          key={subItem.id}
+                          href={subHref}
+                          className="block"
+                          onClick={close}
+                        >
+                          <motion.div
+                            className={`
+                              px-3 py-1.5 rounded-lg text-xs font-medium truncate
+                              ${
+                                isSubActive
+                                  ? "text-white bg-neutral-800/50"
+                                  : "text-neutral-500 hover:text-neutral-300"
+                              }
+                            `}
+                            whileHover={{ x: 4 }}
+                            transition={{ duration: 0.2 }}
+                          >
+                            {subItem.name}
+                          </motion.div>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </nav>
+
+        {/* User Section */}
+        <div className="p-4 border-t border-neutral-700/50">
+          <Link href="/profile" className="block" onClick={close}>
             <motion.div
+              className="flex items-center gap-3 px-3 py-2.5 rounded-xl"
               whileHover={{
-                boxShadow: "0 0 15px rgba(167, 139, 250, 0.5)",
-                transition: { duration: 0.3 },
+                backgroundColor: "rgba(38, 38, 38, 1)",
+                x: 4,
               }}
-              className="rounded-full"
+              whileTap={{ x: 2 }}
+              transition={{ duration: 0.2 }}
             >
-              <Avatar src={user.image} name={user.name} size="md" />
+              <motion.div
+                whileHover={{
+                  boxShadow: "0 0 15px rgba(167, 139, 250, 0.5)",
+                  transition: { duration: 0.3 },
+                }}
+                className="rounded-full"
+              >
+                <Avatar src={user.image} name={user.name} size="md" />
+              </motion.div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-white truncate">
+                  {user.name}
+                </p>
+                <p className="text-xs text-neutral-500 truncate">
+                  {user.email}
+                </p>
+              </div>
             </motion.div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-white truncate">
-                {user.name}
-              </p>
-              <p className="text-xs text-neutral-500 truncate">{user.email}</p>
-            </div>
-          </motion.div>
-        </Link>
-      </div>
-    </aside>
+          </Link>
+        </div>
+      </aside>
+    </>
   );
 }
+  

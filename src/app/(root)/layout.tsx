@@ -4,6 +4,7 @@ import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
 import { getUserProjects } from "@/lib/actions/project/queries";
 import { getUserTeams } from "@/lib/actions/team/queries";
+import { SidebarProvider } from "@/components/layout/SidebarProvider";
 
 export default async function RootLayout({
   children,
@@ -22,18 +23,20 @@ export default async function RootLayout({
   ]);
 
   return (
-    <div className="flex h-screen bg-neutral-950">
-      <Sidebar
-        user={session.user}
-        projects={projects.slice(0, 5)}
-        teams={teams.slice(0, 5)}
-      />
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <Header user={session.user} />
-        <main className="flex-1 overflow-y-auto p-6 lg:p-8 bg-neutral-950">
-          <div className="max-w-7xl mx-auto w-full">{children}</div>
-        </main>
+    <SidebarProvider>
+      <div className="flex h-screen bg-neutral-950">
+        <Sidebar
+          user={session.user}
+          projects={projects.slice(0, 5)}
+          teams={teams.slice(0, 5)}
+        />
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <Header user={session.user} />
+          <main className="flex-1 overflow-y-auto p-6 lg:p-8 bg-neutral-950">
+            <div className="max-w-7xl mx-auto w-full">{children}</div>
+          </main>
+        </div>
       </div>
-    </div>
+    </SidebarProvider>
   );
 }
