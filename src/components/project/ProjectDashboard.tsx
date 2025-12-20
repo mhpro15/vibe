@@ -3,7 +3,13 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Avatar } from "@/components/ui/Avatar";
-import { StatusPieChart, CompletionRingChart } from "@/components/charts";
+import {
+  StatusPieChart,
+  CompletionRingChart,
+  PriorityBarChart,
+  TrendLineChart,
+  MemberBarChart,
+} from "@/components/charts";
 import { getProjectStats } from "@/lib/actions/stats";
 import {
   CheckCircle2,
@@ -16,37 +22,10 @@ import {
 
 interface ProjectDashboardProps {
   projectId: string;
+  stats: any; // Using any for now to match the complex return type
 }
 
-type ProjectStats = Awaited<ReturnType<typeof getProjectStats>>;
-
-export function ProjectDashboard({ projectId }: ProjectDashboardProps) {
-  const [stats, setStats] = useState<ProjectStats>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    async function loadStats() {
-      setIsLoading(true);
-      try {
-        const data = await getProjectStats(projectId);
-        setStats(data);
-      } catch (error) {
-        console.error("Failed to load stats:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    loadStats();
-  }, [projectId]);
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="w-5 h-5 animate-spin text-neutral-600" />
-      </div>
-    );
-  }
-
+export function ProjectDashboard({ projectId, stats }: ProjectDashboardProps) {
   if (!stats) {
     return (
       <div className="text-center py-20 text-neutral-500 text-sm">
@@ -91,48 +70,83 @@ export function ProjectDashboard({ projectId }: ProjectDashboardProps) {
 
   return (
     <div className="space-y-3">
-      {/* Stats & Charts Row */}
+      {/* Top Row: KPI Cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        {/* Open Issues */}
+        <div className="bg-neutral-900 border border-neutral-800 rounded-lg p-3 flex items-center gap-3">
+          <div className="p-2 rounded-lg bg-blue-500/10 shrink-0">
+            <AlertCircle className="w-4 h-4 text-blue-400" />
+          </div>
+          <div>
+            <div className="text-lg font-bold text-white tabular-nums leading-none mb-1">{openIssues}</div>
+            <div className="text-[10px] font-medium text-neutral-500 uppercase tracking-wider leading-none">Open</div>
+          </div>
+        </div>
+
+        {/* Active Issues */}
+        <div className="bg-neutral-900 border border-neutral-800 rounded-lg p-3 flex items-center gap-3">
+          <div className="p-2 rounded-lg bg-violet-500/10 shrink-0">
+            <Clock className="w-4 h-4 text-violet-400" />
+          </div>
+          <div>
+            <div className="text-lg font-bold text-white tabular-nums leading-none mb-1">{stats.inProgressCount}</div>
+            <div className="text-[10px] font-medium text-neutral-500 uppercase tracking-wider leading-none">Active</div>
+          </div>
+        </div>
+
+        {/* Done Issues */}
+        <div className="bg-neutral-900 border border-neutral-800 rounded-lg p-3 flex items-center gap-3">
+          <div className="p-2 rounded-lg bg-emerald-500/10 shrink-0">
+            <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+          </div>
+          <div>
+            <div className="text-lg font-bold text-white tabular-nums leading-none mb-1">{stats.doneCount}</div>
+            <div className="text-[10px] font-medium text-neutral-500 uppercase tracking-wider leading-none">Done</div>
+          </div>
+        </div>
+
+        {/* Progress */}
+        <div className="bg-neutral-900 border border-neutral-800 rounded-lg p-3 flex items-center gap-3">
+          <div className="p-2 rounded-lg bg-amber-500/10 shrink-0">
+            <ArrowUpRight className="w-4 h-4 text-amber-400" />
+          </div>
+          <div>
+            <div className="text-lg font-bold text-white tabular-nums leading-none mb-1">{stats.completionRate}%</div>
+            <div className="text-[10px] font-medium text-neutral-500 uppercase tracking-wider leading-none">Progress</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Second Row: Trends & Priority */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
-        {/* Combined Stats Card */}
+        {/* Activity Trend */}
+        <div className="lg:col-span-2 bg-neutral-900 border border-neutral-800 rounded-lg p-4">
+          <div className="text-[10px] font-medium text-neutral-400 uppercase tracking-wide mb-3">
+            Activity Trend (Last 7 Days)
+          </div>
+          <TrendLineChart
+            creationData={stats.issueCreationTrend}
+            completionData={stats.completionTrend}
+          />
+        </div>
+
+        {/* Priority Distribution */}
         <div className="bg-neutral-900 border border-neutral-800 rounded-lg p-4">
           <div className="text-[10px] font-medium text-neutral-400 uppercase tracking-wide mb-3">
-            Overview
+            By Priority
           </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <div className="text-xl font-semibold text-white tabular-nums">
-                {openIssues}
-              </div>
-              <div className="text-[10px] text-neutral-500">Open</div>
-            </div>
-            <div>
-              <div className="text-xl font-semibold text-white tabular-nums">
-                {stats.doneCount}
-              </div>
-              <div className="text-[10px] text-neutral-500">Done</div>
-            </div>
-            <div>
-              <div className="text-xl font-semibold text-white tabular-nums">
-                {stats.inProgressCount}
-              </div>
-              <div className="text-[10px] text-neutral-500">In Progress</div>
-            </div>
-            <div>
-              <div className="text-xl font-semibold text-white tabular-nums">
-                {stats.completionRate}%
-              </div>
-              <div className="text-[10px] text-neutral-500">Complete</div>
-            </div>
+          <PriorityBarChart data={stats.priorityChartData} />
+        </div>
+      </div>
+
+      {/* Middle Row: Member Performance & Status */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+        {/* Member Performance */}
+        <div className="lg:col-span-2 bg-neutral-900 border border-neutral-800 rounded-lg p-4">
+          <div className="text-[10px] font-medium text-neutral-400 uppercase tracking-wide mb-3">
+            Member Performance
           </div>
-          {/* Progress bar */}
-          <div className="mt-3 pt-3 border-t border-neutral-800">
-            <div className="h-1 bg-neutral-800 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-emerald-500 rounded-full transition-all duration-500"
-                style={{ width: `${stats.completionRate}%` }}
-              />
-            </div>
-          </div>
+          <MemberBarChart data={stats.memberStats} />
         </div>
 
         {/* Status Distribution */}
@@ -142,23 +156,10 @@ export function ProjectDashboard({ projectId }: ProjectDashboardProps) {
           </div>
           <StatusPieChart data={stats.statusChartData} />
         </div>
-
-        {/* Progress Ring */}
-        <div className="bg-neutral-900 border border-neutral-800 rounded-lg p-4">
-          <div className="text-[10px] font-medium text-neutral-400 uppercase tracking-wide mb-3">
-            Progress
-          </div>
-          <CompletionRingChart
-            completionRate={stats.completionRate}
-            totalIssues={stats.totalIssues}
-            doneCount={stats.doneCount}
-            inProgressCount={stats.inProgressCount}
-          />
-        </div>
       </div>
 
       {/* Activity Lists */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
         {/* Recent Issues */}
         <div className="bg-neutral-900 border border-neutral-800 rounded-lg">
           <div className="px-3 py-2 border-b border-neutral-800">
@@ -199,7 +200,6 @@ export function ProjectDashboard({ projectId }: ProjectDashboardProps) {
                         size="xs"
                       />
                     )}
-                    <ArrowUpRight className="w-3 h-3 text-neutral-600 opacity-0 group-hover:opacity-100 transition-opacity" />
                   </div>
                 </Link>
               ))}
@@ -270,19 +270,36 @@ export function ProjectDashboard({ projectId }: ProjectDashboardProps) {
                             : formatDate(issue.dueDate!)}
                         </span>
                       </div>
-                      {issue.assignee && (
-                        <Avatar
-                          src={issue.assignee.image}
-                          name={issue.assignee.name}
-                          size="xs"
-                        />
-                      )}
                     </div>
                   </Link>
                 );
               })}
             </div>
           )}
+        </div>
+
+        {/* Team Members */}
+        <div className="bg-neutral-900 border border-neutral-800 rounded-lg">
+          <div className="px-3 py-2 border-b border-neutral-800">
+            <div className="text-[10px] font-medium text-neutral-400 uppercase tracking-wide">
+              Team Members
+            </div>
+          </div>
+          <div className="p-3">
+            <div className="flex flex-wrap gap-2">
+              {stats.team?.members.map((member: any) => (
+                <div key={member.id} className="flex items-center gap-2 bg-neutral-800/50 rounded-full pl-1 pr-3 py-1 border border-neutral-700/50">
+                  <Avatar src={member.image} name={member.name} size="xs" />
+                  <span className="text-[10px] text-neutral-300 font-medium">{member.name}</span>
+                </div>
+              ))}
+            </div>
+            {(!stats.team?.members || stats.team.members.length === 0) && (
+              <div className="text-center py-6 text-neutral-600 text-xs">
+                No members found
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

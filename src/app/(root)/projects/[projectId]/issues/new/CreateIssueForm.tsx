@@ -15,7 +15,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Avatar } from "@/components/ui/Avatar";
 import { createIssueAction, IssueActionResult } from "@/lib/actions/issue";
 import { suggestLabelsSimple, detectDuplicatesSimple } from "@/lib/actions/ai";
-import { ChevronDown, User } from "lucide-react";
+import { ChevronDown, User, AlertCircle, Sparkles, Search, X } from "lucide-react";
 
 interface Label {
   id: string;
@@ -176,16 +176,11 @@ export function CreateIssueForm({
       <input type="hidden" name="labelIds" value={selectedLabels.join(",")} />
 
       {/* Main form */}
-      <div className="bg-neutral-900/50 rounded-xl border border-neutral-700/50 p-6 space-y-6">
+      <div className="bg-neutral-900/50 backdrop-blur-sm border border-neutral-800 rounded-2xl p-8 space-y-8">
         {/* Title */}
         <div>
-          <label
-            htmlFor="title"
-            className="block text-sm font-medium text-neutral-300 mb-2"
-          >
-            Title <span className="text-red-400">*</span>
-          </label>
           <Input
+            label="Title"
             id="title"
             name="title"
             placeholder="What needs to be done?"
@@ -193,21 +188,14 @@ export function CreateIssueForm({
             required
             className="text-lg"
             onChange={handleTitleChange}
+            helperText={isCheckingDuplicates ? "Checking for duplicates..." : "Max 200 characters"}
           />
-          <p className="mt-1 text-xs text-neutral-500">
-            Max 200 characters
-            {isCheckingDuplicates && (
-              <span className="ml-2 text-violet-400">
-                🔍 Checking for duplicates...
-              </span>
-            )}
-          </p>
 
           {/* Duplicate Warning */}
           {showDuplicateWarning && duplicates.length > 0 && (
-            <div className="mt-3 p-3 bg-yellow-900/20 border border-yellow-600/30 rounded-lg">
-              <div className="flex items-center gap-2 text-yellow-500 mb-2">
-                <span>⚠️</span>
+            <div className="mt-4 p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl">
+              <div className="flex items-center gap-2 text-amber-400 mb-3">
+                <Search className="w-4 h-4" />
                 <span className="text-sm font-medium">
                   Potential duplicates found
                 </span>
@@ -217,14 +205,14 @@ export function CreateIssueForm({
                   <Link
                     key={dup.id}
                     href={`/projects/${projectId}/issues/${dup.id}`}
-                    className="block p-2 bg-neutral-800/50 rounded-lg hover:bg-neutral-700/50 transition-colors"
+                    className="block p-3 bg-neutral-950/50 border border-neutral-800 rounded-xl hover:border-neutral-700 transition-all group"
                     target="_blank"
                   >
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-white truncate">
+                      <span className="text-sm text-white group-hover:text-violet-400 transition-colors truncate">
                         {dup.title}
                       </span>
-                      <span className="text-xs text-neutral-400 ml-2 shrink-0">
+                      <span className="text-xs text-neutral-500 ml-2 shrink-0">
                         {Math.round(dup.similarity * 100)}% match
                       </span>
                     </div>
@@ -234,8 +222,9 @@ export function CreateIssueForm({
               <button
                 type="button"
                 onClick={() => setShowDuplicateWarning(false)}
-                className="mt-2 text-xs text-neutral-400 hover:text-white"
+                className="mt-3 text-xs text-neutral-500 hover:text-white flex items-center gap-1 transition-colors"
               >
+                <X className="w-3 h-3" />
                 Dismiss warning
               </button>
             </div>
@@ -256,15 +245,15 @@ export function CreateIssueForm({
             rows={6}
             maxLength={5000}
             placeholder="Add more details about this issue..."
-            className="w-full px-4 py-3 border border-neutral-700/50 rounded-xl bg-neutral-900 text-white placeholder-neutral-500 focus:ring-2 focus:ring-white/10 focus:border-neutral-600 resize-none transition-all"
+            className="w-full px-4 py-3 border border-neutral-800 rounded-xl bg-neutral-950 text-white placeholder-neutral-500 focus:ring-2 focus:ring-white/10 focus:border-neutral-600 resize-none transition-all hover:border-neutral-700"
           />
-          <p className="mt-1 text-xs text-neutral-500">
+          <p className="mt-2 text-xs text-neutral-500">
             Max 5000 characters
           </p>
         </div>
 
         {/* Priority & Assignee */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div>
             <label
               htmlFor="priority"
@@ -276,11 +265,11 @@ export function CreateIssueForm({
               id="priority"
               name="priority"
               defaultValue="MEDIUM"
-              className="w-full px-4 py-2.5 border border-neutral-700/50 rounded-xl bg-neutral-900 text-white focus:ring-2 focus:ring-white/10 focus:border-neutral-600 transition-all"
+              className="w-full px-4 py-2.5 border border-neutral-800 rounded-xl bg-neutral-950 text-white focus:ring-2 focus:ring-white/10 focus:border-neutral-600 transition-all hover:border-neutral-700 appearance-none cursor-pointer"
             >
-              <option value="HIGH">🔴 High</option>
-              <option value="MEDIUM">🟡 Medium</option>
-              <option value="LOW">⚪ Low</option>
+              <option value="HIGH">High</option>
+              <option value="MEDIUM">Medium</option>
+              <option value="LOW">Low</option>
             </select>
           </div>
 
@@ -294,27 +283,26 @@ export function CreateIssueForm({
             <button
               type="button"
               onClick={() => setIsAssigneeDropdownOpen(!isAssigneeDropdownOpen)}
-              className="w-full px-4 py-2.5 border border-neutral-700/50 rounded-xl bg-neutral-900 text-white focus:ring-2 focus:ring-white/10 focus:border-neutral-600 transition-all flex items-center justify-between"
+              className="w-full px-4 py-2.5 border border-neutral-800 rounded-xl bg-neutral-950 text-white focus:ring-2 focus:ring-white/10 focus:border-neutral-600 transition-all flex items-center justify-between hover:border-neutral-700"
             >
               {selectedMember ? (
                 <div className="flex items-center gap-3">
                   <Avatar src={selectedMember.image} name={selectedMember.name} size="xs" />
                   <div className="text-left">
                     <p className="text-sm text-white">{selectedMember.name}</p>
-                    <p className="text-xs text-neutral-500">{selectedMember.email}</p>
                   </div>
                 </div>
               ) : (
-                <div className="flex items-center gap-2 text-neutral-400">
+                <div className="flex items-center gap-2 text-neutral-500">
                   <User className="w-4 h-4" />
-                  <span>Unassigned</span>
+                  <span className="text-sm">Unassigned</span>
                 </div>
               )}
-              <ChevronDown className={`w-4 h-4 text-neutral-400 transition-transform ${isAssigneeDropdownOpen ? "rotate-180" : ""}`} />
+              <ChevronDown className={`w-4 h-4 text-neutral-500 transition-transform ${isAssigneeDropdownOpen ? "rotate-180" : ""}`} />
             </button>
 
             {isAssigneeDropdownOpen && (
-              <div className="absolute z-50 top-full left-0 right-0 mt-2 bg-neutral-900 border border-neutral-700/50 rounded-xl shadow-xl overflow-hidden">
+              <div className="absolute z-50 top-full left-0 right-0 mt-2 bg-neutral-900 border border-neutral-800 rounded-xl shadow-2xl overflow-hidden backdrop-blur-xl">
                 {/* Unassigned option */}
                 <button
                   type="button"
@@ -326,16 +314,15 @@ export function CreateIssueForm({
                     selectedAssignee === "" ? "bg-neutral-800" : ""
                   }`}
                 >
-                  <div className="w-8 h-8 rounded-full bg-neutral-700 flex items-center justify-center">
-                    <User className="w-4 h-4 text-neutral-400" />
+                  <div className="w-8 h-8 rounded-full bg-neutral-800 border border-neutral-700 flex items-center justify-center">
+                    <User className="w-4 h-4 text-neutral-500" />
                   </div>
                   <div className="text-left">
                     <p className="text-sm text-white">Unassigned</p>
-                    <p className="text-xs text-neutral-500">No one assigned</p>
                   </div>
                 </button>
 
-                <div className="border-t border-neutral-700/50" />
+                <div className="border-t border-neutral-800" />
 
                 {/* Team members */}
                 <div className="max-h-60 overflow-y-auto">
@@ -379,14 +366,14 @@ export function CreateIssueForm({
             type="date"
             id="dueDate"
             name="dueDate"
-            className="w-full md:w-auto px-4 py-2.5 border  border-neutral-700/50 rounded-xl bg-neutral-900 text-white focus:ring-2 focus:ring-white/10 focus:border-neutral-600 transition-all"
+            className="w-full md:w-auto px-4 py-2.5 border border-neutral-800 rounded-xl bg-neutral-950 text-white focus:ring-2 focus:ring-white/10 focus:border-neutral-600 transition-all hover:border-neutral-700"
           />
         </div>
 
         {/* Labels */}
         {labels.length > 0 && (
-          <div>
-            <div className="flex items-center justify-between mb-2">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
               <label className="block text-sm font-medium text-neutral-300">
                 Labels
               </label>
@@ -394,16 +381,16 @@ export function CreateIssueForm({
                 type="button"
                 onClick={handleSuggestLabels}
                 disabled={isSuggestingLabels}
-                className="text-xs text-violet-400 hover:text-violet-300 flex items-center gap-1 disabled:opacity-50"
+                className="text-xs font-medium text-violet-400 hover:text-violet-300 flex items-center gap-1.5 disabled:opacity-50 transition-colors px-2 py-1 rounded-lg hover:bg-violet-500/10"
               >
                 {isSuggestingLabels ? (
                   <>
-                    <span className="animate-spin">⚙️</span>
+                    <Sparkles className="w-3 h-3 animate-spin" />
                     Analyzing...
                   </>
                 ) : (
                   <>
-                    <span>✨</span>
+                    <Sparkles className="w-3 h-3" />
                     AI Suggest Labels
                   </>
                 )}
@@ -412,9 +399,10 @@ export function CreateIssueForm({
 
             {/* AI Suggested Labels */}
             {suggestedLabels.length > 0 && (
-              <div className="mb-3 p-3 bg-violet-900/20 border border-violet-600/30 rounded-lg">
-                <p className="text-xs text-violet-400 mb-2">
-                  ✨ AI Suggested Labels
+              <div className="p-4 bg-violet-500/5 border border-violet-500/20 rounded-xl">
+                <p className="text-xs font-medium text-violet-400 mb-3 flex items-center gap-2">
+                  <Sparkles className="w-3 h-3" />
+                  AI Suggested Labels
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {suggestedLabels.map((labelName) => (
@@ -422,9 +410,9 @@ export function CreateIssueForm({
                       key={labelName}
                       type="button"
                       onClick={() => applySuggestedLabel(labelName)}
-                      className="px-2 py-1 text-xs bg-violet-600/20 text-violet-300 rounded-lg hover:bg-violet-600/40 transition-colors flex items-center gap-1"
+                      className="px-3 py-1.5 text-xs bg-violet-500/10 text-violet-300 border border-violet-500/20 rounded-full hover:bg-violet-500/20 transition-all flex items-center gap-1.5 group"
                     >
-                      <span>+</span>
+                      <span className="text-violet-500 group-hover:text-violet-400">+</span>
                       {labelName}
                     </button>
                   ))}
@@ -438,10 +426,10 @@ export function CreateIssueForm({
                   key={label.id}
                   type="button"
                   onClick={() => toggleLabel(label.id)}
-                  className={`transition-all ${
+                  className={`transition-all duration-200 ${
                     selectedLabels.includes(label.id)
-                      ? "ring-2 ring-white/50 ring-offset-2 ring-offset-neutral-900"
-                      : "opacity-60 hover:opacity-100"
+                      ? "ring-2 ring-white/50 ring-offset-4 ring-offset-neutral-950 scale-105"
+                      : "opacity-60 hover:opacity-100 hover:scale-105"
                   }`}
                 >
                   <Badge color={label.color}>{label.name}</Badge>
@@ -449,7 +437,7 @@ export function CreateIssueForm({
               ))}
             </div>
             {selectedLabels.length > 0 && (
-              <p className="mt-2 text-xs text-neutral-500">
+              <p className="text-xs text-neutral-500">
                 {selectedLabels.length} label(s) selected
               </p>
             )}
@@ -458,8 +446,9 @@ export function CreateIssueForm({
 
         {/* Error message */}
         {state.error && (
-          <div className="p-4 bg-red-900/30 border border-red-800 rounded-xl">
-            <p className="text-sm text-red-400">
+          <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
+            <p className="text-sm font-medium text-red-400">
               {state.error}
             </p>
           </div>
@@ -467,13 +456,13 @@ export function CreateIssueForm({
       </div>
 
       {/* Actions */}
-      <div className="flex items-center justify-end gap-3">
+      <div className="flex items-center justify-end gap-4 pt-4">
         <Link href={`/projects/${projectId}?tab=issues`}>
-          <Button type="button" variant="outline">
+          <Button type="button" variant="ghost">
             Cancel
           </Button>
         </Link>
-        <Button type="submit" disabled={isPending}>
+        <Button type="submit" disabled={isPending} className="min-w-[140px]">
           {isPending ? "Creating..." : "Create Issue"}
         </Button>
       </div>

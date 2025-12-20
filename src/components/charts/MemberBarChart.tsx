@@ -45,23 +45,40 @@ export function MemberBarChart({ data }: MemberBarChartProps) {
     <ResponsiveContainer width="100%" height={300}>
       <BarChart
         data={chartData}
-        margin={{ top: 10, right: 10, left: -10, bottom: 0 }}
+        margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
       >
         <CartesianGrid
           strokeDasharray="3 3"
           stroke="#374151"
           vertical={false}
         />
-        <XAxis dataKey="name" stroke="#9ca3af" fontSize={12} tickLine={false} />
-        <YAxis stroke="#9ca3af" fontSize={12} tickLine={false} />
+        <XAxis 
+          dataKey="name" 
+          stroke="#9ca3af" 
+          fontSize={10} 
+          tickLine={false} 
+          axisLine={false}
+          interval={0}
+          padding={{ left: 10, right: 10 }}
+        />
+        <YAxis 
+          stroke="#9ca3af" 
+          fontSize={10} 
+          tickLine={false} 
+          axisLine={false}
+          allowDecimals={false}
+        />
         <Tooltip
           contentStyle={{
             backgroundColor: "#171717",
             border: "1px solid #374151",
-            borderRadius: "8px",
-            color: "#ededed",
-            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.4)",
+            borderRadius: "12px",
+            padding: "8px 12px",
+            boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.5)",
           }}
+          itemStyle={{ fontSize: "12px", fontWeight: "500" }}
+          labelStyle={{ color: "#ffffff", marginBottom: "4px", fontWeight: "bold" }}
+          cursor={{ fill: "rgba(255, 255, 255, 0.05)" }}
           formatter={(value: number, name: string) => [
             `${value} issues`,
             name === "assigned" ? "Assigned" : "Completed",

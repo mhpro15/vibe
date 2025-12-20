@@ -9,6 +9,7 @@ import {
   Tooltip,
   ResponsiveContainer,
   Cell,
+  Legend,
 } from "recharts";
 
 interface PriorityBarChartProps {
@@ -43,33 +44,41 @@ export function PriorityBarChart({ data }: PriorityBarChartProps) {
     <ResponsiveContainer width="100%" height={250}>
       <BarChart
         data={sortedData}
-        margin={{ top: 10, right: 10, left: -10, bottom: 0 }}
-        layout="vertical"
+        margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
       >
         <CartesianGrid
           strokeDasharray="3 3"
           stroke="#374151"
-          horizontal={false}
+          vertical={false}
         />
-        <XAxis type="number" stroke="#9ca3af" fontSize={12} />
-        <YAxis
-          type="category"
-          dataKey="name"
-          stroke="#9ca3af"
-          fontSize={12}
-          width={80}
+        <XAxis 
+          dataKey="name" 
+          stroke="#9ca3af" 
+          fontSize={10} 
+          tickLine={false}
+          axisLine={false}
+        />
+        <YAxis 
+          stroke="#9ca3af" 
+          fontSize={10} 
+          tickLine={false}
+          axisLine={false}
+          allowDecimals={false}
         />
         <Tooltip
           contentStyle={{
             backgroundColor: "#171717",
             border: "1px solid #374151",
-            borderRadius: "8px",
-            color: "#ededed",
-            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.4)",
+            borderRadius: "12px",
+            padding: "8px 12px",
+            boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.5)",
           }}
+          itemStyle={{ color: "#ffffff", fontSize: "12px", fontWeight: "500" }}
+          labelStyle={{ display: "none" }}
+          cursor={{ fill: "rgba(255, 255, 255, 0.05)" }}
           formatter={(value: number) => [`${value} issues`, "Count"]}
         />
-        <Bar dataKey="value" radius={[0, 4, 4, 0]}>
+        <Bar dataKey="value" radius={[4, 4, 0, 0]}>
           {sortedData.map((entry, index) => (
             <Cell
               key={`cell-${index}`}

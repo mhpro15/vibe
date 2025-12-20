@@ -111,6 +111,74 @@ export async function getProjectStats(projectId: string) {
     priority: item.priority,
   }));
 
+  // Get trends (last 7 days)
+  const periodDays = 7;
+  const periodStart = new Date();
+  periodStart.setDate(periodStart.getDate() - periodDays + 1);
+  periodStart.setHours(0, 0, 0, 0);
+
+  const issueCreationTrend = await getIssueTrendByDay(
+    [projectId],
+    periodStart,
+    periodDays,
+    "createdAt"
+  );
+
+  const completionTrend = await getCompletionTrendByDay(
+    [projectId],
+    periodStart,
+    periodDays
+  );
+
+  // Get member stats
+  const projectWithTeam = await prisma.project.findUnique({
+    where: { id: projectId },
+    include: {
+      team: {
+        include: {
+          members: {
+            include: {
+              user: {
+                select: { id: true, name: true, image: true },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+
+  const memberStats = projectWithTeam
+    ? await Promise.all(
+        projectWithTeam.team.members.map(async (member) => {
+          const assignedCount = await prisma.issue.count({
+            where: {
+              projectId,
+              assigneeId: member.user.id,
+              deletedAt: null,
+            },
+          });
+
+          const completedCount = await prisma.issue.count({
+            where: {
+              projectId,
+              assigneeId: member.user.id,
+              status: "DONE",
+              deletedAt: null,
+            },
+          });
+
+          return {
+            userId: member.user.id,
+            userName: member.user.name,
+            userImage: member.user.image,
+            assignedCount,
+            completedCount,
+          };
+        })
+      )
+    : [];
+
   return {
     totalIssues,
     doneCount,
@@ -118,8 +186,20 @@ export async function getProjectStats(projectId: string) {
     completionRate,
     statusChartData,
     priorityChartData,
+    issueCreationTrend,
+    completionTrend,
+    memberStats,
     recentIssues,
     dueToSoonIssues,
+    team: projectWithTeam?.team ? {
+      name: projectWithTeam.team.name,
+      members: projectWithTeam.team.members.map(m => ({
+        id: m.user.id,
+        name: m.user.name,
+        image: m.user.image,
+        role: m.role
+      }))
+    } : null
   };
 }
 

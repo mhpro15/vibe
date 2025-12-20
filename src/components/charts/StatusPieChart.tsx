@@ -43,10 +43,6 @@ export function StatusPieChart({ data }: StatusPieChartProps) {
           outerRadius={80}
           paddingAngle={2}
           dataKey="value"
-          label={({ name, percent }) =>
-            `${name ?? ""} ${((percent ?? 0) * 100).toFixed(0)}%`
-          }
-          labelLine={false}
         >
           {data.map((entry, index) => (
             <Cell
@@ -60,10 +56,13 @@ export function StatusPieChart({ data }: StatusPieChartProps) {
           contentStyle={{
             backgroundColor: "#171717",
             border: "1px solid #374151",
-            borderRadius: "8px",
-            color: "#ededed",
-            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.4)",
+            borderRadius: "12px",
+            padding: "8px 12px",
+            boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.5)",
           }}
+          itemStyle={{ color: "#ffffff", fontSize: "12px", fontWeight: "500" }}
+          labelStyle={{ display: "none" }}
+          cursor={{ fill: "transparent" }}
           formatter={(value: number) => [`${value} issues`, "Count"]}
         />
         <Legend

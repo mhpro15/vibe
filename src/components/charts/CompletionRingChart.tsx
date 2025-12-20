@@ -1,6 +1,6 @@
 "use client";
 
-import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 
 interface CompletionRingChartProps {
   completionRate: number;
@@ -39,6 +39,17 @@ export function CompletionRingChart({
     <div className="h-[250px] relative">
       <ResponsiveContainer width="100%" height="100%">
         <PieChart>
+          <Tooltip
+            contentStyle={{
+              backgroundColor: "#171717",
+              border: "1px solid #374151",
+              borderRadius: "12px",
+              padding: "8px 12px",
+              boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.5)",
+            }}
+            itemStyle={{ fontSize: "12px", fontWeight: "500", color: "#ffffff" }}
+            labelStyle={{ display: "none" }}
+          />
           <Pie
             data={data}
             cx="50%"
