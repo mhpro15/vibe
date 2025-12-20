@@ -3,55 +3,11 @@ import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/actions/auth";
 import { getMyInvites } from "@/lib/actions/team";
 import { PendingInvitations } from "@/components/team";
-import Link from "next/link";
-import {
-  LayoutGrid,
-  Users,
-  Settings,
-  Signal,
-  SignalMedium,
-  SignalLow,
-  AlertTriangle,
-  Clock,
-  MessageSquare,
-  CalendarClock,
-  FolderKanban,
-  Layers,
-} from "lucide-react";
-
-// Helper functions for gradient colors
-function getProjectColor(name: string): string {
-  const colors = [
-    "from-violet-600 to-violet-800",
-    "from-blue-600 to-blue-800",
-    "from-emerald-600 to-emerald-800",
-    "from-rose-600 to-rose-800",
-    "from-amber-600 to-amber-800",
-    "from-cyan-600 to-cyan-800",
-    "from-pink-600 to-pink-800",
-    "from-indigo-600 to-indigo-800",
-  ];
-  let hash = 0;
-  for (let i = 0; i < name.length; i++) {
-    hash = name.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  return colors[Math.abs(hash) % colors.length];
-}
-
-function getTeamColor(name: string): string {
-  const colors = [
-    "from-neutral-600 to-neutral-800",
-    "from-slate-600 to-slate-800",
-    "from-zinc-600 to-zinc-800",
-    "from-stone-600 to-stone-800",
-    "from-gray-600 to-gray-800",
-  ];
-  let hash = 0;
-  for (let i = 0; i < name.length; i++) {
-    hash = name.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  return colors[Math.abs(hash) % colors.length];
-}
+import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
+import { DashboardStats } from "@/components/dashboard/DashboardStats";
+import { DashboardIssuesList } from "@/components/dashboard/DashboardIssuesList";
+import { DashboardRecentActivity } from "@/components/dashboard/DashboardRecentActivity";
+import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 
 export default async function DashboardPage() {
   const session = await getSession();
@@ -220,94 +176,9 @@ export default async function DashboardPage() {
     },
   });
 
-  const getTimeAgo = (date: Date) => {
-    const now = new Date();
-    const diff = now.getTime() - new Date(date).getTime();
-    const minutes = Math.floor(diff / 60000);
-    const hours = Math.floor(diff / 3600000);
-    const days = Math.floor(diff / 86400000);
-
-    if (minutes < 1) return "just now";
-    if (minutes < 60) return `${minutes}m ago`;
-    if (hours < 24) return `${hours}h ago`;
-    if (days === 1) return "yesterday";
-    return `${days}d ago`;
-  };
-
-  const getPriorityIcon = (priority: string) => {
-    const baseClass = "w-4 h-4 transition-all duration-300";
-    switch (priority) {
-      case "URGENT":
-        return (
-          <AlertTriangle
-            className={`${baseClass} text-red-400 group-hover:text-red-300 group-hover:drop-shadow-[0_0_8px_rgba(248,113,113,0.6)]`}
-            strokeWidth={2}
-          />
-        );
-      case "HIGH":
-        return (
-          <Signal
-            className={`${baseClass} text-orange-400 group-hover:text-orange-300 group-hover:drop-shadow-[0_0_8px_rgba(251,146,60,0.6)]`}
-            strokeWidth={2}
-          />
-        );
-      case "MEDIUM":
-        return (
-          <SignalMedium
-            className={`${baseClass} text-yellow-400 group-hover:text-yellow-300 group-hover:drop-shadow-[0_0_6px_rgba(250,204,21,0.5)]`}
-            strokeWidth={2}
-          />
-        );
-      default:
-        return (
-          <SignalLow
-            className={`${baseClass} text-neutral-500 group-hover:text-neutral-400`}
-            strokeWidth={2}
-          />
-        );
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "BACKLOG":
-        return "bg-neutral-500";
-      case "TODO":
-        return "bg-blue-500";
-      case "IN_PROGRESS":
-        return "bg-violet-500";
-      case "IN_REVIEW":
-        return "bg-amber-500";
-      case "DONE":
-        return "bg-emerald-500";
-      case "CANCELLED":
-        return "bg-neutral-600";
-      default:
-        return "bg-neutral-500";
-    }
-  };
-
   return (
     <div className="w-full">
-      {/* Header */}
-      <div className="mb-4 md:mb-6">
-        <h1 className="text-lg md:text-xl font-medium text-white mb-0.5">
-          Good{" "}
-          {new Date().getHours() < 12
-            ? "morning"
-            : new Date().getHours() < 18
-            ? "afternoon"
-            : "evening"}
-          , {session.user.name?.split(" ")[0]}
-        </h1>
-        <p className="text-xs md:text-sm text-neutral-500">
-          {new Date().toLocaleDateString("en-US", {
-            weekday: "long",
-            month: "long",
-            day: "numeric",
-          })}
-        </p>
-      </div>
+      <DashboardHeader userName={session.user.name || "User"} />
 
       {/* Pending Invitations */}
       {pendingInvitations.length > 0 && (
@@ -316,455 +187,64 @@ export default async function DashboardPage() {
         </div>
       )}
 
-      {/* Quick Stats Row - Horizontal scroll on mobile */}
-      <div className="mb-4 md:mb-6 -mx-4 px-4 md:mx-0 md:px-0">
-        <div className="flex gap-2 md:gap-3 overflow-x-auto pb-2 scrollbar-hide">
-          <div className="flex items-center gap-2 bg-neutral-900 border border-neutral-700/50 rounded-lg px-3 py-2 whitespace-nowrap shrink-0">
-            <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-violet-500"></div>
-            <span className="text-neutral-400 text-xs md:text-sm">In Progress</span>
-            <span className="text-white font-medium text-xs md:text-sm">
-              {inProgressIssues.length}
-            </span>
-          </div>
-          <div className="flex items-center gap-2 bg-neutral-900 border border-neutral-700/50 rounded-lg px-3 py-2 whitespace-nowrap shrink-0">
-            <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-neutral-500"></div>
-            <span className="text-neutral-400 text-xs md:text-sm">Backlog</span>
-            <span className="text-white font-medium text-xs md:text-sm">{backlogIssues.length}</span>
-          </div>
-          <div className="flex items-center gap-2 bg-neutral-900 border border-neutral-700/50 rounded-lg px-3 py-2 whitespace-nowrap shrink-0">
-            <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-emerald-500"></div>
-            <span className="text-neutral-400 text-xs md:text-sm">Done this week</span>
-            <span className="text-white font-medium text-xs md:text-sm">{doneThisWeek.length}</span>
-          </div>
-          {dueTodayIssues.length > 0 && (
-            <div className="flex items-center gap-2 bg-red-900/30 border border-red-700/50 rounded-lg px-3 py-2 whitespace-nowrap shrink-0">
-              <Clock className="w-3.5 h-3.5 md:w-4 md:h-4 text-red-400" />
-              <span className="text-red-400 font-medium text-xs md:text-sm">
-                {dueTodayIssues.length} due today
-              </span>
-            </div>
-          )}
-        </div>
-      </div>
+      <DashboardStats
+        inProgressCount={inProgressIssues.length}
+        backlogCount={backlogIssues.length}
+        doneThisWeekCount={doneThisWeek.length}
+        dueTodayCount={dueTodayIssues.length}
+      />
 
       {/* Mobile: Priority Content First, Desktop: 2-column grid */}
       <div className="space-y-4 md:space-y-0 md:grid md:grid-cols-1 lg:grid-cols-3 md:gap-4 lg:gap-6">
         {/* Main Content - Issues */}
         <div className="lg:col-span-2 space-y-3 md:space-y-4 lg:space-y-6">
-          {/* Due Today - Priority #1 on mobile */}
           {dueTodayIssues.length > 0 && (
-            <section className="bg-red-900/20 border border-red-700/30 rounded-lg md:rounded-xl p-3 md:p-4">
-              <div className="flex items-center gap-1.5 md:gap-2 mb-3 md:mb-4">
-                <Clock className="w-3.5 h-3.5 md:w-4 md:h-4 text-red-400" />
-                <h2 className="text-xs md:text-sm font-medium text-red-400 uppercase tracking-wider">
-                  Due Today
-                </h2>
-              </div>
-              <div className="space-y-1">
-                {dueTodayIssues.map((issue) => (
-                  <Link
-                    key={issue.id}
-                    href={`/projects/${issue.projectId}/issues/${issue.id}`}
-                    className="flex items-center gap-2 md:gap-3 px-2 md:px-3 py-2 md:py-2.5 rounded-lg bg-neutral-800/50 hover:bg-neutral-800 border border-transparent hover:border-red-700/30 transition-all group"
-                  >
-                    <div
-                      className={`w-0.5 md:w-1 h-6 md:h-8 rounded-full ${getStatusColor(
-                        issue.status
-                      )}`}
-                    ></div>
-                    <div className="flex-1 min-w-0">
-                      <span className="text-xs md:text-sm text-white truncate block">
-                        {issue.title}
-                      </span>
-                      <p className="text-[10px] md:text-xs text-neutral-500 mt-0.5">
-                        {issue.project.name}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2 shrink-0">
-                      {getPriorityIcon(issue.priority)}
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </section>
+            <DashboardIssuesList
+              title="Due Today"
+              issues={dueTodayIssues}
+              type="due-today"
+            />
           )}
 
-          {/* Currently Working On */}
-          <section className="bg-neutral-900/50 border border-neutral-700/50 rounded-lg md:rounded-xl p-3 md:p-4">
-            <div className="flex items-center justify-between mb-3 md:mb-4">
-              <h2 className="text-xs md:text-sm font-medium text-white uppercase tracking-wider">
-                Currently Working On
-              </h2>
-              {inProgressIssues.length > 4 && (
-                <span className="text-[10px] md:text-xs text-neutral-500">
-                  +{inProgressIssues.length - 4} more
-                </span>
-              )}
-            </div>
-            {inProgressIssues.length === 0 ? (
-              <div className="border border-dashed border-neutral-700 rounded-lg p-4 md:p-6 text-center">
-                <p className="text-neutral-400 text-xs md:text-sm">
-                  No issues in progress
-                </p>
-                <p className="text-neutral-500 text-[10px] md:text-xs mt-1">
-                  Pick something from your backlog to get started
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-1">
-                {inProgressIssues.slice(0, 4).map((issue) => (
-                  <Link
-                    key={issue.id}
-                    href={`/projects/${issue.projectId}/issues/${issue.id}`}
-                    className="flex items-center gap-2 md:gap-3 px-2 md:px-3 py-2 md:py-2.5 rounded-lg bg-neutral-800/50 hover:bg-neutral-800 border border-transparent hover:border-neutral-700/50 transition-all group"
-                  >
-                    <div
-                      className={`w-0.5 md:w-1 h-6 md:h-8 rounded-full ${getStatusColor(
-                        issue.status
-                      )}`}
-                    ></div>
-                    <div className="flex-1 min-w-0">
-                      <span className="text-xs md:text-sm text-white truncate block">
-                        {issue.title}
-                      </span>
-                      <p className="text-[10px] md:text-xs text-neutral-500 mt-0.5">
-                        {issue.project.name}
-                      </p>
-                    </div>
-                    <div className="hidden md:flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      {getPriorityIcon(issue.priority)}
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            )}
-          </section>
+          <DashboardIssuesList
+            title="Currently Working On"
+            issues={inProgressIssues.slice(0, 4)}
+            type="in-progress"
+            emptyMessage="No issues in progress"
+            emptySubMessage="Pick something from your backlog to get started"
+            showMoreCount={
+              inProgressIssues.length > 4 ? inProgressIssues.length - 4 : 0
+            }
+          />
 
-          {/* Due This Week */}
           {dueSoonIssues.length > 0 && (
-            <section className="bg-amber-900/20 border border-amber-700/30 rounded-lg md:rounded-xl p-3 md:p-4">
-              <div className="flex items-center gap-1.5 md:gap-2 mb-3 md:mb-4">
-                <CalendarClock className="w-3.5 h-3.5 md:w-4 md:h-4 text-amber-400" />
-                <h2 className="text-xs md:text-sm font-medium text-amber-400 uppercase tracking-wider">
-                  Due This Week
-                </h2>
-              </div>
-              <div className="space-y-1">
-                {dueSoonIssues.map((issue) => (
-                  <Link
-                    key={issue.id}
-                    href={`/projects/${issue.projectId}/issues/${issue.id}`}
-                    className="flex items-center gap-2 md:gap-3 px-2 md:px-3 py-2 md:py-2.5 rounded-lg bg-neutral-800/50 hover:bg-neutral-800 border border-transparent hover:border-amber-700/30 transition-all group"
-                  >
-                    <div
-                      className={`w-0.5 md:w-1 h-6 md:h-8 rounded-full ${getStatusColor(
-                        issue.status
-                      )}`}
-                    ></div>
-                    <div className="flex-1 min-w-0">
-                      <span className="text-xs md:text-sm text-white truncate block">
-                        {issue.title}
-                      </span>
-                      <div className="flex items-center gap-1.5 md:gap-2 text-[10px] md:text-xs text-neutral-500 mt-0.5">
-                        <span className="truncate">{issue.project.name}</span>
-                        {issue.dueDate && (
-                          <>
-                            <span className="hidden sm:inline">•</span>
-                            <span className="text-amber-400 hidden sm:inline">
-                              Due{" "}
-                              {new Date(issue.dueDate).toLocaleDateString(
-                                "en-US",
-                                { month: "short", day: "numeric" }
-                              )}
-                            </span>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                    <div className="hidden md:flex items-center gap-2">
-                      {getPriorityIcon(issue.priority)}
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </section>
+            <DashboardIssuesList
+              title="Due This Week"
+              issues={dueSoonIssues}
+              type="due-soon"
+            />
           )}
 
-          {/* Up Next */}
-          <section className="bg-neutral-900/50 border border-neutral-700/50 rounded-lg md:rounded-xl p-3 md:p-4">
-            <div className="flex items-center justify-between mb-3 md:mb-4">
-              <h2 className="text-xs md:text-sm font-medium text-white uppercase tracking-wider">
-                Up Next
-              </h2>
-              {backlogIssues.length > 5 && (
-                <span className="text-[10px] md:text-xs text-neutral-500">
-                  +{backlogIssues.length - 5} more
-                </span>
-              )}
-            </div>
-            {backlogIssues.length === 0 ? (
-              <div className="border border-dashed border-neutral-700 rounded-lg p-4 md:p-6 text-center">
-                <p className="text-neutral-400 text-xs md:text-sm">
-                  Your backlog is empty
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-1">
-                {backlogIssues.slice(0, 5).map((issue) => (
-                  <Link
-                    key={issue.id}
-                    href={`/projects/${issue.projectId}/issues/${issue.id}`}
-                    className="flex items-center gap-2 md:gap-3 px-2 md:px-3 py-2 md:py-2.5 rounded-lg bg-neutral-800/50 hover:bg-neutral-800 border border-transparent hover:border-neutral-700/50 transition-all group"
-                  >
-                    <div
-                      className={`w-0.5 md:w-1 h-6 md:h-8 rounded-full ${getStatusColor(
-                        issue.status
-                      )}`}
-                    ></div>
-                    <div className="flex-1 min-w-0">
-                      <span className="text-xs md:text-sm text-white truncate block">
-                        {issue.title}
-                      </span>
-                      <p className="text-[10px] md:text-xs text-neutral-500 mt-0.5">
-                        {issue.project.name}
-                      </p>
-                    </div>
-                    <div className="hidden md:flex items-center gap-2">
-                      {getPriorityIcon(issue.priority)}
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            )}
-          </section>
-
-          {/* Recent Activity - Hidden on mobile */}
-          <section className="hidden md:block bg-neutral-900/50 border border-neutral-700/50 rounded-xl p-4">
-            <h2 className="text-sm font-medium text-white uppercase tracking-wider mb-4">
-              Recent Activity
-            </h2>
-            {recentActivity.length === 0 ? (
-              <div className="border border-dashed border-neutral-700 rounded-lg p-6 text-center">
-                <p className="text-neutral-400 text-sm">No recent activity</p>
-              </div>
-            ) : (
-              <div className="space-y-1">
-                {recentActivity.map((issue) => (
-                  <Link
-                    key={issue.id}
-                    href={`/projects/${issue.projectId}/issues/${issue.id}`}
-                    className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-neutral-800 transition-colors"
-                  >
-                    <div
-                      className={`w-1.5 h-1.5 rounded-full ${getStatusColor(
-                        issue.status
-                      )}`}
-                    ></div>
-                    <span className="text-sm text-neutral-300 truncate flex-1">
-                      {issue.title}
-                    </span>
-                    <span className="text-xs text-neutral-600">
-                      {getTimeAgo(issue.updatedAt)}
-                    </span>
-                  </Link>
-                ))}
-              </div>
-            )}
-          </section>
-
-          {/* My Recent Comments - Hidden on mobile */}
-          <section className="hidden md:block bg-neutral-900/50 border border-neutral-700/50 rounded-xl p-4">
-            <div className="flex items-center gap-2 mb-4">
-              <MessageSquare className="w-4 h-4 text-neutral-500" />
-              <h2 className="text-sm font-medium text-white uppercase tracking-wider">
-                My Recent Comments
-              </h2>
-            </div>
-            {recentComments.length === 0 ? (
-              <div className="border border-dashed border-neutral-700 rounded-lg p-6 text-center">
-                <p className="text-neutral-400 text-sm">No comments yet</p>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                {recentComments.map((comment) => (
-                  <Link
-                    key={comment.id}
-                    href={`/projects/${comment.issue.projectId}/issues/${comment.issue.id}`}
-                    className="block p-3 rounded-lg bg-neutral-800/50 hover:bg-neutral-800 transition-colors"
-                  >
-                    <p className="text-sm text-neutral-300 line-clamp-2 mb-1 whitespace-pre-wrap">
-                      {comment.content}
-                    </p>
-                    <div className="flex items-center gap-2 text-xs text-neutral-500">
-                      <span className="truncate max-w-[150px]">
-                        on {comment.issue.title}
-                      </span>
-                      <span>•</span>
-                      <span>{getTimeAgo(comment.createdAt)}</span>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            )}
-          </section>
+          <DashboardIssuesList
+            title="Up Next"
+            issues={backlogIssues.slice(0, 5)}
+            type="up-next"
+            emptyMessage="Backlog is empty"
+            emptySubMessage="Great job! You're all caught up."
+            showMoreCount={
+              backlogIssues.length > 5 ? backlogIssues.length - 5 : 0
+            }
+          />
         </div>
 
-        {/* Sidebar */}
-        <div className="space-y-6">
-          {/* Teams & Projects */}
-          <section className="bg-neutral-900/50 border border-neutral-700/50 rounded-xl p-4">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-sm font-medium text-white uppercase tracking-wider">
-                Your Teams
-              </h2>
-              <Link
-                href="/teams"
-                className="text-xs text-neutral-400 hover:text-white transition-colors"
-              >
-                View all →
-              </Link>
-            </div>
-            {teams.length === 0 ? (
-              <div className="border border-dashed border-neutral-700 rounded-lg p-4 text-center">
-                <p className="text-neutral-400 text-sm mb-2">No teams yet</p>
-                <Link
-                  href="/teams"
-                  className="text-xs text-white hover:underline"
-                >
-                  Create a team →
-                </Link>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                {teams.slice(0, 4).map((membership) => (
-                  <div
-                    key={membership.team.id}
-                    className="bg-neutral-800/70 border border-neutral-700/50 rounded-lg p-3"
-                  >
-                    <Link
-                      href={`/teams/${membership.team.id}`}
-                      className="flex items-center gap-2 mb-2 group"
-                    >
-                      <div className={`w-6 h-6 rounded bg-linear-to-br ${getTeamColor(membership.team.name)} flex items-center justify-center`}>
-                        <Users className="w-3 h-3 text-white" />
-                      </div>
-                      <span className="text-sm text-white group-hover:underline truncate">
-                        {membership.team.name}
-                      </span>
-                      <span className="text-xs text-neutral-600 ml-auto">
-                        {membership.role.toLowerCase()}
-                      </span>
-                    </Link>
-                    {membership.team.projects.length > 0 && (
-                      <div className="pl-8 space-y-1">
-                        {membership.team.projects.map(
-                          (project: { id: string; name: string }) => (
-                            <Link
-                              key={project.id}
-                              href={`/projects/${project.id}`}
-                              className="flex items-center gap-2 text-xs text-neutral-500 hover:text-neutral-300 transition-colors py-0.5"
-                            >
-                              <span className="text-neutral-600">→</span>
-                              <span className="truncate">{project.name}</span>
-                            </Link>
-                          )
-                        )}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-          </section>
+        {/* Sidebar Content */}
+        <div className="space-y-4 md:space-y-6">
+          <DashboardRecentActivity
+            recentActivity={recentActivity}
+            recentComments={recentComments}
+          />
 
-          {/* Recent Projects */}
-          <section className="bg-neutral-900/50 border border-neutral-700/50 rounded-xl p-4">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <FolderKanban className="w-4 h-4 text-neutral-500" />
-                <h2 className="text-sm font-medium text-white uppercase tracking-wider">
-                  Recent Projects
-                </h2>
-              </div>
-              <Link
-                href="/projects"
-                className="text-xs text-neutral-400 hover:text-white transition-colors"
-              >
-                View all →
-              </Link>
-            </div>
-            {recentProjects.length === 0 ? (
-              <div className="border border-dashed border-neutral-700 rounded-lg p-4 text-center">
-                <p className="text-neutral-400 text-sm mb-2">No projects yet</p>
-                <p className="text-xs text-neutral-500">
-                  Join a team to access projects
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                {recentProjects.map((project) => (
-                  <Link
-                    key={project.id}
-                    href={`/projects/${project.id}`}
-                    className="block p-3 rounded-lg bg-neutral-800/50 hover:bg-neutral-800 border border-transparent hover:border-neutral-700/50 transition-all group"
-                  >
-                    <div className="flex items-center gap-2 mb-1">
-                      <div className={`w-5 h-5 rounded bg-linear-to-br ${getProjectColor(project.name)} flex items-center justify-center`}>
-                        <Layers className="w-2.5 h-2.5 text-white" />
-                      </div>
-                      <span className="text-sm text-white truncate group-hover:text-violet-300 transition-colors">
-                        {project.name}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2 text-xs text-neutral-500 pl-7">
-                      <span className="truncate">{project.team.name}</span>
-                      <span>•</span>
-                      <span>{project._count.issues} issues</span>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            )}
-          </section>
-
-          {/* Quick Actions */}
-          <section className="bg-neutral-900/50 border border-neutral-700/50 rounded-xl p-4">
-            <h2 className="text-sm font-medium text-white uppercase tracking-wider mb-3">
-              Quick Actions
-            </h2>
-            <div className="space-y-1">
-              <Link
-                href="/projects"
-                className="group flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-neutral-300 hover:text-white hover:bg-neutral-800 transition-all duration-300"
-              >
-                <LayoutGrid
-                  className="w-4 h-4 transition-all duration-300 group-hover:text-violet-400 group-hover:drop-shadow-[0_0_8px_rgba(167,139,250,0.5)] group-hover:rotate-12"
-                  strokeWidth={1.5}
-                />
-                Browse Projects
-              </Link>
-              <Link
-                href="/teams"
-                className="group flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-neutral-300 hover:text-white hover:bg-neutral-800 transition-all duration-300"
-              >
-                <Users
-                  className="w-4 h-4 transition-all duration-300 group-hover:text-emerald-400 group-hover:drop-shadow-[0_0_8px_rgba(52,211,153,0.5)] group-hover:-rotate-6"
-                  strokeWidth={1.5}
-                />
-                Manage Teams
-              </Link>
-              <Link
-                href="/profile"
-                className="group flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-neutral-300 hover:text-white hover:bg-neutral-800 transition-all duration-300"
-              >
-                <Settings
-                  className="w-4 h-4 transition-all duration-300 group-hover:text-amber-400 group-hover:drop-shadow-[0_0_8px_rgba(251,191,36,0.5)] group-hover:rotate-90"
-                  strokeWidth={1.5}
-                />
-                Settings
-              </Link>
-            </div>
-          </section>
+          <DashboardSidebar teams={teams} recentProjects={recentProjects} />
         </div>
       </div>
     </div>
