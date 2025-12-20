@@ -71,7 +71,7 @@ export function PendingInvitations({ invitations }: PendingInvitationsProps) {
   }
 
   return (
-    <section className="bg-gradient-to-r from-purple-500/10 to-blue-500/10 border border-purple-500/20 rounded-xl p-4">
+    <section className="bg-linear-to-r from-purple-500/10 to-blue-500/10 border border-purple-500/20 rounded-xl p-4">
       <div className="flex items-center gap-2 mb-4">
         <div className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center">
           <UserPlus className="w-4 h-4 text-purple-400" />

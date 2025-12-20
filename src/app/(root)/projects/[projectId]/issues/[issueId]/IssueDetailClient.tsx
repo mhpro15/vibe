@@ -7,6 +7,7 @@ import {
 import { Badge } from "@/components/ui/Badge";
 import {
   SubtasksList,
+  AIFeatures,
   IssueHeader,
   IssueDescription,
   IssueSidebar,
@@ -250,6 +251,15 @@ export function IssueDetailClient({
             updateState={updateState}
           />
         </div>
+
+        {/* AI Features */}
+        <AIFeatures
+          issueId={issue.id}
+          descriptionLength={issue.description?.length || 0}
+          commentCount={issue.comments.length}
+          cachedSummary={issue.aiSummary}
+          cachedSuggestion={issue.aiSuggestion}
+        />
 
         {/* Subtasks */}
         <SubtasksList issueId={issue.id} subtasks={subtasks} />

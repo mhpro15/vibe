@@ -154,7 +154,7 @@ export function IssueHeader({
           </form>
         ) : (
           <div className="group flex items-start gap-2">
-            <h1 className="text-lg md:text-xl lg:text-2xl font-bold text-white break-words flex-1">
+            <h1 className="text-lg md:text-xl lg:text-2xl font-bold text-white wrap-break-word flex-1">
               {issue.title}
             </h1>
             <button

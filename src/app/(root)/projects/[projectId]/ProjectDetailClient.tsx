@@ -137,7 +137,7 @@ export function ProjectDetailClient({
 
   const [optimisticIssues, addOptimisticIssues] = useOptimistic(
     issues,
-    (state, update: { type: string; issueId: string; payload: any }) => {
+    (state, update: { type: string; issueId: string; payload: Partial<KanbanIssue> }) => {
       switch (update.type) {
         case "update_issue":
           return state.map((issue) =>
@@ -232,7 +232,7 @@ export function ProjectDetailClient({
                 {optimisticProject.name}
               </h1>
               {optimisticProject.isArchived && (
-                <Archive className="w-3.5 h-3.5 text-neutral-500 shrink-0" title="Archived" />
+                <Archive className="w-3.5 h-3.5 text-neutral-500 shrink-0" />
               )}
               <button
                 onClick={handleToggleFavorite}

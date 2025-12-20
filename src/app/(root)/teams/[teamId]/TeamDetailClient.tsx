@@ -227,7 +227,7 @@ export function TeamDetailClient({
               </div>
             ) : (
               <div className="flex items-center gap-2">
-                <h1 className="text-2xl font-bold text-white break-words">{team.name}</h1>
+                <h1 className="text-2xl font-bold text-white wrap-break-word">{team.name}</h1>
                 {canEdit && (
                   <button
                     onClick={() => setIsEditing(true)}
